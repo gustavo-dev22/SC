@@ -1,0 +1,75 @@
+<mat-sidenav-container class="sidenav-container">
+  
+  <mat-sidenav mode="side" opened class="sidenav">
+    <div class="brand-section">
+      <mat-icon class="brand-icon">school</mat-icon>
+      <div class="brand-text">
+        <span>CONVOCATORIAS</span>
+        <small>Ecosistema Digital</small>
+      </div>
+    </div>
+
+    <mat-nav-list class="menu-list">
+      
+      @for (item of menuItems(); track item.nombre) {
+        
+        @if (item.hijos) {
+          <div class="menu-group">
+            <div class="menu-group-title">
+              <mat-icon>{{ item.icono || 'folder' }}</mat-icon>
+              <span>{{ item.nombre }}</span>
+            </div>
+            
+            <div class="menu-group-children">
+              @for (sub of item.hijos; track sub.nombre) {
+                <a mat-list-item [routerLink]="['/' + sub.url]" routerLinkActive="active-link" class="submenu-item">
+                  <mat-icon matListItemIcon>{{ sub.icono || 'link' }}</mat-icon>
+                  <span matListItemTitle>{{ sub.nombre }}</span>
+                </a>
+              }
+            </div>
+          </div>
+        } @else {
+          @if (item.url !== '#') {
+            <a mat-list-item [routerLink]="['/' + item.url]" routerLinkActive="active-link" class="single-menu-item">
+              <mat-icon matListItemIcon>{{ item.icono || 'insert_drive_file' }}</mat-icon>
+              <span matListItemTitle>{{ item.nombre }}</span>
+            </a>
+          }
+        }
+
+      }
+    </mat-nav-list>
+  </mat-sidenav>
+
+  <mat-sidenav-content class="main-content">
+    
+    <mat-toolbar color="primary" class="toolbar">
+      <span class="system-title">Portal de Gestión Transaccional</span>
+      <div class="spacer"></div>
+      
+      <div class="user-profile-section">
+        <div class="user-info text-right">
+          <span class="user-name">{{ nombreUsuario() }}</span>
+          <span class="user-role">{{ rolUsuario() }}</span>
+        </div>
+        
+        <button mat-icon-button [matMenuTriggerFor]="profileMenu" aria-label="Menú de perfil">
+          <mat-icon class="avatar-icon">account_circle</mat-icon>
+        </button>
+        
+        <mat-menu #profileMenu="matMenu" xPosition="before">
+          <button mat-menu-item (click)="confirmarCerrarSesion()">
+            <mat-icon color="warn">logout</mat-icon>
+            <span>Cerrar Sesión</span>
+          </button>
+        </mat-menu>
+      </div>
+    </mat-toolbar>
+
+    <div class="page-container">
+      <router-outlet></router-outlet>
+    </div>
+
+  </mat-sidenav-content>
+</mat-sidenav-container>

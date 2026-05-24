@@ -1,0 +1,153 @@
+.sidenav-container {
+  min-height: 100vh;
+  height: 100vh;
+  display: flex;
+}
+
+.sidenav {
+  width: 280px;
+  background-color: #1a252f !important;
+  color: #ecf0f1;
+  border-right: none !important;
+}
+
+.brand-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px;
+  background-color: #111a22;
+  border-bottom: 1px solid #2c3e50;
+}
+
+.brand-icon {
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
+  color: #3498db;
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.brand-text span {
+  font-weight: bold;
+  font-size: 16px;
+  letter-spacing: 0.5px;
+}
+
+.brand-text small {
+  color: #bdc3c7;
+  font-size: 11px;
+}
+
+.menu-list {
+  padding-top: 10px !important;
+}
+
+.menu-group {
+  margin-bottom: 14px;
+}
+
+.menu-group-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px;
+  color: #7f8c8d;
+  font-size: 12px;
+  text-transform: uppercase;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+}
+
+.menu-group-title mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+.menu-group-children {
+  padding-left: 10px;
+}
+
+.submenu-item, .single-menu-item {
+  color: #bdc3c7 !important;
+  height: 44px !important;
+  margin: 2px 10px !important;
+  border-radius: 6px !important;
+  width: auto !important;
+}
+
+.submenu-item mat-icon, .single-menu-item mat-icon {
+  color: #bdc3c7 !important;
+}
+
+.active-link {
+  background-color: #3498db !important;
+  color: #ffffff !important;
+}
+
+.active-link mat-icon {
+  color: #ffffff !important;
+}
+
+.main-content {
+  display: flex;
+  flex-direction: column;
+  background-color: #f5f7fa;
+}
+
+.toolbar {
+  background-color: #ffffff !important;
+  color: #2c3e50 !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  justify-content: space-between;
+}
+
+.system-title {
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.user-profile-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.2;
+}
+
+.user-name {
+  font-size: 14px;
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+.user-role {
+  font-size: 12px;
+  color: #7f8c8d;
+}
+
+.avatar-icon {
+  font-size: 36px;
+  width: 36px;
+  height: 36px;
+  color: #1e3c72;
+}
+
+.page-container {
+  padding: 24px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.text-right {
+  text-align: right;
+}

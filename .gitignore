@@ -1,0 +1,17 @@
+# --- .NET (Visual Studio 2022) ---
+**/bin/
+**/obj/
+**/.vs/
+*.user
+appsettings.Development.json
+
+# --- Angular (VS Code) ---
+**/node_modules/
+**/dist/
+**/.angular/
+**/.vscode/
+npm-debug.log
+
+# --- Otros ---
+.DS_Store
+Thumbs.db
