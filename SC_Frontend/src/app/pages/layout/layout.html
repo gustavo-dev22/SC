@@ -10,32 +10,33 @@
     </div>
 
     <mat-nav-list class="menu-list">
-      
+  
       @for (item of menuItems(); track item.nombre) {
         
         @if (item.hijos) {
           <div class="menu-group">
             <div class="menu-group-title">
-              <mat-icon>{{ item.icono || 'folder' }}</mat-icon>
-              <span>{{ item.nombre }}</span>
+              <mat-icon class="menu-icon-color">{{ item.icono || 'folder' }}</mat-icon>
+              <span class="menu-title-text">{{ item.nombre }}</span>
             </div>
             
             <div class="menu-group-children">
               @for (sub of item.hijos; track sub.nombre) {
                 <a mat-list-item [routerLink]="['/' + sub.url]" routerLinkActive="active-link" class="submenu-item">
-                  <mat-icon matListItemIcon>{{ sub.icono || 'link' }}</mat-icon>
-                  <span matListItemTitle>{{ sub.nombre }}</span>
+                  <mat-icon matListItemIcon class="submenu-icon-color">{{ sub.icono || 'link' }}</mat-icon>
+                  <span matListItemTitle class="submenu-text-color">{{ sub.nombre }}</span>
                 </a>
               }
             </div>
           </div>
-        } @else {
-          @if (item.url !== '#') {
-            <a mat-list-item [routerLink]="['/' + item.url]" routerLinkActive="active-link" class="single-menu-item">
-              <mat-icon matListItemIcon>{{ item.icono || 'insert_drive_file' }}</mat-icon>
-              <span matListItemTitle>{{ item.nombre }}</span>
-            </a>
-          }
+        } 
+        @else {
+          <div class="menu-group-standalone">
+            <div class="menu-group-title">
+              <mat-icon class="menu-icon-color">{{ item.icono || 'insert_drive_file' }}</mat-icon>
+              <span class="menu-title-text">{{ item.nombre }}</span>
+            </div>
+          </div>
         }
 
       }

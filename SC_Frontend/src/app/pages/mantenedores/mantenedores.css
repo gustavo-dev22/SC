@@ -1,0 +1,43 @@
+.maestro-card {
+  padding: 16px;
+  border-radius: 8px !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05) !important;
+}
+.header-flex {
+  margin-bottom: 24px;
+}
+.selector-width {
+  width: 100%;
+  max-width: 400px;
+  margin-bottom: 20px;
+}
+.table-container {
+  border-radius: 6px;
+  overflow: hidden;
+  background-color: white;
+}
+table {
+  width: 100%;
+}
+.badge {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+}
+.bg-success { background-color: #e8f5e9; color: #2e7d32; }
+.bg-danger { background-color: #ffebee; color: #c62828; }
+.placeholder-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  color: #7f8c8d;
+}
+.placeholder-text mat-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 12px;
+}

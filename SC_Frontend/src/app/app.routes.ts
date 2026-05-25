@@ -14,11 +14,15 @@ export const routes: Routes = [
     {
         path: '',
         loadComponent: () => import('./pages/layout/layout').then(m => m.Layout),
-        canActivate: [authGuard], // Protege todas las rutas hijas automáticamente
+        canActivate: [authGuard],
         children: [
             {
                 path: 'dashboard',
                 loadComponent: () => import('./pages/dashboard/dashboard').then(m => m.Dashboard)
+            },
+            {
+                path: 'admin/mantenedores',
+                loadComponent: () => import('./pages/mantenedores/mantenedores').then(m => m.Mantenedores)
             }
         ]
     },

@@ -1,0 +1,27 @@
+<h2 mat-dialog-title>{{ tituloForm() }}</h2>
+<mat-dialog-content [formGroup]="maestroForm" style="display: flex; flex-direction: column; gap: 12px; min-width: 320px; padding-top: 8px;">
+  
+  <mat-form-field appearance="outline">
+    <mat-label>Código</mat-label>
+    <input matInput formControlName="codigoValor" placeholder="Ej: DNI">
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Descripción / Nombre</mat-label>
+    <input matInput formControlName="descripcion" placeholder="Ej: Documento Nac. Identidad">
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Orden de visualización</mat-label>
+    <input matInput type="number" formControlName="orden">
+  </mat-form-field>
+
+  @if (dataData.elemento) {
+    <mat-slide-toggle formControlName="activo" color="primary">Registro Activo</mat-slide-toggle>
+  }
+
+</mat-dialog-content>
+<mat-dialog-actions align="end" style="padding-bottom: 16px; padding-right: 16px;">
+  <button mat-button (click)="cancelar()">Cancelar</button>
+  <button mat-flat-button color="primary" [disabled]="maestroForm.invalid" (click)="guardar()">Guardar Cambios</button>
+</mat-dialog-actions>

@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -7,7 +6,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { Router } from '@angular/router';
-import { Auth } from '../../services/auth.service';
+import { AuthService } from '../../services/auth.service';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -20,7 +19,7 @@ export class Login {
 
   private fb = inject(FormBuilder);
   private router = inject(Router);
-  private _authService = inject(Auth);
+  private _authService = inject(AuthService);
 
   public ocultarContrasena = signal<boolean>(true);
   public cargando = signal<boolean>(false);

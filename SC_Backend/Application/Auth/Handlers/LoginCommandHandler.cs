@@ -58,6 +58,8 @@ namespace Application.Auth.Handlers
                     Rol = rolActivo?.NombreRol ?? "Usuario Interno",
                     Menus = rolActivo?.Objetos.Select(o => new MenuObjetoDto
                     {
+                        IdObjeto = o.IdObjeto,
+                        IdPadre = o.IdPadre,
                         Nombre = o.Nombre,
                         Tipo = o.Tipo,
                         Url = o.Url,

@@ -46,23 +46,16 @@ export class Layout implements OnInit {
   }
 
   private estructurarMenuSasi(flatMenus: any[]): any[] {
-    // Filtramos los elementos principales de tipo "Menu"
-    const principales = flatMenus.filter(m => m.tipo === 'Menu');
+    // 1. Filtramos los menús principales (los que tienen tipo 'Menu' o idPadre nulo)
+    const principales = flatMenus.filter(m => m.tipo === 'Menu' || m.idPadre === null);
     
-    // Filtramos los de tipo "Submenu"
-    const submenus = flatMenus.filter(m => m.tipo === 'Submenu');
+    // 2. Filtramos los submenús
+    const submenus = flatMenus.filter(m => m.tipo === 'Submenu' && m.idPadre !== null);
 
-    // Mapeamos cada menú principal y le asignamos sus hijos correspondientes
-    // En el JSON que nos diste, las URLs como "Admin/TiposDocumentos" se asocian lógicamente.
+    // 3. Relacionamos de forma matemática estricta por ID
     return principales.map(parent => {
-      // Como patrón de coincidencia estándar para SASI, buscamos si el submenú comparte la raíz de la URL o estructura
-      // Para hacerlo flexible, si SASI no te da un IdPadre explícito en este nodo, los agrupamos de forma predictiva:
-      const hijos = submenus.filter(sub => {
-        if (parent.nombre === 'Administración' && sub.url.startsWith('Admin/')) return true;
-        if (parent.nombre === 'Reportes' && sub.url.startsWith('Reporte/')) return true;
-        if (parent.nombre === 'Bandejas' && sub.url.startsWith('Bandeja/')) return true;
-        return false;
-      });
+      // Buscamos todos los submenús cuyo idPadre coincida exactamente con el idObjeto de este menú
+      const hijos = submenus.filter(sub => sub.idPadre === parent.idObjeto);
 
       return {
         ...parent,

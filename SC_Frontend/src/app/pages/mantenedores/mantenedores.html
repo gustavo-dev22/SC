@@ -1,0 +1,79 @@
+<mat-card class="maestro-card">
+  <mat-card-header class="header-flex">
+    <mat-card-title>Catálogos y Maestros del Sistema</mat-card-title>
+    <mat-card-subtitle>Gestión unificada de parámetros de convocatorias</mat-card-subtitle>
+  </mat-card-header>
+
+  <mat-card-content class="content-padding">
+    <mat-form-field appearance="outline" class="selector-width">
+      <mat-label>Seleccione el Catálogo a Gestionar</mat-label>
+      <mat-select (selectionChange)="cambiarSeleccion($event.value)">
+        @for (cat of catalogosDisponibles(); track cat.id) {
+          <mat-option [value]="cat.id">{{ cat.nombre }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <div style="display: flex; justify-content: flex-end; margin-bottom: 12px;">
+        <button mat-flat-button color="primary" (click)="abrirFormularioModal()">
+            <mat-icon>add</mat-icon> AGREGAR NUEVO REGISTRO
+        </button>
+    </div>
+
+    @if (idCatalogoSeleccionado()) {
+      <div class="table-container mat-elevation-z2">
+        <table mat-table [dataSource]="registrosTabla()">
+          
+          <ng-container matColumnDef="id">
+            <th mat-header-cell *matHeaderCellDef> ID </th>
+            <td mat-cell *matCellDef="let element"> {{element.idValor}} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="codigo">
+            <th mat-header-cell *matHeaderCellDef> Código </th>
+            <td mat-cell *matCellDef="let element"> {{element.codigoValor}} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="descripcion">
+            <th mat-header-cell *matHeaderCellDef> Descripción </th>
+            <td mat-cell *matCellDef="let element"> {{element.descripcion}} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="orden">
+            <th mat-header-cell *matHeaderCellDef> Orden </th>
+            <td mat-cell *matCellDef="let element"> {{element.orden}} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="estado">
+            <th mat-header-cell *matHeaderCellDef> Estado </th>
+            <td mat-cell *matCellDef="let element">
+              <span class="badge" [ngClass]="element.activo ? 'bg-success' : 'bg-danger'">
+                {{ element.activo ? 'Activo' : 'Inactivo' }}
+              </span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="acciones">
+            <th mat-header-cell *matHeaderCellDef> Acciones </th>
+            <td mat-cell *matCellDef="let element">
+              <button mat-icon-button color="primary" (click)="abrirFormularioModal(element)" aria-label="Editar">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button mat-icon-button color="warn" (click)="eliminarLogico(element)" aria-label="Eliminar">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="tablaColumnas"></tr>
+          <tr mat-row *matRowDef="let row; columns: tablaColumnas;"></tr>
+        </table>
+      </div>
+    } @else {
+      <div class="placeholder-text">
+        <mat-icon>info</mat-icon>
+        <p>Por favor, seleccione un catálogo del menú desplegable para visualizar y gestionar sus registros.</p>
+      </div>
+    }
+  </mat-card-content>
+</mat-card>

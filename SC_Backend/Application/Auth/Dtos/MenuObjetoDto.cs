@@ -8,6 +8,8 @@ namespace Application.Auth.Dto
 {
     public class MenuObjetoDto
     {
+        public int IdObjeto { get; set; }
+        public int? IdPadre { get; set; }
         public string Nombre { get; set; } = string.Empty;
         public string Tipo { get; set; } = string.Empty;
         public string Url { get; set; } = string.Empty;
