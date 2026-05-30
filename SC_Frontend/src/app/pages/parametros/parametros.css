@@ -1,0 +1,46 @@
+/* NUEVO: Contenedor para alinear título y botón universal superior */
+.header-actions-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+  margin-bottom: 24px;
+}
+
+/* CORREGIDO: Grilla adaptativa senior forzada a un máximo de 3 columnas */
+.config-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(32%, 1fr)); /* Forzado a 3 columnas reales */
+  gap: 24px;
+  width: 100%;
+}
+
+/* Ajustes finos a la tarjeta para que respire el texto */
+.config-card {
+  border-radius: 12px !important;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02) !important;
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  padding: 8px; /* Un poco más de aire interno */
+}
+
+/* Botón flotante superior de registro */
+.btn-nuevo-parametro {
+  height: 44px;
+  border-radius: 8px !important;
+  font-weight: 600;
+}
+
+/* NUEVO: Botón de eliminación en la esquina superior de la tarjeta */
+.delete-param-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  color: #94a3b8;
+  transition: color 0.2s;
+}
+.delete-param-btn:hover {
+  color: #dc2626 !important;
+}

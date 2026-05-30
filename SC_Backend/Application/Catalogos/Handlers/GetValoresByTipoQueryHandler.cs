@@ -17,7 +17,7 @@ namespace Application.Catalogos.Handlers
 
         public async Task<List<CatalogoValorDto>> Handle(GetValoresByTipoQuery request, CancellationToken cancellationToken)
         {
-            return await _queryService.ObtenerValoresByTipoAsync(request.IdTipo);
+            return await _queryService.ObtenerValoresByTipoAsync(request.IdTipo, request.PageNumber, request.PageSize);
         }
     }
 }

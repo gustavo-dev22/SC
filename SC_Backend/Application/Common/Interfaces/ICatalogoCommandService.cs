@@ -10,5 +10,6 @@ namespace Application.Common.Interfaces
     public interface ICatalogoCommandService
     {
         Task<bool> ProcesarMantenimientoAsync(CatalogoCommand command);
+        Task<bool> ProcesarMantenimientoTipoAsync(TipoCommand command);
     }
 }

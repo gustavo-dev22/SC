@@ -1,0 +1,15 @@
+<h2 mat-dialog-title>Crear Nuevo Eje de Catálogo</h2>
+<mat-dialog-content [formGroup]="tipoForm" style="display: flex; flex-direction: column; gap: 12px; min-width: 320px; padding-top: 8px;">
+  <mat-form-field appearance="outline">
+    <mat-label>Código de Sistema (Mayúsculas sin espacios)</mat-label>
+    <input matInput formControlName="codigo" placeholder="Ej: TIPO_LICENCIA" style="text-transform: uppercase;">
+  </mat-form-field>
+  <mat-form-field appearance="outline">
+    <mat-label>Nombre del Catálogo</mat-label>
+    <input matInput formControlName="nombre" placeholder="Ej: Licencias de Conducir">
+  </mat-form-field>
+</mat-dialog-content>
+<mat-dialog-actions align="end" style="padding-bottom: 16px; padding-right: 16px;">
+  <button mat-button (click)="cancelar()">Cancelar</button>
+  <button mat-flat-button color="primary" [disabled]="tipoForm.invalid" (click)="guardar()">Crear Catálogo</button>
+</mat-dialog-actions>

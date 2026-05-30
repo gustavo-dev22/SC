@@ -9,6 +9,7 @@ namespace Application.Common.Interfaces
 {
     public interface ICatalogoQueryService
     {
-        Task<List<CatalogoValorDto>> ObtenerValoresByTipoAsync(int idTipo);
+        Task<List<CatalogoValorDto>> ObtenerValoresByTipoAsync(int idTipo, int pageNumber, int pageSize);
+        Task<List<CatalogoTipoDto>> ObtenerTiposActivosAsync();
     }
 }

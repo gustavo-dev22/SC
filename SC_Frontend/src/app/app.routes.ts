@@ -23,6 +23,10 @@ export const routes: Routes = [
             {
                 path: 'admin/mantenedores',
                 loadComponent: () => import('./pages/mantenedores/mantenedores').then(m => m.Mantenedores)
+            },
+            {
+                path: 'admin/config-sistema',
+                loadComponent: () => import('./pages/parametros/parametros').then(m => m.Parametros)
             }
         ]
     },

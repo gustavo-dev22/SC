@@ -1,0 +1,27 @@
+<h2 mat-dialog-title>{{ isEdicion ? 'Modificar Parámetro' : 'Nuevo Parámetro Global' }}</h2>
+<mat-dialog-content [formGroup]="paramForm" style="display: flex; flex-direction: column; gap: 12px; min-width: 360px; padding-top: 8px;">
+  <mat-form-field appearance="outline">
+    <mat-label>Key / Código (Mayúsculas sin espacios)</mat-label>
+    <input matInput formControlName="codigo" placeholder="Ej: DIAS_VIGENCIA_TOKEN" style="text-transform: uppercase;">
+  </mat-form-field>
+  <mat-form-field appearance="outline">
+    <mat-label>Nombre descriptivo</mat-label>
+    <input matInput formControlName="nombre" placeholder="Ej: Días de vigencia del token">
+  </mat-form-field>
+  <mat-form-field appearance="outline">
+    <mat-label>Categoría</mat-label>
+    <input matInput formControlName="categoria" placeholder="Ej: SISTEMA o CONCURSO" style="text-transform: uppercase;">
+  </mat-form-field>
+  <mat-form-field appearance="outline">
+    <mat-label>Valor de Configuración</mat-label>
+    <input matInput formControlName="valor" placeholder="Ej: 7">
+  </mat-form-field>
+  <mat-form-field appearance="outline">
+    <mat-label>Descripción técnica de la regla</mat-label>
+    <textarea matInput formControlName="descripcion" rows="2" placeholder="Explique qué bloquea o altera esta variable..."></textarea>
+  </mat-form-field>
+</mat-dialog-content>
+<mat-dialog-actions align="end" style="padding-bottom: 16px; padding-right: 16px;">
+  <button mat-button (click)="cancelar()">Cancelar</button>
+  <button mat-flat-button color="primary" [disabled]="paramForm.invalid" (click)="guardar()">Confirmar</button>
+</mat-dialog-actions>

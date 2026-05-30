@@ -14,20 +14,24 @@ namespace Infrastructure.Services
             _dbConnectionFactory = dbConnectionFactory;
         }
 
-        public async Task<List<CatalogoValorDto>> ObtenerValoresByTipoAsync(int idTipo)
+        public async Task<List<CatalogoValorDto>> ObtenerValoresByTipoAsync(int idTipo, int pageNumber, int pageSize)
         {
             using IDbConnection connection = _dbConnectionFactory.CreateConnection();
 
-            const string storedProcedure = "sp_CatalogoValor_ListarByTipo";
-            var parameters = new { IdTipo = idTipo };
-
-            var result = await connection.QueryAsync<CatalogoValorDto>(
-                storedProcedure,
-                parameters,
+            return (await connection.QueryAsync<CatalogoValorDto>(
+                "sp_CatalogoValor_ListarByTipo",
+                new { IdTipo = idTipo, PageNumber = pageNumber, PageSize = pageSize },
                 commandType: CommandType.StoredProcedure
-            );
+            )).ToList();
+        }
 
-            return result.ToList();
+        public async Task<List<CatalogoTipoDto>> ObtenerTiposActivosAsync()
+        {
+            using IDbConnection connection = _dbConnectionFactory.CreateConnection();
+            return (await connection.QueryAsync<CatalogoTipoDto>(
+                "sp_CatalogoTipo_ListarActivos",
+                commandType: CommandType.StoredProcedure
+            )).ToList();
         }
     }
 }

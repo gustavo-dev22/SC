@@ -8,5 +8,5 @@ using System.Threading.Tasks;
 
 namespace Application.Catalogos.Queries
 {
-    public record GetValoresByTipoQuery(int IdTipo) : IRequest<List<CatalogoValorDto>>;
+    public record GetValoresByTipoQuery(int IdTipo, int PageNumber, int PageSize) : IRequest<List<CatalogoValorDto>>;
 }

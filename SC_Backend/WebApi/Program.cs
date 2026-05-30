@@ -17,9 +17,12 @@ builder.Services.AddHttpClient();
 
 builder.Services.AddScoped<ICatalogoQueryService, CatalogoQueryService>();
 builder.Services.AddScoped<ICatalogoCommandService, CatalogoCommandService>();
+builder.Services.AddScoped<IParametroQueryService, ParametroQueryService>();
+builder.Services.AddScoped<IParametroCommandService, ParametroCommandService>();
 
 builder.Services.AddScoped<IDbConnectionFactory, DbConnectionFactory>();
-builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(Application.Common.Interfaces.IDbConnectionFactory).Assembly));
+
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(IDbConnectionFactory).Assembly));
 
 builder.Services.AddCors(options =>
 {

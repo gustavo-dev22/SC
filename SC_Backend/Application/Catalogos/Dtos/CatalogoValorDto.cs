@@ -14,5 +14,6 @@ namespace Application.Catalogos.Dtos
         public string Descripcion { get; set; } = string.Empty;
         public int Orden { get; set; }
         public bool Activo { get; set; }
+        public int TotalRegistros { get; set; }
     }
 }

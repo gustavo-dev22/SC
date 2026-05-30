@@ -1,0 +1,59 @@
+@if (cargando()) {
+  <div class="overlay-spinner">
+    <mat-spinner diameter="60" color="primary"></mat-spinner>
+    <p>Actualizando políticas del sistema transaccional...</p>
+  </div>
+}
+
+<div class="header-actions-wrapper">
+  <div class="title-block">
+    <h1>Parámetros Globales de Configuración</h1>
+    <p>Auditoría y control de variables de entorno, límites de carga y plazos del concurso.</p>
+  </div>
+  <button mat-flat-button color="primary" class="btn-nuevo-parametro" (click)="abrirModal(null)">
+    <mat-icon>add</mat-icon> NUEVO PARÁMETRO
+  </button>
+</div>
+
+<div class="config-grid">
+  @for (param of parametrosOriginales(); track param.codigo) {
+    
+    <mat-card class="config-card" style="position: relative;">
+      
+      <button mat-icon-button class="delete-param-btn" (click)="eliminarParametro(param)" matTooltip="Eliminar regla">
+        <mat-icon style="font-size: 20px;">delete</mat-icon>
+      </button>
+
+      <mat-card-header style="padding-right: 32px;">
+        <div class="card-icon-wrapper">
+          <mat-icon>{{ param.codigo.includes('CORREO') ? 'mail' : param.codigo.includes('FLAG') ? 'toggle_on' : 'tune' }}</mat-icon>
+        </div>
+        <mat-card-title>{{ param.nombre }}</mat-card-title>
+        <mat-card-subtitle><span class="badge-category">{{ param.categoria }}</span></mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content class="config-content">
+        <p class="config-description">{{ param.descripcion }}</p>
+        <span class="code-key-label">Key: {{ param.codigo }}</span>
+
+        <div class="action-row">
+          @if (param.codigo.startsWith('FLAG_')) {
+            <mat-slide-toggle [checked]="param.valor === '1'" 
+                              (change)="guardarCambioRapido(param.codigo, $event.checked ? '1' : '0')"
+                              color="primary">
+              {{ param.valor === '1' ? 'Habilitado' : 'Deshabilitado' }}
+            </mat-slide-toggle>
+          } @else {
+            <div style="display: flex; width: 100%; justify-content: space-between; align-items: center;">
+              <span style="font-size: 15px; font-weight: 700; color: #1e293b;">Valor: <code style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px;">{{ param.valor }}</code></span>
+              <button mat-stroked-button color="primary" size="small" (click)="abrirModal(param)">
+                <mat-icon>edit</mat-icon> Gestionar
+              </button>
+            </div>
+          }
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+  }
+</div>
