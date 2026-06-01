@@ -1,0 +1,107 @@
+/* Cabecera del Modal */
+.modal-academic-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 20px;
+  font-weight: 700;
+  color: #1e293b;
+  padding: 20px 24px 10px 24px !important;
+}
+.modal-academic-title mat-icon {
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+}
+
+/* Contenedor del Formulario */
+.modal-academic-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100% !important;        /* 🚀 Toma el ancho total que le asigne el Dialog Config */
+  max-width: 100%;
+  padding: 12px 24px !important;
+  box-sizing: border-box;
+  overflow-x: hidden !important; /* 🚀 ELIMINA DEFINITIVAMENTE EL SCROLL HORIZONTAL */
+}
+
+/* Forzar ancho estándar en controles Material */
+.full-width-field {
+  width: 100% !important;
+}
+
+/* Distribución horizontal de combos superiores */
+.form-row-two {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px; /* Separación simétrica entre combos */
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Caja contenedora de Periodos */
+.period-container-box {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-top: 8px;
+  box-sizing: border-box;
+}
+
+.full-width-field, 
+.form-row-two, 
+.period-container-box {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box;
+}
+
+.period-sub-block {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.period-label-header {
+  font-size: 11px;
+  font-weight: 800;
+  color: #475569;
+  letter-spacing: 0.5px;
+}
+
+/* Grilla interna de Mes y Año alineados */
+.period-inputs-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* 🚀 50% para el mes y 50% para el año, simetría perfecta */
+  gap: 12px;
+}
+
+/* Ajustes de micro-espaciados para inputs dentro de periodos */
+::ng-deep .compact-field .mat-mdc-form-field-subscript-wrapper {
+  display: none !important; /* Oculta el espacio vacío inferior de validación para compactar el recuadro */
+}
+
+/* Footer de Botones */
+.modal-academic-actions {
+  padding: 16px 24px 20px 24px !important;
+  gap: 12px;
+}
+
+.btn-modal-cancel {
+  height: 40px;
+  font-weight: 600;
+  color: #64748b !important;
+  border-radius: 8px !important;
+}
+
+.btn-modal-confirm {
+  height: 40px;
+  font-weight: 600;
+  border-radius: 8px !important;
+  padding: 0 16px !important;
+}

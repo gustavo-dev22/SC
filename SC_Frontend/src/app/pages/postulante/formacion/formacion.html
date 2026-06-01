@@ -1,0 +1,32 @@
+<div class="dashboard-header-context">
+  <div class="title-block">
+    <h1>Formación Académica</h1>
+    <p>Registre sus grados, títulos y estudios superiores validados.</p>
+  </div>
+  <button mat-flat-button color="primary" (click)="abrirModal(null)"><mat-icon>add</mat-icon> AGREGAR ESTUDIO</button>
+</div>
+
+<div class="cards-timeline">
+  @if (listaFormacion().length === 0) {
+    <div style="text-align: center; color: #94a3b8; padding: 40px; border: 2px dashed #cbd5e1; border-radius: 12px; width: 100%;">
+      <mat-icon style="font-size: 48px; width:48px; height:48px;">school</mat-icon>
+      <p>Aún no ha registrado ningún grado académico. Presione el botón superior para empezar.</p>
+    </div>
+  }
+
+  @for (item of listaFormacion(); track item.idFormacion) {
+    <div class="academic-card">
+      <div class="academic-badge">{{ item.nivelClasificacion }}</div>
+      <div class="academic-body">
+        <h3>{{ item.carrera }}</h3>
+        <p class="inst">{{ item.institucion }}</p>
+        <p class="status">Estado: <strong>{{ item.estadoActual }}</strong></p>
+        <p class="period">Periodo: {{ item.anioInicio }} - {{ item.anioFin || 'Actualidad' }}</p>
+      </div>
+      <div class="academic-actions">
+        <button mat-icon-button color="primary" (click)="abrirModal(item)"><mat-icon>edit</mat-icon></button>
+        <button mat-icon-button color="warn" (click)="eliminar(item.idFormacion)"><mat-icon>delete</mat-icon></button>
+      </div>
+    </div>
+  }
+</div>

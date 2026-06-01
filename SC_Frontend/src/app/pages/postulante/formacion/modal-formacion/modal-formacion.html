@@ -1,0 +1,113 @@
+<h2 mat-dialog-title class="modal-academic-title">
+  <mat-icon color="primary">school</mat-icon>
+  <span>{{ isEdicion ? 'Editar Registro Académico' : 'Agregar Formación Académica' }}</span>
+</h2>
+
+<mat-dialog-content [formGroup]="formForm" class="modal-academic-content">
+  
+  <!-- Fila 1: Clasificaciones principales distribuidas -->
+  <div class="form-row-two">
+    <mat-form-field appearance="outline" class="full-width-field">
+      <mat-label>Nivel de Estudio</mat-label>
+      <mat-select formControlName="idNivelCat">
+        <mat-option value="">-- Seleccione --</mat-option>
+        @for (item of listaNiveles(); track item.idValor) { 
+          <mat-option [value]="item.idValor">{{item.descripcion}}</mat-option> 
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width-field">
+      <mat-label>Estado Actual</mat-label>
+      <mat-select formControlName="idEstadoCat">
+        <mat-option value="">-- Seleccione --</mat-option>
+        @for (item of listaEstados(); track item.idValor) { 
+          <mat-option [value]="item.idValor">{{item.descripcion}}</mat-option> 
+        }
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <!-- Fila 2: Institución -->
+  <mat-form-field appearance="outline" class="full-width-field">
+    <mat-label>Centro de Estudios / Universidad</mat-label>
+    <mat-icon matPrefix style="color: #64748b; margin-right: 8px;">account_balance</mat-icon>
+    
+    <input matInput 
+          formControlName="institucion" 
+          placeholder="Escriba para buscar su centro de estudios..." 
+          [matAutocomplete]="autoCentro">
+          
+    <mat-autocomplete #autoCentro="matAutocomplete">
+      @if (cargandoCentros()) {
+        <mat-option disabled>Buscando instituciones oficiales...</mat-option>
+      }
+      
+      @for (centro of centrosEstudiosFiltrados(); track centro.nombre) {
+        <mat-option [value]="centro.nombre" style="height: 52px; display: flex; align-items: center;">
+          <div style="display: flex; justify-content: space-between; width: 100%; align-items: center; gap: 12px;">
+            <span style="font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+              {{ centro.nombre }}
+            </span>
+            <span [style.background]="centro.tipoProvider === 'UNIVERSIDAD' ? '#eff6ff' : '#f0fdf4'"
+                  [style.color]="centro.tipoProvider === 'UNIVERSIDAD' ? '#2563eb' : '#16a34a'"
+                  style="font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 4px; letter-spacing: 0.3px;">
+              {{ centro.tipoProvider }}
+            </span>
+          </div>
+        </mat-option>
+      }
+    </mat-autocomplete>
+  </mat-form-field>
+
+  <!-- Fila 3: Especialidad -->
+  <mat-form-field appearance="outline" class="full-width-field">
+    <mat-label>Carrera / Especialidad / Grado</mat-label>
+    <mat-icon matPrefix style="color: #64748b; margin-right: 8px;">workspace_premium</mat-icon>
+    <input matInput formControlName="carrera" placeholder="Ej: Ingeniería de Sistemas">
+  </mat-form-field>
+
+  <!-- Fila 4: Panel Técnico de Periodos Sincronizados -->
+  <div class="period-container-box">
+    
+    <!-- Bloque Inicio -->
+    <div class="period-sub-block">
+      <span class="period-label-header">PERIODO INICIO</span>
+      <div class="period-inputs-grid">
+        <mat-form-field appearance="outline" class="compact-field">
+          <mat-select formControlName="mesInicio" placeholder="Mes">
+            @for (m of meses; track m.id) { <mat-option [value]="m.id">{{m.name}}</mat-option> }
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="compact-field">
+          <input matInput type="number" formControlName="anioInicio" placeholder="Año (Ej: 2018)">
+        </mat-form-field>
+      </div>
+    </div>
+
+    <!-- Bloque Término -->
+    <div class="period-sub-block">
+      <span class="period-label-header">PERIODO TÉRMINO</span>
+      <div class="period-inputs-grid">
+        <mat-form-field appearance="outline" class="compact-field">
+          <mat-select formControlName="mesFin" placeholder="Mes (Opcional)">
+            <mat-option [value]="null">-- Sigue Cursando --</mat-option>
+            @for (m of meses; track m.id) { <mat-option [value]="m.id">{{m.name}}</mat-option> }
+          </mat-select>
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="compact-field">
+          <input matInput type="number" formControlName="anioFin" placeholder="Año">
+        </mat-form-field>
+      </div>
+    </div>
+
+  </div>
+
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="modal-academic-actions">
+  <button mat-button class="btn-modal-cancel" (click)="cancelar()">Cancelar</button>
+  <button mat-flat-button color="primary" class="btn-modal-confirm" [disabled]="formForm.invalid" (click)="guardar()">
+    <mat-icon>check_circle</mat-icon> Confirmar Registro
+  </button>
+</mat-dialog-actions>

@@ -1,1 +1,13 @@
-/* You can add global styles to this file, and also import other style files */
+/* ==========================================================================
+   ESTILO GLOBAL PARA DOMAR EL ANCHO DEL MODAL DE FORMACIÓN ACADÉMICA
+   ========================================================================== */
+.custom-academic-dialog-panel {
+  width: 900px !important;   
+  max-width: 95vw !important; 
+}
+
+.custom-academic-dialog-panel .mat-mdc-dialog-container {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box;
+}

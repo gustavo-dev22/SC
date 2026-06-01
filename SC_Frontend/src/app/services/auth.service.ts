@@ -1,14 +1,12 @@
-import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { environment } from '../../environments/environment';
+import { CrudHttpService } from '../core/services/crud-http.service';
 import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  private http = inject(HttpClient);
-  private baseUrl = environment.apiUrl;
+  private crudHttp = inject(CrudHttpService);
 
   login(usuario: string, contrasena: string, esExterno: boolean): Observable<any> {
     const payload = {
@@ -16,7 +14,11 @@ export class AuthService {
       password: contrasena,
       isExternal: esExterno
     };
-    // Petición directa a nuestro backend unificado
-    return this.http.post<any>(`${this.baseUrl}/Auth/login`, payload);
+
+    return this.crudHttp.post<any>('Auth/login', payload);
+  }
+
+  registrarPostulante(payload: any): Observable<any> {
+    return this.crudHttp.post<any>('public/auth/registro', payload);
   }
 }

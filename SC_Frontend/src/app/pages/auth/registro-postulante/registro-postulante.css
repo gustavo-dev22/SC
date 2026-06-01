@@ -1,0 +1,106 @@
+.register-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+.register-card {
+  width: 100%;
+  max-width: 480px; /* Ancho balanceado y óptimo para lectura visual */
+  border-radius: 16px !important;
+  background: white;
+  border: 1px solid #e2e8f0;
+}
+
+.register-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding-top: 24px;
+}
+
+.icon-badge {
+  background-color: #eff6ff;
+  color: #2563eb;
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+.icon-badge mat-icon {
+  font-size: 26px;
+  width: 26px;
+  height: 26px;
+}
+
+mat-card-title {
+  font-size: 20px !important;
+  font-weight: 700 !important;
+  color: #1e293b;
+}
+
+mat-card-subtitle {
+  font-size: 13px !important;
+  color: #64748b;
+  margin-top: 4px;
+  max-width: 340px;
+}
+
+.content-box {
+  padding: 24px 16px 16px 16px !important;
+}
+
+.form-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+/* Distribución de apellidos en dos columnas */
+.row-two-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  width: 100%;
+}
+
+.actions-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.btn-register {
+  width: 100%;
+  height: 48px;
+  border-radius: 8px !important;
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 0.5px;
+}
+
+.back-to-login-link {
+  font-size: 13px;
+  color: #475569;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+.back-to-login-link:hover {
+  color: #2563eb;
+  text-decoration: underline;
+}

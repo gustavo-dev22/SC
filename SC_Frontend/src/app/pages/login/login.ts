@@ -5,13 +5,13 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-login',
-  imports: [ReactiveFormsModule, MatCardModule, MatIconModule, FormsModule, MatFormFieldModule, MatInputModule, MatButtonModule],
+  imports: [ReactiveFormsModule, MatCardModule, MatIconModule, FormsModule, MatFormFieldModule, MatInputModule, MatButtonModule, RouterModule],
   templateUrl: './login.html',
   styleUrl: './login.css',
 })
@@ -26,8 +26,19 @@ export class Login {
   public errorLogin = signal<string | null>(null);
   public esExterno = signal<boolean>(false);
 
-  setTipoUsuario(val: boolean): void {
-    this.esExterno.set(val);
+  setTipoUsuario(esCiudadano: boolean): void {
+    this.esExterno.set(esCiudadano);
+    this.errorLogin.set(null);
+    
+    this.loginForm.reset({ usuario: '', contrasena: '' });
+    
+    const usuarioControl = this.loginForm.get('usuario');
+    if (esCiudadano) {
+      usuarioControl?.setValidators([Validators.required, Validators.minLength(8), Validators.maxLength(12)]);
+    } else {
+      usuarioControl?.setValidators([Validators.required, Validators.minLength(4)]);
+    }
+    usuarioControl?.updateValueAndValidity();
   }
 
   public loginForm: FormGroup = this.fb.group({
@@ -35,7 +46,6 @@ export class Login {
     contrasena: ['', [Validators.required, Validators.minLength(6)]]
   });
 
-  // Alternar visibilidad de contraseña mutando el Signal
   togglePassword(): void {
     this.ocultarContrasena.update(prev => !prev);
   }
@@ -54,23 +64,21 @@ export class Login {
     this._authService.login(usuario, contrasena, this.esExterno()).subscribe({
       next: (res) => {
         if (res.success) {
-          // Almacenamos el token corporativo y la estructura unificada de menús
           sessionStorage.setItem('token', res.data.token);
           sessionStorage.setItem('user_profile', JSON.stringify(res.data));
           
           // ALERTA PREMIUM DE ÉXITO
           Swal.fire({
             title: '¡Acceso Concedido!',
-            text: res.message, // "Autenticación concedida con éxito."
+            text: res.message, 
             icon: 'success',
             timer: 2000,
             showConfirmButton: false,
-            heightAuto: false, // Evita parpadeos con Angular Material
+            heightAuto: false, 
             background: '#ffffff',
             iconColor: '#2a5298'
           }).then(() => {
             this.cargando.set(false);
-            // Redirección directa al Dashboard asimilando los cambios en el DOM
             this.router.navigate(['/dashboard']);
           });
         } else {
@@ -81,14 +89,12 @@ export class Login {
       error: (err) => {
         this.cargando.set(false);
         
-        // Si el backend responde un BadRequest(400), el JSON viaja dentro de err.error
         const mensajeError = err.error?.message || 'Error de conexión con el servidor de seguridad.';
         this.errorLogin.set(mensajeError);
 
-        // ALERTA PREMIUM DE ERROR GLOBAL
         Swal.fire({
           title: 'Error de Autenticación',
-          text: mensajeError, // "Usuario, contraseña o rol de acceso incorrecto."
+          text: mensajeError, 
           icon: 'error',
           allowEscapeKey: false,
           allowOutsideClick: false,

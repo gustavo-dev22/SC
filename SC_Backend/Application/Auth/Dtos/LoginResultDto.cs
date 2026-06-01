@@ -13,5 +13,7 @@ namespace Application.Auth.Dto
         public string NombreCompleto { get; set; } = string.Empty;
         public string Rol { get; set; } = string.Empty;
         public List<MenuObjetoDto> Menus { get; set; } = new();
+
+        public string MensajeError { get; set; } = string.Empty;
     }
 }

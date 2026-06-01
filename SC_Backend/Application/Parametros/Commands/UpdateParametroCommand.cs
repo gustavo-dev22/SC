@@ -7,5 +7,12 @@ using MediatR;
 
 namespace Application.Parametros.Commands
 {
-    public record UpdateParametroCommand(string Codigo, string Valor) : IRequest<bool>;
+    public record MantenimientoParametroCommand(
+        string Accion,
+        string Codigo,
+        string Nombre,
+        string Valor,
+        string Descripcion,
+        string Categoria
+    ) : IRequest<bool>;
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Application.Parametros.Commands;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,6 @@ namespace Application.Common.Interfaces
 {
     public interface IParametroCommandService
     {
-        Task<bool> ActualizarParametroAsync(string codigo, string valor);
+        Task<bool> ProcesarMantenimientoAsync(MantenimientoParametroCommand command);
     }
 }

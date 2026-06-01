@@ -19,6 +19,10 @@ builder.Services.AddScoped<ICatalogoQueryService, CatalogoQueryService>();
 builder.Services.AddScoped<ICatalogoCommandService, CatalogoCommandService>();
 builder.Services.AddScoped<IParametroQueryService, ParametroQueryService>();
 builder.Services.AddScoped<IParametroCommandService, ParametroCommandService>();
+builder.Services.AddScoped<IPostulanteCommandService, PostulanteCommandService>();
+builder.Services.AddScoped<IPostulanteQueryService, PostulanteQueryService>();
+builder.Services.AddScoped<IPostulanteQueryService, PostulanteQueryService>();
+builder.Services.AddScoped<IPostulanteCommandService, PostulanteCommandService>();
 
 builder.Services.AddScoped<IDbConnectionFactory, DbConnectionFactory>();
 

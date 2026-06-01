@@ -33,5 +33,39 @@ namespace Infrastructure.Services
                 commandType: CommandType.StoredProcedure
             )).ToList();
         }
+
+        public async Task<List<CatalogoValorDto>> ListarValoresByCodigoTipoAsync(string codigoTipo)
+        {
+            using IDbConnection connection = _dbConnectionFactory.CreateConnection();
+
+            var resultado = await connection.QueryAsync<CatalogoValorDto>(
+                "sp_CatalogoValor_ListarByCodigoTipo",
+                new { CodigoTipo = codigoTipo },
+                commandType: CommandType.StoredProcedure
+            );
+
+            return resultado.ToList();
+        }
+
+        public async Task<List<CentroEstudioDto>> ListarInstitutosPredictivoAsync(string filtro)
+        {
+            using IDbConnection connection = _dbConnectionFactory.CreateConnection();
+
+            var parametros = new { TextoBusqueda = filtro };
+
+            var dbResult = await connection.QueryAsync<DapperPredictivoResult>(
+                "sp_Institutos_ListarPredictivo",
+                parametros,
+                commandType: CommandType.StoredProcedure
+            );
+
+            return dbResult.Select(i => new CentroEstudioDto
+            {
+                Nombre = i.Descripcion.ToUpper(),
+                TipoProvider = "INSTITUTO"
+            }).ToList();
+        }
+
+        private class DapperPredictivoResult { public int Id { get; set; } public string Descripcion { get; set; } = string.Empty; }
     }
 }

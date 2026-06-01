@@ -1,25 +1,35 @@
-﻿using System;
+﻿using Application.Common.Interfaces;
+using Application.Parametros.Commands;
+using Dapper;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Application.Common.Interfaces;
-using Dapper;
 
 namespace Infrastructure.Services
 {
     public class ParametroCommandService : IParametroCommandService
     {
         private readonly IDbConnectionFactory _dbConnectionFactory;
+
         public ParametroCommandService(IDbConnectionFactory dbFactory) => _dbConnectionFactory = dbFactory;
 
-        public async Task<bool> ActualizarParametroAsync(string codigo, string valor)
+        public async Task<bool> ProcesarMantenimientoAsync(MantenimientoParametroCommand command)
         {
             using IDbConnection connection = _dbConnectionFactory.CreateConnection();
             await connection.ExecuteAsync(
-                "sp_ParametroGlobal_Actualizar",
-                new { Codigo = codigo, Valor = valor },
+                "sp_ParametroGlobal_Mantenimiento",
+                new
+                {
+                    command.Accion,
+                    command.Codigo,
+                    command.Nombre,
+                    command.Valor,
+                    command.Descripcion,
+                    command.Categoria
+                },
                 commandType: CommandType.StoredProcedure
             );
             return true;

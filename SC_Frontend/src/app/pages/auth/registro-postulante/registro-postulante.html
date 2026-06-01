@@ -1,0 +1,73 @@
+<div class="register-container">
+  <mat-card class="register-card mat-elevation-z4">
+    <mat-card-header class="register-header">
+      <div class="icon-badge">
+        <mat-icon>person_add</mat-icon>
+      </div>
+      <mat-card-title>Crear Cuenta de Postulante</mat-card-title>
+      <mat-card-subtitle>Complete sus datos básicos para postular a las vacantes vigentes</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content class="content-box">
+      <form [formGroup]="registroForm" (ngSubmit)="onSubmit()" class="form-grid">
+        
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Número de Documento (DNI / CE)</mat-label>
+          <input matInput formControlName="numDocumento" maxlength="11" placeholder="Ej: 74589632">
+          <mat-icon matSuffix>badge</mat-icon>
+          @if (registroForm.get('numDocumento')?.hasError('required')) { <mat-error>El documento es requerido.</mat-error> }
+          @if (registroForm.get('numDocumento')?.hasError('pattern')) { <mat-error>Debe ingresar un formato numérico válido.</mat-error> }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Nombres</mat-label>
+          <input matInput formControlName="nombres" placeholder="Ingrese sus nombres">
+          <mat-icon matSuffix>abc</mat-icon>
+          @if (registroForm.get('nombres')?.hasError('required')) { <mat-error>Los nombres son requeridos.</mat-error> }
+        </mat-form-field>
+
+        <div class="row-two-columns">
+          <mat-form-field appearance="outline">
+            <mat-label>Apellido Paterno</mat-label>
+            <input matInput formControlName="apellidoPaterno">
+            @if (registroForm.get('apellidoPaterno')?.hasError('required')) { <mat-error>Obligatorio.</mat-error> }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Apellido Materno</mat-label>
+            <input matInput formControlName="apellidoMaterno">
+            @if (registroForm.get('apellidoMaterno')?.hasError('required')) { <mat-error>Obligatorio.</mat-error> }
+          </mat-form-field>
+        </div>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Correo Electrónico Personal</mat-label>
+          <input matInput type="email" formControlName="correo" placeholder="ejemplo@correo.com">
+          <mat-icon matSuffix>alternate_email</mat-icon>
+          @if (registroForm.get('correo')?.hasError('required')) { <mat-error>El correo es obligatorio.</mat-error> }
+          @if (registroForm.get('correo')?.hasError('email')) { <mat-error>Formato de correo inválido.</mat-error> }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Defina su Contraseña de Acceso</mat-label>
+          <input matInput [type]="ocultarClave() ? 'password' : 'text'" formControlName="password">
+          <button type="button" mat-icon-button matSuffix (click)="ocultarClave.set(!ocultarClave())">
+            <mat-icon>{{ ocultarClave() ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+          @if (registroForm.get('password')?.hasError('required')) { <mat-error>La contraseña es requerida.</mat-error> }
+          @if (registroForm.get('password')?.hasError('minlength')) { <mat-error>Debe contener mínimo 6 caracteres.</mat-error> }
+        </mat-form-field>
+
+        <div class="actions-block">
+          <button mat-flat-button color="primary" class="btn-register" type="submit" [disabled]="cargando()">
+            @if (!cargando()) { <span>REGISTRAR MI CUENTA</span> }
+            @else { <span>CREANDO PERFIL...</span> }
+          </button>
+
+          <a routerLink="/login" class="back-to-login-link">¿Ya tienes una cuenta? Inicia sesión aquí</a>
+        </div>
+
+      </form>
+    </mat-card-content>
+  </mat-card>
+</div>

@@ -4,6 +4,7 @@ using Application.Parametros.Dtos;
 using Application.Parametros.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 
 namespace WebApi.Controllers
 {
@@ -21,11 +22,18 @@ namespace WebApi.Controllers
             return Ok(BaseResponse<List<ParametroGlobalDto>>.Ok(result, "Parámetros globales cargados."));
         }
 
-        [HttpPut]
-        public async Task<IActionResult> Update([FromBody] UpdateParametroCommand command)
+        [HttpPost("mantenimiento")]
+        public async Task<IActionResult> Mantenimiento([FromBody] MantenimientoParametroCommand command)
         {
-            var result = await _mediator.Send(command);
-            return Ok(BaseResponse<bool>.Ok(result, "Configuración actualizada correctamente."));
+            try
+            {
+                var result = await _mediator.Send(command);
+                return Ok(BaseResponse<bool>.Ok(result, "Operación procesada con éxito."));
+            }
+            catch (SqlException ex) when (ex.Number == 51000)
+            {
+                return BadRequest(BaseResponse<bool>.Fail(ex.Message));
+            }
         }
     }
 }

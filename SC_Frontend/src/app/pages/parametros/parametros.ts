@@ -45,9 +45,30 @@ export class Parametros implements OnInit {
 
   guardarCambioRapido(codigo: string, valor: string): void {
     this.cargando.set(true);
-    const payload = { accion: 'MODIFICAR', codigo, valor, nombre: 'N/A', descripcion: 'N/A', categoria: 'N/A' };
+
+    const parametroOriginal = this.parametrosOriginales().find(p => p.codigo === codigo);
+    if (!parametroOriginal) {
+      this.cargando.set(false);
+      return;
+    }
+
+    const payload = {
+      accion: 'MODIFICAR',
+      codigo: parametroOriginal.codigo,
+      nombre: parametroOriginal.nombre,       
+      valor: valor,                           
+      descripcion: parametroOriginal.descripcion, 
+      categoria: parametroOriginal.categoria    
+    };
+
     this.parametroService.updateParametro(payload).subscribe({
-      next: () => this.cargarParametros(),
+      next: (res) => {
+        if (res.success) {
+          this.cargarParametros(); 
+        } else {
+          this.cargando.set(false);
+        }
+      },
       error: () => this.cargando.set(false)
     });
   }
@@ -78,11 +99,29 @@ export class Parametros implements OnInit {
   guardarCambio(codigo: string, nuevoValor: string): void {
     this.cargando.set(true);
     
+    // 1. Buscamos el registro completo original en el Signal para no perder su metadata
+    const parametroOriginal = this.parametrosOriginales().find(p => p.codigo === codigo);
+    if (!parametroOriginal) {
+      this.cargando.set(false);
+      return;
+    }
+
     // Si el valor es un booleano proveniente de un SlideToggle, lo pasamos a "1" o "0" para SQL Server
     const valorFormateado = nuevoValor.toString() === 'true' ? '1' : 
                             nuevoValor.toString() === 'false' ? '0' : nuevoValor.trim();
 
-    this.parametroService.updateParametro({ codigo, valor: valorFormateado }).subscribe({
+    // 2. Construimos el payload completo unificado exigido por el nuevo contrato del servicio
+    const payload = {
+      accion: 'MODIFICAR',
+      codigo: parametroOriginal.codigo,
+      nombre: parametroOriginal.nombre,
+      valor: valorFormateado,
+      descripcion: parametroOriginal.descripcion,
+      categoria: parametroOriginal.categoria
+    };
+
+    // 3. Despachamos al servicio (ahora sí machea el tipado perfecto)
+    this.parametroService.updateParametro(payload).subscribe({
       next: (res) => {
         if (res.success) {
           Swal.fire({
@@ -90,9 +129,10 @@ export class Parametros implements OnInit {
             text: 'La regla operativa del sistema se actualizó inmediatamente.',
             icon: 'success',
             timer: 2000,
-            showConfirmButton: false
+            showConfirmButton: false,
+            heightAuto: false // Mantenemos la buena práctica de UI
           });
-          this.cargarParametros(); // Refresca los estados locales
+          this.cargarParametros(); // Refresca los estados locales de la grilla
         }
       },
       error: () => this.cargando.set(false)

@@ -18,25 +18,29 @@
 <div class="config-grid">
   @for (param of parametrosOriginales(); track param.codigo) {
     
-    <mat-card class="config-card" style="position: relative;">
-      
+    <div class="custom-config-card">
       <button mat-icon-button class="delete-param-btn" (click)="eliminarParametro(param)" matTooltip="Eliminar regla">
-        <mat-icon style="font-size: 20px;">delete</mat-icon>
+        <mat-icon>delete</mat-icon>
       </button>
 
-      <mat-card-header style="padding-right: 32px;">
-        <div class="card-icon-wrapper">
+      <div class="card-custom-header">
+        <div class="card-icon-container">
           <mat-icon>{{ param.codigo.includes('CORREO') ? 'mail' : param.codigo.includes('FLAG') ? 'toggle_on' : 'tune' }}</mat-icon>
         </div>
-        <mat-card-title>{{ param.nombre }}</mat-card-title>
-        <mat-card-subtitle><span class="badge-category">{{ param.categoria }}</span></mat-card-subtitle>
-      </mat-card-header>
+        <div class="card-title-container">
+          <h3>{{ param.nombre }}</h3>
+          <span class="badge-category-pill">{{ param.categoria }}</span>
+        </div>
+      </div>
 
-      <mat-card-content class="config-content">
-        <p class="config-description">{{ param.descripcion }}</p>
-        <span class="code-key-label">Key: {{ param.codigo }}</span>
+      <div class="card-custom-body">
+        <p class="config-description-text">{{ param.descripcion }}</p>
+        
+        <div class="meta-info-block">
+          <span class="code-key-label">Key: <code>{{ param.codigo }}</code></span>
+        </div>
 
-        <div class="action-row">
+        <div class="action-footer-row">
           @if (param.codigo.startsWith('FLAG_')) {
             <mat-slide-toggle [checked]="param.valor === '1'" 
                               (change)="guardarCambioRapido(param.codigo, $event.checked ? '1' : '0')"
@@ -44,16 +48,16 @@
               {{ param.valor === '1' ? 'Habilitado' : 'Deshabilitado' }}
             </mat-slide-toggle>
           } @else {
-            <div style="display: flex; width: 100%; justify-content: space-between; align-items: center;">
-              <span style="font-size: 15px; font-weight: 700; color: #1e293b;">Valor: <code style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px;">{{ param.valor }}</code></span>
-              <button mat-stroked-button color="primary" size="small" (click)="abrirModal(param)">
+            <div class="value-display-flex">
+              <span class="value-text">Valor: <code class="value-pill">{{ param.valor }}</code></span>
+              <button mat-stroked-button color="primary" class="btn-manage-action" (click)="abrirModal(param)">
                 <mat-icon>edit</mat-icon> Gestionar
               </button>
             </div>
           }
         </div>
-      </mat-card-content>
-    </mat-card>
+      </div>
+    </div>
 
   }
 </div>

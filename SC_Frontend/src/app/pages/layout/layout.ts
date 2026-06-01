@@ -47,10 +47,14 @@ export class Layout implements OnInit {
 
   private estructurarMenuSasi(flatMenus: any[]): any[] {
     // 1. Filtramos los menús principales (los que tienen tipo 'Menu' o idPadre nulo)
-    const principales = flatMenus.filter(m => m.tipo === 'Menu' || m.idPadre === null);
+    const principales = flatMenus.filter(m => 
+      m.idPadre === null || m.tipo === 'Menu' || m.tipo === 'M'
+    );
     
     // 2. Filtramos los submenús
-    const submenus = flatMenus.filter(m => m.tipo === 'Submenu' && m.idPadre !== null);
+    const submenus = flatMenus.filter(m => 
+      m.idPadre !== null && (m.tipo === 'Submenu' || m.tipo === 'S')
+    );
 
     // 3. Relacionamos de forma matemática estricta por ID
     return principales.map(parent => {

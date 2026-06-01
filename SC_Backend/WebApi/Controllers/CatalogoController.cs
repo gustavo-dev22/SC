@@ -5,6 +5,7 @@ using Application.Common.Dtos;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
+using System.Data;
 
 namespace WebApi.Controllers
 {
@@ -23,6 +24,14 @@ namespace WebApi.Controllers
             return Ok(BaseResponse<List<CatalogoValorDto>>.Ok(result, "Valores recuperados."));
         }
 
+        [HttpGet("valores-por-codigo/{codigo}")]
+        public async Task<IActionResult> GetValoresByCodigo(string codigo)
+        {
+            var result = await _mediator.Send(new GetValoresByCodigoTipoQuery(codigo));
+
+            return Ok(BaseResponse<List<CatalogoValorDto>>.Ok(result, "Valores del catálogo cargados de forma universal."));
+        }
+
         [HttpPost("mantenimiento")]
         public async Task<IActionResult> Mantenimiento([FromBody] CatalogoCommand command)
         {
@@ -33,7 +42,6 @@ namespace WebApi.Controllers
             }
             catch (SqlException ex) when (ex.Number == 51000)
             {
-                // Atrapamos nuestro THROW personalizado de SQL Server
                 return BadRequest(BaseResponse<bool>.Fail(ex.Message));
             }
             catch (Exception ex)
@@ -61,6 +69,13 @@ namespace WebApi.Controllers
             {
                 return BadRequest(BaseResponse<bool>.Fail(ex.Message));
             }
+        }
+
+        [HttpGet("centros-estudios")]
+        public async Task<IActionResult> GetCentrosEstudios([FromQuery] string query = "")
+        {
+            var result = await _mediator.Send(new GetCentrosEstudiosQuery(query));
+            return Ok(BaseResponse<List<CentroEstudioDto>>.Ok(result, "Centros de estudio unificados cargados con éxito."));
         }
     }
 }

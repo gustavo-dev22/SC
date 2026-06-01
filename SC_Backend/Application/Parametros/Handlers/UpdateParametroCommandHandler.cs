@@ -9,14 +9,18 @@ using MediatR;
 
 namespace Application.Parametros.Handlers
 {
-    public class UpdateParametroCommandHandler : IRequestHandler<UpdateParametroCommand, bool>
+    public class MantenimientoParametroCommandHandler : IRequestHandler<MantenimientoParametroCommand, bool>
     {
         private readonly IParametroCommandService _commandService;
-        public UpdateParametroCommandHandler(IParametroCommandService srv) => _commandService = srv;
 
-        public async Task<bool> Handle(UpdateParametroCommand request, CancellationToken token)
+        public MantenimientoParametroCommandHandler(IParametroCommandService srv)
         {
-            return await _commandService.ActualizarParametroAsync(request.Codigo, request.Valor);
+            _commandService = srv;
+        }
+
+        public async Task<bool> Handle(MantenimientoParametroCommand request, CancellationToken token)
+        {
+            return await _commandService.ProcesarMantenimientoAsync(request);
         }
     }
 }

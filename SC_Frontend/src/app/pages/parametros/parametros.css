@@ -1,46 +1,200 @@
-/* NUEVO: Contenedor para alinear título y botón universal superior */
 .header-actions-wrapper {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   width: 100%;
-  margin-bottom: 24px;
+  margin-bottom: 28px;
 }
-
-/* CORREGIDO: Grilla adaptativa senior forzada a un máximo de 3 columnas */
-.config-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(32%, 1fr)); /* Forzado a 3 columnas reales */
-  gap: 24px;
-  width: 100%;
+.title-block h1 {
+  font-size: 26px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0 0 4px 0;
 }
-
-/* Ajustes finos a la tarjeta para que respire el texto */
-.config-card {
-  border-radius: 12px !important;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02) !important;
-  background-color: white;
-  display: flex;
-  flex-direction: column;
-  padding: 8px; /* Un poco más de aire interno */
+.title-block p {
+  font-size: 14px;
+  color: #64748b;
+  margin: 0;
 }
-
-/* Botón flotante superior de registro */
 .btn-nuevo-parametro {
   height: 44px;
   border-radius: 8px !important;
   font-weight: 600;
 }
 
-/* NUEVO: Botón de eliminación en la esquina superior de la tarjeta */
+/* LA GRILA PREMIUM DE 3 COLUMNAS REALES */
+.config-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(31%, 1fr));
+  gap: 24px;
+  width: 100%;
+}
+
+/* CONTENEDOR CUSTOM DE LA TARJETA */
+.custom-config-card {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.01);
+  padding: 20px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 250px; /* Homogeniza el tamaño vertical */
+  box-sizing: border-box;
+}
+
+/* BOTÓN ELIMINAR */
 .delete-param-btn {
   position: absolute;
-  top: 8px;
-  right: 8px;
-  color: #94a3b8;
-  transition: color 0.2s;
+  top: 12px;
+  right: 12px;
+  color: #94a3b8 !important;
+  transition: color 0.2s ease;
 }
 .delete-param-btn:hover {
-  color: #dc2626 !important;
+  color: #ef4444 !important;
+}
+
+/* NUEVO ENCABEZADO */
+.card-custom-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 16px;
+  padding-right: 28px; /* Evita colisión con el botón de eliminar */
+}
+.card-icon-container {
+  background-color: #eff6ff;
+  color: #2563eb;
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.card-icon-container mat-icon {
+  font-size: 22px;
+  width: 22px;
+  height: 22px;
+}
+.card-title-container h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e293b;
+  margin: 0 0 6px 0;
+  line-height: 1.3;
+}
+
+/* BADGE DE CATEGORÍA PROFESIONAL */
+.badge-category-pill {
+  display: inline-block;
+  background-color: #f1f5f9;
+  color: #475569;
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+/* CUERPO Y TEXTOS */
+.card-custom-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+.config-description-text {
+  font-size: 13.5px;
+  color: #64748b;
+  line-height: 1.5;
+  margin: 0 0 16px 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* Trunca a máximo 2 líneas si es muy largo */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-height: 40px;
+}
+
+/* CONTROL DE ESPACIADO DE LA LLAVE KEY */
+.meta-info-block {
+  margin-bottom: 18px;
+  margin-top: auto; /* Empuja el bloque de metadatos hacia abajo de forma simétrica */
+}
+.code-key-label {
+  font-size: 12px;
+  color: #94a3b8;
+}
+.code-key-label code {
+  font-family: 'Courier New', Courier, monospace;
+  background-color: #f8fafc;
+  color: #64748b;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid #f1f5f9;
+  font-weight: 600;
+}
+
+/* FILA DE ACCIONES INFERIORES ACCIÓN */
+.action-footer-row {
+  padding-top: 14px;
+  border-top: 1px dashed #e2e8f0;
+  width: 100%;
+}
+.value-display-flex {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+.value-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: #334155;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 65%;
+}
+.value-pill {
+  font-family: inherit;
+  background: #f1f5f9;
+  color: #1e293b;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-weight: 700;
+}
+.btn-manage-action {
+  height: 34px !important;
+  font-size: 12.5px !important;
+  border-radius: 6px !important;
+  padding: 0 10px !important;
+  flex-shrink: 0;
+}
+
+/* CONFIGURACIÓN DEL SPINNER */
+.overlay-spinner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(255, 255, 255, 0.85);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+}
+.overlay-spinner p {
+  color: #1e293b;
+  font-weight: 600;
+  font-size: 15px;
 }

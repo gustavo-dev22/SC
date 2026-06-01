@@ -80,3 +80,52 @@
   color: #1e3c72;
   font-weight: bold;
 }
+
+/* CONTENEDOR DE ENLACES PARA EL CIUDADANO */
+.citizen-links-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
+  margin-top: -4px;
+  animation: fadeInQuick 0.3s ease-in-out;
+}
+
+.forgot-password-link {
+  font-size: 13px;
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 500;
+  align-self: flex-end;
+}
+.forgot-password-link:hover {
+  text-decoration: underline;
+}
+
+.register-invite-block {
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  padding: 12px;
+  border-radius: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+}
+.register-invite-block span {
+  color: #64748b;
+  font-weight: 500;
+}
+.register-link {
+  color: #10b981; /* Verde esmeralda para invitar a la acción de registro */
+  text-decoration: none;
+  font-weight: 700;
+}
+.register-link:hover {
+  text-decoration: underline;
+}
+
+@keyframes fadeInQuick {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
