@@ -1,0 +1,39 @@
+<div class="premium-alert-container" [ngClass]="'alert-border-' + data.tipo">
+  
+  <div class="premium-alert-header">
+    <div class="icon-ring-wrapper" [ngClass]="'icon-ring-' + data.tipo">
+      <mat-icon class="premium-alert-icon">{{ data.icono }}</mat-icon>
+    </div>
+    <h2 class="premium-alert-title">{{ data.titulo }}</h2>
+  </div>
+
+  <mat-dialog-content class="premium-alert-content">
+    <p>{{ data.mensaje }}</p>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="center" class="premium-alert-actions">
+    
+    @if (data.esDecision) {
+      <div style="display: flex; gap: 12px; width: 100%;">
+        <button mat-button 
+                style="flex: 1; height: 44px; border-radius: 10px; font-weight: 600; color: #64748b;" 
+                [mat-dialog-close]="false">
+          Cancelar
+        </button>
+        <button mat-flat-button 
+                style="flex: 1; height: 44px; border-radius: 10px; font-weight: 600; background-color: #dc2626; color: white;" 
+                [mat-dialog-close]="true">
+          Sí, Eliminar
+        </button>
+      </div>
+    } @else {
+      <button mat-flat-button 
+              class="btn-premium-alert-confirm" 
+              [ngClass]="'btn-color-' + data.tipo"
+              [mat-dialog-close]="true">
+        Aceptar y Continuar
+      </button>
+    }
+
+  </mat-dialog-actions>
+</div>

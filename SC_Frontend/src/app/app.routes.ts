@@ -49,6 +49,14 @@ export const routes: Routes = [
                 path: 'postulante/formacion',
                 loadComponent: () => import('./pages/postulante/formacion/formacion').then(m => m.Formacion)
             },
+            {
+                path: 'postulante/certificaciones',
+                loadComponent: () => import('./pages/postulante/certificacion/certificacion').then(m => m.Certificacion)
+            },
+            {
+                path: 'postulante/experiencia',
+                loadComponent: () => import('./pages/postulante/experiencia/experiencia').then(m => m.Experiencia)
+            }
         ]
     },
 

@@ -12,5 +12,8 @@ namespace Application.Common.Interfaces
         Task<bool> RegistrarPostulanteAsync(RegistrarPostulanteCommand command, string computedHash);
         Task<bool> ActualizarPerfilAsync(ActualizarPerfilCommand command);
         Task<bool> MantenimientoFormacionAsync(MantenimientoFormacionCommand command);
+        Task<bool> MantenimientoCertificacionAsync(MantenimientoCertificacionCommand command);
+        Task<bool> MantenimientoExperienciaAsync(MantenimientoExperienciaCommand command);
+        Task<bool> MantenimientoColegiaturaAsync(MantenimientoColegiaturaCommand command);
     }
 }

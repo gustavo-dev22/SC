@@ -93,17 +93,48 @@ namespace Application.Auth.Handlers
             // 3. Generación del Token local sin dependencias externas
             string tokenReal = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes($"POSTULANTE-{postulante.IdPostulante}-{DateTime.UtcNow.Ticks}"));
 
-            // 4. Estructura Plana Oficial sacada de tu árbol de SASI
+            // Estructura Plana Oficial Optimizada y Expandida para el Postulante
             var menusOficialesPostulante = new List<MenuObjetoDto>
             {
                 new MenuObjetoDto { IdObjeto = 100, IdPadre = null, Nombre = "Mi Panel", Tipo = "M", Url = "", Icono = "dashboard" },
                 new MenuObjetoDto { IdObjeto = 101, IdPadre = 100, Nombre = "Resumen de Postulaciones", Tipo = "S", Url = "/postulante/resumen", Icono = "assignment_late" },
                 new MenuObjetoDto { IdObjeto = 102, IdPadre = 100, Nombre = "Alertas y Notificaciones", Tipo = "S", Url = "/postulante/notificaciones", Icono = "notifications_active" },
 
+                // 📂 MENÚ PADRE: MI CURRICULUM
                 new MenuObjetoDto { IdObjeto = 200, IdPadre = null, Nombre = "Mi Curriculum", Tipo = "M", Url = "", Icono = "contact_page" },
+    
+                // 1. Datos Personales
                 new MenuObjetoDto { IdObjeto = 201, IdPadre = 200, Nombre = "Datos Personales", Tipo = "S", Url = "/postulante/datos-personales", Icono = "manage_accounts" },
+    
+                // 2. Formación Académica
                 new MenuObjetoDto { IdObjeto = 202, IdPadre = 200, Nombre = "Formación Académica", Tipo = "S", Url = "/postulante/formacion", Icono = "school" },
-                new MenuObjetoDto { IdObjeto = 203, IdPadre = 200, Nombre = "Experiencia Laboral", Tipo = "S", Url = "/postulante/experiencia", Icono = "business_center" },
+    
+                // 3. Colegiatura (Nuevo) -> Crucial para Ingenierías, Abogados, Contadores, etc.
+                new MenuObjetoDto { IdObjeto = 203, IdPadre = 200, Nombre = "Colegiatura y Habilitación", Tipo = "S", Url = "/postulante/colegiatura", Icono = "card_membership" },
+    
+                // 4. Idiomas (Nuevo) -> Evaluación de lenguas extranjeras u originarias (Quechua/Aymara)
+                new MenuObjetoDto { IdObjeto = 204, IdPadre = 200, Nombre = "Idiomas / Dialectos", Tipo = "S", Url = "/postulante/idiomas", Icono = "translate" },
+    
+                // 5. Ofimática (Nuevo) -> Exigencia obligatoria de herramientas de productividad (Word, Excel)
+                new MenuObjetoDto { IdObjeto = 205, IdPadre = 200, Nombre = "Conocimientos de Ofimática", Tipo = "S", Url = "/postulante/ofimatica", Icono = "computer" },
+    
+                // 6. Certificaciones y Especializaciones (Ajustado)
+                new MenuObjetoDto { IdObjeto = 206, IdPadre = 200, Nombre = "Certificaciones y Especializaciones", Tipo = "S", Url = "/postulante/certificaciones", Icono = "workspace_premium" },
+    
+                // 7. Experiencia Laboral (Ajustado)
+                new MenuObjetoDto { IdObjeto = 207, IdPadre = 200, Nombre = "Experiencia Laboral", Tipo = "S", Url = "/postulante/experiencia", Icono = "business_center" },
+    
+                // 8. Otros Requisitos Solicitados (Nuevo) -> Para adjuntar Licencias de Conducir, habilitaciones especiales, etc.
+                new MenuObjetoDto { IdObjeto = 208, IdPadre = 200, Nombre = "Otros Requisitos Solicitados", Tipo = "S", Url = "/postulante/otros-requisitos", Icono = "rule" },
+    
+                // 9. Información Adicional (Nuevo) -> Condición de Discapacidad (CONADIS) o Licenciado de FF.AA. (Bonificaciones de Ley)
+                new MenuObjetoDto { IdObjeto = 209, IdPadre = 200, Nombre = "Información Adicional", Tipo = "S", Url = "/postulante/informacion-adicional", Icono = "info" },
+    
+                // 10. Firma Digitalizada (Nuevo) -> Registro gráfico de la firma manuscrita para los formatos automatizados
+                new MenuObjetoDto { IdObjeto = 210, IdPadre = 200, Nombre = "Firma Digitalizada", Tipo = "S", Url = "/postulante/firma", Icono = "draw" },
+    
+                // 11. Declaraciones Juradas (Ajustado)
+                new MenuObjetoDto { IdObjeto = 211, IdPadre = 200, Nombre = "Declaraciones Juradas", Tipo = "S", Url = "/postulante/declaraciones", Icono = "gavel" },
 
                 new MenuObjetoDto { IdObjeto = 300, IdPadre = null, Nombre = "Oportunidades", Tipo = "M", Url = "", Icono = "local_activity" },
                 new MenuObjetoDto { IdObjeto = 301, IdPadre = 300, Nombre = "Buscar Plazas Vacantes", Tipo = "S", Url = "/postulante/buscar-plazas", Icono = "travel_explore" },

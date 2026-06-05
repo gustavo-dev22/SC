@@ -1,0 +1,60 @@
+@if (cargando()) {
+  <div class="overlay-spinner">
+    <div class="spinner-center-box">
+      <mat-spinner diameter="50" color="primary"></mat-spinner>
+      <p class="spinner-text">Procesando certificaciones y cursos...</p>
+    </div>
+  </div>
+}
+
+<div class="dashboard-header-container">
+  <div class="header-left-block">
+    <div class="title-with-badge">
+      <h1>Certificaciones y Especializaciones</h1>
+      @if (listaCertificaciones().length > 0) {
+        <span class="premium-counter-badge" matTooltip="Total de capacitaciones registradas">
+          {{ listaCertificaciones().length }}
+        </span>
+      }
+    </div>
+    <p class="header-subtitle">Registre diplomados, cursos y certificaciones que validen sus competencias técnicas continuas.</p>
+  </div>
+  
+  <div class="header-right-block">
+    <button mat-flat-button color="primary" class="premium-add-button" (click)="abrirModal(null)">
+      <mat-icon>add</mat-icon>
+      <span>Agregar Certificado</span>
+    </button>
+  </div>
+</div>
+
+<div class="cards-timeline">
+  @if (listaCertificaciones().length === 0) {
+    <div class="empty-state-container">
+      <mat-icon class="empty-icon">workspace_premium</mat-icon>
+      <h3>Sin capacitaciones registradas</h3>
+      <p>Aún no cuenta con cursos o certificaciones en su postulación. Registre sus sustentos para acumular puntaje técnico.</p>
+    </div>
+  }
+
+  @for (item of listaCertificaciones(); track item.idCertificacion) {
+    <div class="academic-card">
+      <div class="academic-badge certification-badge-color">{{ item.tipoEstudioClasificacion }}</div>
+      <div class="academic-body">
+        <h3>{{ item.nombreEstudio }}</h3>
+        <p class="inst">{{ item.institucion }}</p>
+        <p class="status">Carga Académica: <strong>{{ item.horasAcademicas }} horas</strong></p>
+        <p class="period">Fecha de Emisión: {{ item.fechaEmision | date:'dd/MM/yyyy' }}</p>
+      </div>
+      
+      <div class="academic-actions">
+        <button mat-icon-button color="primary" (click)="abrirModal(item)" matTooltip="Editar Certificado" matTooltipPosition="above">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button color="warn" (click)="eliminar(item.idCertificacion)" matTooltip="Eliminar Registro" matTooltipPosition="above">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+    </div>
+  }
+</div>

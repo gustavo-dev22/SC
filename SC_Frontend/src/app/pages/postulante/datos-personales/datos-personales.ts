@@ -11,6 +11,7 @@ import { MatSelectModule } from '@angular/material/select';
 import Swal from 'sweetalert2';
 import { PostulantePerfilService } from '../../../services/postulante-perfil.service';
 import { CatalogoService } from '../../../services/catalogo.service';
+import { AlertService } from '../../../shared/services/alert.service';
 
 @Component({
   selector: 'app-datos-personales',
@@ -25,6 +26,7 @@ export class DatosPersonales implements OnInit {
   private fb = inject(FormBuilder);
   private perfilService = inject(PostulantePerfilService);
   private catalogoService = inject(CatalogoService);
+  private alertService = inject(AlertService);
 
   public perfilForm!: FormGroup;
   public cargando = signal<boolean>(false);
@@ -39,14 +41,11 @@ export class DatosPersonales implements OnInit {
 
   inicializarFormulario(): void {
     this.perfilForm = this.fb.group({
-      // Campos de solo lectura legal (Bloqueados de fábrica)
       numDocumento: [{ value: '', disabled: true }],
       nombres: [{ value: '', disabled: true }],
       apellidoPaterno: [{ value: '', disabled: true }],
       apellidoMaterno: [{ value: '', disabled: true }],
       correo: [{ value: '', disabled: true }],
-      
-      // Campos complementarios editables
       telefono: ['', [Validators.required, Validators.pattern('^[0-9]{9}$')]],
       fechaNacimiento: ['', [Validators.required]],
       idSexoCat: [0, [Validators.required, Validators.min(1)]],
@@ -67,7 +66,7 @@ export class DatosPersonales implements OnInit {
           this.cargarDatosPerfil();
         } catch (error) {
           console.error('Error al descifrar el token del postulante:', error);
-          this.idPostulanteLogueado = 1; // Salvaguarda en caso de error
+          this.idPostulanteLogueado = 1;
           this.cargarDatosPerfil();
         }
       }
@@ -75,7 +74,6 @@ export class DatosPersonales implements OnInit {
   }
 
   cargarCatálogos(): void {
-    // 🚀 AUTOMATIZADO: Ya no importa si en BD es 1003, 50 o 1. El código 'CAT_SEXO' es universal.
     this.catalogoService.getValoresByCodigo('SEXO').subscribe({
       next: (res) => { 
         if (res.success) {
@@ -90,7 +88,6 @@ export class DatosPersonales implements OnInit {
     this.perfilService.getPerfil(this.idPostulanteLogueado).subscribe({
       next: (res) => {
         if (res.success && res.data) {
-          // Si la fecha viene con estampa de tiempo, la formateamos a YYYY-MM-DD para el input tipo date
           if (res.data.fechaNacimiento) {
             res.data.fechaNacimiento = res.data.fechaNacimiento.split('T')[0];
           }
@@ -109,7 +106,7 @@ export class DatosPersonales implements OnInit {
     }
 
     this.cargando.set(true);
-    // getRawValue extrae absolutamente todos los campos, incluyendo los deshabilitados
+
     const formValues = this.perfilForm.getRawValue();
     
     const payload = {
@@ -123,11 +120,17 @@ export class DatosPersonales implements OnInit {
     this.perfilService.updatePerfil(payload).subscribe({
       next: (res) => {
         if (res.success) {
-          Swal.fire('¡Actualizado!', res.message, 'success');
+          this.alertService.exito('¡Actualizado!', res.message || 'Los datos de su perfil se actualizaron correctamente.');
           this.cargarDatosPerfil();
+        } else {
+          this.alertService.advertencia('Atención', res.message || 'No se pudo completar la actualización.');
+          this.cargando.set(false);
         }
       },
-      error: () => this.cargando.set(false)
+      error: (err) => {
+        this.cargando.set(false);
+        this.alertService.error('Error del Sistema', 'Ocurrió un problema inesperado al comunicar con el servidor. Inténtelo nuevamente.');
+      }
     });
   }
 }

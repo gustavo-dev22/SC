@@ -1,0 +1,68 @@
+<h2 mat-dialog-title class="modal-cert-title">
+  <mat-icon color="primary">workspace_premium</mat-icon>
+  <span>{{ isEdicion ? 'Editar Certificación' : 'Registrar Certificación / Curso' }}</span>
+</h2>
+
+<mat-dialog-content [formGroup]="certForm" class="modal-cert-content">
+  
+  <mat-form-field appearance="outline" class="full-width-field">
+    <mat-label>Tipo de Especialización</mat-label>
+    <mat-select formControlName="idTipoEstudioCat">
+      <mat-option value="">-- Seleccione --</mat-option>
+      @for (item of listaTiposCapacitacion(); track item.idValor) {
+        <mat-option [value]="item.idValor">{{ item.descripcion }}</mat-option>
+      }
+    </mat-select>
+    @if (certForm.get('idTipoEstudioCat')?.hasError('required')) { <mat-error>El tipo es requerido.</mat-error> }
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="full-width-field">
+    <mat-label>Nombre del Curso / Diplomado / Certificación</mat-label>
+    <input matInput formControlName="nombreEstudio" placeholder="Ej: Especialización en Scrum Master Profesional">
+    @if (certForm.get('nombreEstudio')?.hasError('required')) { <mat-error>El nombre del estudio es requerido.</mat-error> }
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="full-width-field">
+    <mat-label>Institución Certificadora / Emisora</mat-label>
+    <mat-icon matPrefix style="color: #64748b; margin-right: 8px;">account_balance</mat-icon>
+    <input matInput formControlName="institucion" placeholder="Busque la entidad emisora..." [matAutocomplete]="autoCentro">
+    
+    <mat-autocomplete #autoCentro="matAutocomplete">
+      @if (cargandoCentros()) { <mat-option disabled>Buscando entidades...</mat-option> }
+      @for (centro of centrosEstudiosFiltrados(); track centro.nombre) {
+        <mat-option [value]="centro.nombre">
+          <div style="display: flex; justify-content: space-between; width: 100%; align-items: center; gap: 12px;">
+            <span style="font-size: 13px;">{{ centro.nombre }}</span>
+            <span style="font-size: 9px; font-weight: 800; padding: 2px 6px; background: #e2e8f0; color: #475569; border-radius:4px;">
+              {{ centro.tipoProvider }}
+            </span>
+          </div>
+        </mat-option>
+      }
+    </mat-autocomplete>
+    @if (certForm.get('institucion')?.hasError('required')) { <mat-error>La institución es requerida.</mat-error> }
+  </mat-form-field>
+
+  <div class="cert-form-row-metrics">
+    <mat-form-field appearance="outline" class="full-width-field">
+      <mat-label>Horas Lectivas / Académicas</mat-label>
+      <input matInput type="number" formControlName="horasAcademicas" placeholder="Ej: 90">
+      @if (certForm.get('horasAcademicas')?.hasError('required')) { <mat-error>Requerido.</mat-error> }
+      @if (certForm.get('horasAcademicas')?.hasError('min')) { <mat-error>Mínimo 1 hora.</mat-error> }
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width-field">
+      <mat-label>Fecha de Expedición / Emisión</mat-label>
+      <input matInput type="date" formControlName="fechaEmision">
+      @if (certForm.get('fechaEmision')?.hasError('required')) { <mat-error>Requerido.</mat-error> }
+    </mat-form-field>
+  </div>
+
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="modal-cert-actions">
+  <button mat-button class="btn-cert-cancel" (click)="cancelar()">Cancelar</button>
+  <button mat-flat-button color="primary" class="btn-cert-confirm" [disabled]="certForm.invalid" (click)="guardar()">
+    <mat-icon>check_circle</mat-icon> Confirmar Especialización
+  </button>
+</mat-dialog-actions>

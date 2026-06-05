@@ -37,12 +37,16 @@ namespace Application.Catalogos.Handlers
             // 2. TAREA B: Obtener Institutos desde el Query Service de la capa de Persistencia
             var tareaInstitutos = _catalogoQueryService.ListarInstitutosPredictivoAsync(filtroLimpio);
 
+            // 3. TAREA C: Obtener Entidades Públicas desde el Query Service de la capa de Persistencia
+            var tareaEntidades = _catalogoQueryService.ListarEntidadesPublicasPredictivoAsync(filtroLimpio);
+
             // Ejecución en paralelo de alto rendimiento (Zoneless compliant)
-            await Task.WhenAll(tareaUniversidades, tareaInstitutos);
+            await Task.WhenAll(tareaUniversidades, tareaInstitutos, tareaEntidades);
 
             // 3. Consolidación limpia
             resultadoUnificado.AddRange(tareaUniversidades.Result);
             resultadoUnificado.AddRange(tareaInstitutos.Result);
+            resultadoUnificado.AddRange(tareaEntidades.Result);
 
             return resultadoUnificado.OrderBy(x => x.Nombre).ToList();
         }

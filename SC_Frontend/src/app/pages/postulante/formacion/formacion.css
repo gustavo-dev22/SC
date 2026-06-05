@@ -1,3 +1,77 @@
+.dashboard-header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center; 
+  width: 100%;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #f1f5f9; 
+  margin-bottom: 24px; 
+  gap: 20px;
+}
+
+.header-left-block {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.title-with-badge {
+  display: flex;
+  align-items: center;
+  gap: 12px; 
+}
+
+.header-left-block h1 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  color: #0f172a;
+  letter-spacing: -0.5px;
+}
+
+.header-subtitle {
+  margin: 0;
+  font-size: 14px;
+  color: #64748b;
+  font-weight: 400;
+}
+
+.premium-counter-badge {
+  background-color: #eff6ff; /* Azul muy tenue de fondo */
+  color: #1d4ed8;            /* Azul intenso para el texto */
+  font-size: 12px;
+  font-weight: 700;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: 12px;       /* Forma de píldora perfecta */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #dbeafe;
+  box-sizing: border-box;
+}
+
+.premium-add-button {
+  height: 42px !important;    /* Le damos una altura más robusta y ejecutiva */
+  padding: 0 20px !important;
+  border-radius: 8px !important; /* Bordes ligeramente curvos modernos */
+  font-weight: 600 !important;
+  font-size: 13.5px !important;
+  letter-spacing: 0.2px;
+  box-shadow: 0 2px 4px rgba(37, 99, 235, 0.15) !important;
+  transition: all 0.2s ease-in-out !important;
+}
+
+.premium-add-button:hover {
+  transform: translateY(-1px); /* Efecto sutil de elevación al pasar el mouse */
+  box-shadow: 0 4px 8px rgba(37, 99, 235, 0.25) !important;
+}
+
+.premium-add-button mat-icon {
+  margin-right: 6px !important; /* Separa el icono '+' del texto 'Agregar Estudio' */
+}
+
 .cards-timeline {
   display: flex;
   flex-direction: column;
@@ -11,10 +85,9 @@
   border: 1px solid #e2e8f0;
   padding: 20px;
   display: flex;
-  /* 🚀 CORREGIDO: Cambiado de center a flex-start para anclar los elementos arriba */
   align-items: flex-start; 
   justify-content: space-between;
-  gap: 24px; /* Incrementamos ligeramente el aire de separación */
+  gap: 24px; 
   transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
 .academic-card:hover {
@@ -26,14 +99,13 @@
   color: #2563eb;
   padding: 8px 12px;
   font-weight: 700;
-  font-size: 11px; /* Bajamos un punto para estilizar con el layout corporativo */
+  font-size: 11px; 
   border-radius: 8px;
   text-transform: uppercase;
-  min-width: 130px; /* Incrementamos para soportar "POSGRADO - MAESTRÍA" sin romper líneas */
+  min-width: 130px; 
   max-width: 140px;
   text-align: center;
   letter-spacing: 0.3px;
-  /* 🚀 TOQUE MAESTRO: Un margen superior sutil alinea el texto del chip con el texto del H3 */
   margin-top: 2px; 
 }
 .academic-body {
@@ -43,7 +115,7 @@
   margin: 0 0 6px 0;
   font-size: 16px;
   font-weight: 700;
-  color: #0f172a; /* Color pizarra más oscuro y elegante */
+  color: #0f172a; 
   line-height: 1.4;
 }
 .academic-body .inst {
@@ -60,6 +132,103 @@
 .academic-actions {
   display: flex;
   gap: 4px;
-  /* 🚀 Alineamos también la botonera ligeramente arriba para balancear la visual */
   margin-top: -4px; 
+}
+
+.records-counter-badge {
+  background-color: #f1f5f9;
+  color: #475569;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1px solid #e2e8f0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  cursor: help;
+  transition: all 0.2s ease;
+}
+
+.records-counter-badge:hover {
+  background-color: #e2e8f0;
+  color: #1e293b;
+}
+
+/* Rediseño del Contenedor de Bandeja Vacía */
+.empty-state-container {
+  text-align: center;
+  color: #64748b;
+  padding: 48px 24px;
+  border: 2px dashed #cbd5e1;
+  border-radius: 16px;
+  background-color: #f8fafc;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.empty-state-container h3 {
+  margin: 12px 0 4px 0;
+  font-size: 16px;
+  color: #334155;
+  font-weight: 700;
+}
+
+.empty-state-container p {
+  margin: 0;
+  font-size: 13.5px;
+  color: #64748b;
+}
+
+.empty-icon {
+  font-size: 54px !important;
+  width: 54px !important;
+  height: 54px !important;
+  color: #94a3b8;
+}
+
+/* Reutilización del estándar corporativo del Spinner */
+.overlay-spinner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(15, 23, 42, 0.35);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999999 !important;
+  animation: fadeInOverlay 0.2s ease-out forwards;
+}
+
+.spinner-center-box {
+  background: #ffffff;
+  padding: 32px 40px;
+  border-radius: 16px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  max-width: 320px;
+  text-align: center;
+  border: 1px solid #f1f5f9;
+}
+
+.spinner-text {
+  margin: 0;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #334155;
+}
+
+@keyframes fadeInOverlay {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }

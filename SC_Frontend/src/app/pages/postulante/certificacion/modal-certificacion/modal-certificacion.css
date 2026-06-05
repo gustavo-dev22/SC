@@ -1,0 +1,60 @@
+/* Estilos del Encabezado del Modal */
+.modal-cert-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 20px;
+  font-weight: 700;
+  color: #1e293b;
+  padding: 20px 24px 10px 24px !important;
+}
+.modal-cert-title mat-icon {
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+}
+
+/* Contenedor del Cuerpo */
+.modal-cert-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px; /* Un gap pequeño evita que los subscripts de error deformen el modal */
+  width: 100% !important;
+  max-width: 100%;
+  padding: 12px 24px !important;
+  box-sizing: border-box;
+  overflow-x: hidden !important;
+}
+
+.full-width-field {
+  width: 100% !important;
+}
+
+/* Grilla inferior para los dos campos numéricos/cortos */
+.cert-form-row-metrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Acciones inferiores (Botones) */
+.modal-cert-actions {
+  padding: 16px 24px 20px 24px !important;
+  gap: 12px;
+}
+
+.btn-cert-cancel {
+  height: 40px;
+  font-weight: 600;
+  color: #64748b !important;
+  border-radius: 8px !important;
+}
+
+.btn-cert-confirm {
+  height: 40px;
+  font-weight: 600;
+  border-radius: 8px !important;
+  padding: 0 16px !important;
+}

@@ -1,0 +1,83 @@
+@if (cargando()) {
+  <div class="overlay-spinner">
+    <div class="spinner-center-box">
+      <mat-spinner diameter="50" color="primary"></mat-spinner>
+      <p class="spinner-text">Procesando registros de experiencia laboral...</p>
+    </div>
+  </div>
+}
+
+<div class="dashboard-header-container" style="border: none; padding-bottom: 0; margin-bottom: 12px;">
+  <div class="header-left-block">
+    <div class="title-with-badge">
+      <h1>Experiencia Laboral</h1>
+      @if (listaExperiencias().length > 0) {
+        <span class="premium-counter-badge">{{ listaExperiencias().length }}</span>
+      }
+    </div>
+    <p class="header-subtitle">Declare sus contratos, puestos y funciones desempeñadas en el sector público y privado.</p>
+  </div>
+  
+  <div class="header-right-block">
+    <button mat-flat-button color="primary" class="premium-add-button" (click)="abrirModal(null)">
+      <mat-icon>add</mat-icon>
+      <span>Agregar Experiencia</span>
+    </button>
+  </div>
+</div>
+
+@if (listaExperiencias().length > 0) {
+  <div class="kpi-experience-container">
+    <div class="kpi-card-box border-blue">
+      <span class="kpi-title"><mat-icon style="color:#2563eb;">analytics</mat-icon> TOTAL EXPERIENCIA GENERAL</span>
+      <span class="kpi-value">{{ resumenGeneral() }}</span>
+    </div>
+    <div class="kpi-card-box border-emerald">
+      <span class="kpi-title"><mat-icon style="color:#16a34a;">stars</mat-icon> TOTAL EXPERIENCIA ESPECÍFICA</span>
+      <span class="kpi-value">{{ resumenEspecifico() }}</span>
+    </div>
+  </div>
+}
+
+<div class="cards-timeline" style="margin-top: 16px;">
+  @if (listaExperiencias().length === 0) {
+    <div class="empty-state-container">
+      <mat-icon class="empty-icon">business_center</mat-icon>
+      <h3>Sin historial laboral</h3>
+      <p>Aún no ha registrado sus experiencias de trabajo. Presione el botón para inicializar su CV.</p>
+    </div>
+  }
+
+  @for (item of listaExperiencias(); track item.idExperiencia) {
+    <div class="academic-card">
+      <div style="display:flex; flex-direction:column; gap:8px;">
+        <div class="academic-badge" [class.badge-publico]="item.esSectorPublico" [class.badge-privado]="!item.esSectorPublico">
+          {{ item.esSectorPublico ? 'Sector Público' : 'Sector Privado' }}
+        </div>
+        <!-- Renderizado dinámico del distintivo de específica -->
+        @if (item.esExperienciaEspecifica) {
+          <div class="academic-badge badge-especifica">
+            ✓ Específica
+          </div>
+        }
+      </div>
+
+      <div class="academic-body">
+        <h3>{{ item.cargoPuesto }}</h3>
+        <p class="inst">{{ item.empresaInstitucion }}</p>
+        <p class="status" style="margin-bottom:6px; color:#475569; font-size:13px; line-height: 1.5;">
+          <strong>Funciones:</strong> {{ item.funcionesPrincipales }}
+        </p>
+        <p class="period">
+          Periodo: {{ item.fechaInicio | date:'dd/MM/yyyy' }} - {{ item.fechaFin ? (item.fechaFin | date:'dd/MM/yyyy') : 'Actualidad' }} 
+          <span style="color:#2563eb; font-weight:600; margin-left:8px;">({{ convertirDiasALegible(item.totalDiasAcumulados) }})</span>
+        </p>
+      </div>
+      
+      <div class="academic-actions">
+        <button mat-icon-button color="primary" (click)="abrirModal(item)" matTooltip="Editar"><mat-icon>edit</mat-icon></button>
+        <button mat-icon-button color="warn" (click)="eliminar(item.idExperiencia)" matTooltip="Eliminar"><mat-icon>delete</mat-icon></button>
+      </div>
+    </div>
+  }
+</div>

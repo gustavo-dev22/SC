@@ -55,5 +55,54 @@ namespace Infrastructure.Services
             await connection.ExecuteAsync("sp_PostulanteFormacion_Mantenimiento", command, commandType: CommandType.StoredProcedure);
             return true;
         }
+
+        public async Task<bool> MantenimientoCertificacionAsync(MantenimientoCertificacionCommand command)
+        {
+            using IDbConnection connection = _dbConnectionFactory.CreateConnection();
+            await connection.ExecuteAsync("sp_PostulanteCertificacion_Mantenimiento", command, commandType: CommandType.StoredProcedure);
+            return true;
+        }
+
+        public async Task<bool> MantenimientoExperienciaAsync(MantenimientoExperienciaCommand command)
+        {
+            using IDbConnection connection = _dbConnectionFactory.CreateConnection();
+
+            // Blindamos las fechas por desborde y mapeamos el objeto para Dapper
+            var parametros = new
+            {
+                Accion = command.Accion,
+                IdExperiencia = command.IdExperiencia,
+                IdPostulante = command.IdPostulante,
+                EmpresaInstitucion = command.EmpresaInstitucion,
+                CargoPuesto = command.CargoPuesto,
+                FechaInicio = command.FechaInicio == default ? DateTime.Now : command.FechaInicio,
+                FechaFin = command.FechaFin, // Puede ser null de forma nativa
+                EsSectorPublico = command.EsSectorPublico,
+                EsExperienciaEspecifica = command.EsExperienciaEspecifica,
+                FuncionesPrincipales = command.FuncionesPrincipales
+            };
+
+            await connection.ExecuteAsync("sp_PostulanteExperiencia_Mantenimiento", parametros, commandType: CommandType.StoredProcedure);
+            return true;
+        }
+
+        public async Task<bool> MantenimientoColegiaturaAsync(MantenimientoColegiaturaCommand command)
+        {
+            using IDbConnection connection = _dbConnectionFactory.CreateConnection();
+
+            var parametros = new
+            {
+                Accion = command.Accion,
+                IdColegiatura = command.IdColegiatura,
+                IdPostulante = command.IdPostulante,
+                IdColegioCat = command.IdColegioCat,
+                NumeroColegiacion = command.NumeroColegiacion,
+                FechaColegiacion = command.FechaColegiacion == default ? DateTime.Now : command.FechaColegiacion,
+                CertificadoHabilitacionRuta = command.CertificadoHabilitacionRuta ?? string.Empty
+            };
+
+            await connection.ExecuteAsync("sp_PostulanteColegiatura_Mantenimiento", parametros, commandType: CommandType.StoredProcedure);
+            return true;
+        }
     }
 }

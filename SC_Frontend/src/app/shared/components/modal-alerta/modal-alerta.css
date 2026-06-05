@@ -1,0 +1,117 @@
+/* Contenedor Principal con Bordes Temáticos y Sombra Suave (Box-Shadow Enterprise) */
+.premium-alert-container {
+  background-color: #ffffff;
+  border-radius: 16px !important;
+  overflow: hidden;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Inyección de bordes según el tipo de respuesta */
+.alert-border-advertencia { border-top: 5px solid #d97706; }
+.alert-border-error { border-top: 5px solid #dc2626; }
+.alert-border-exito { border-top: 5px solid #16a34a; }
+
+/* 🚀 ANIMACIÓN Y ANILLOS CONCÉNTRICOS PARA EL ICONO */
+.premium-alert-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  text-align: center;
+}
+
+.icon-ring-wrapper {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: scaleUpIcon 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+/* Paleta de colores para los anillos del icono */
+.icon-ring-advertencia { background-color: #fef3c7; color: #d97706; }
+.icon-ring-error { background-color: #fee2e2; color: #dc2626; }
+.icon-ring-exito { background-color: #dcfce7; color: #16a34a; }
+
+.premium-alert-icon {
+  font-size: 28px !important;
+  width: 28px !important;
+  height: 28px !important;
+}
+
+/* Tipografía del Título */
+.premium-alert-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f172a; /* Slate ultra oscuro */
+  letter-spacing: -0.3px;
+}
+
+/* Área del Contenido */
+.premium-alert-content {
+  width: 100% !important;
+  max-width: 100%;
+  padding: 0 !important;
+  margin-top: 12px;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.premium-alert-content p {
+  margin: 0;
+  color: #475569; /* Slate suave, reduce fatiga visual */
+  font-size: 14px;
+  line-height: 1.6;
+  font-weight: 400;
+}
+
+/* Acciones y Botón Con Estilo Tailwind */
+.premium-alert-actions {
+  width: 100%;
+  padding: 0 !important;
+}
+
+.btn-premium-alert-confirm {
+  width: 100%; /* Botón ancho para una UX móvil y web super cómoda */
+  height: 44px !important;
+  border-radius: 10px !important;
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  letter-spacing: 0.2px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out !important;
+}
+
+.btn-premium-alert-confirm:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08) !important;
+}
+
+/* Colores de los botones según el contexto */
+.btn-color-advertencia { background-color: #d97706 !important; color: #ffffff !important; }
+.btn-color-advertencia:hover { background-color: #b45309 !important; }
+
+.btn-color-error { background-color: #dc2626 !important; color: #ffffff !important; }
+.btn-color-error:hover { background-color: #b91c1c !important; }
+
+.btn-color-exito { background-color: #16a34a !important; color: #ffffff !important; }
+.btn-color-exito:hover { background-color: #15803d !important; }
+
+/* Keyframes para la animación de entrada del icono */
+@keyframes scaleUpIcon {
+  0% { transform: scale(0.6); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.alert-border-confirmacion { border-top: 5px solid #2563eb; }
+.icon-ring-confirmacion { background-color: #dbeafe; color: #2563eb; }

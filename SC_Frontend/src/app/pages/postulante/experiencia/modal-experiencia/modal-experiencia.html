@@ -1,0 +1,71 @@
+<h2 mat-dialog-title class="modal-exp-title">
+  <mat-icon color="primary">business_center</mat-icon>
+  <span>{{ isEdicion ? 'Modificar Registro Laboral' : 'Registrar Experiencia Laboral' }}</span>
+</h2>
+
+<mat-dialog-content [formGroup]="expForm" class="modal-exp-content">
+  
+  <mat-form-field appearance="outline" class="full-width-field">
+    <mat-label>Cargo / Puesto Desempeñado</mat-label>
+    <mat-icon matPrefix style="color: #64748b; margin-right: 8px;">badge</mat-icon>
+    <input matInput formControlName="cargoPuesto" placeholder="Ej: Especialista o Arquitecto de Software">
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="full-width-field">
+    <mat-label>Empresa / Institución / Entidad Empleadora</mat-label>
+    <mat-icon matPrefix style="color: #64748b; margin-right: 8px;">corporate_fare</mat-icon>
+    <input matInput formControlName="empresaInstitucion" placeholder="Escriba para buscar o registrar la organización..." [matAutocomplete]="autoEntidad">
+    
+    <mat-autocomplete #autoEntidad="matAutocomplete">
+      @if (cargandoCentros()) { <mat-option disabled>Buscando instituciones en el padrón nacional...</mat-option> }
+      @for (entidad of centrosEstudiosFiltrados(); track entidad.nombre) {
+        <mat-option [value]="entidad.nombre">
+          <div style="display: flex; justify-content: space-between; width: 100%; align-items: center; gap: 12px;">
+            <span style="font-size: 13px; font-weight: 500;">{{ entidad.nombre }}</span>
+            <span [style.background]="entidad.tipoProvider === 'PUBLICO' ? '#f0fdf4' : '#f1f5f9'"
+                  [style.color]="entidad.tipoProvider === 'PUBLICO' ? '#16a34a' : '#475569'"
+                  style="font-size: 8.5px; font-weight: 800; padding: 2px 6px; border-radius:4px;">
+              {{ entidad.tipoProvider }}
+            </span>
+          </div>
+        </mat-option>
+      }
+    </mat-autocomplete>
+  </mat-form-field>
+
+  <!-- Fila 3: Los Checkboxes de Clasificación Normativa -->
+  <div class="form-row-two" style="margin-top: 4px; margin-bottom: 8px; padding-left: 4px; display: flex; gap: 20px;">
+    <mat-checkbox formControlName="esSectorPublico" color="primary">
+      <span style="font-weight: 600; color: #475569; font-size: 13px;">Institución del Estado (Sector Público)</span>
+    </mat-checkbox>
+    
+    <mat-checkbox formControlName="esExperienciaEspecifica" color="primary">
+      <span style="font-weight: 600; color: #475569; font-size: 13px;">Acredita como Experiencia Específica</span>
+    </mat-checkbox>
+  </div>
+
+  <div class="dates-form-grid">
+    <mat-form-field appearance="outline" class="full-width-field">
+      <mat-label>Fecha de Inicio</mat-label>
+      <input matInput type="date" formControlName="fechaInicio">
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width-field">
+      <mat-label>Fecha de Término (Vacío = Actualidad)</mat-label>
+      <input matInput type="date" formControlName="fechaFin">
+    </mat-form-field>
+  </div>
+
+  <mat-form-field appearance="outline" class="full-width-field">
+    <mat-label>Funciones Principales y Logros Desarrollados</mat-label>
+    <textarea matInput formControlName="funcionesPrincipales" rows="4" placeholder="Describa de forma concisa las actividades ejecutadas en el puesto..."></textarea>
+  </mat-form-field>
+
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="modal-exp-actions">
+  <button mat-button class="btn-modal-cancel" (click)="cancelar()">Cancelar</button>
+  <button mat-flat-button color="primary" class="btn-modal-confirm" [disabled]="expForm.invalid" (click)="guardar()">
+    <mat-icon>check_circle</mat-icon> Guardar Experiencia
+  </button>
+</mat-dialog-actions>

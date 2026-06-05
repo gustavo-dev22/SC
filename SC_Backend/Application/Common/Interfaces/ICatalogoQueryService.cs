@@ -13,5 +13,6 @@ namespace Application.Common.Interfaces
         Task<List<CatalogoTipoDto>> ObtenerTiposActivosAsync();
         Task<List<CatalogoValorDto>> ListarValoresByCodigoTipoAsync(string codigoTipo);
         Task<List<CentroEstudioDto>> ListarInstitutosPredictivoAsync(string filtro);
+        Task<List<CentroEstudioDto>> ListarEntidadesPublicasPredictivoAsync(string filtro);
     }
 }

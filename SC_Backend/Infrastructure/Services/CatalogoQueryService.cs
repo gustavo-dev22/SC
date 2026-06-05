@@ -66,6 +66,25 @@ namespace Infrastructure.Services
             }).ToList();
         }
 
+        public async Task<List<CentroEstudioDto>> ListarEntidadesPublicasPredictivoAsync(string filtro)
+        {
+            using IDbConnection connection = _dbConnectionFactory.CreateConnection();
+
+            var parametros = new { TextoBusqueda = filtro };
+
+            var dbResult = await connection.QueryAsync<DapperPredictivoResult>(
+                "sp_Entidades_ListarPredictivo",
+                parametros,
+                commandType: CommandType.StoredProcedure
+            );
+
+            return dbResult.Select(i => new CentroEstudioDto
+            {
+                Nombre = i.Descripcion.ToUpper(),
+                TipoProvider = "PUBLICO"
+            }).ToList();
+        }
+
         private class DapperPredictivoResult { public int Id { get; set; } public string Descripcion { get; set; } = string.Empty; }
     }
 }
