@@ -1,0 +1,47 @@
+<h2 mat-dialog-title class="modal-academic-title">
+  <mat-icon color="primary">rule</mat-icon>
+  <span>{{ isEdicion ? 'Modificar Requisito Especial' : 'Registrar Requisito Especial' }}</span>
+</h2>
+
+<mat-dialog-content [formGroup]="reqForm" class="modal-academic-content">
+  
+  <mat-form-field appearance="outline" class="full-width-field">
+    <mat-label>Tipo de Requisito Solicitado</mat-label>
+    <mat-select formControlName="idTipoRequisitoCat">
+      <mat-option value="">-- Seleccione el Tipo --</mat-option>
+      @for (tipo of listaTiposRequisitos(); track tipo.idValor) {
+        <mat-option [value]="tipo.idValor">{{ tipo.descripcion }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="full-width-field" style="margin-top: 8px;">
+    <mat-label>Descripción Detallada del Documento / Certificación</mat-label>
+    <input matInput formControlName="descripcionDocumento" placeholder="Ej: Licencia de Conducir Clase A Categoría IIb (Vigente)">
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="full-width-field" style="margin-top: 8px;">
+    <mat-label>Número de Registro / Carné / Documento</mat-label>
+    <input matInput formControlName="numeroRegistro" placeholder="Ej: Q-45127896">
+  </mat-form-field>
+
+  <div class="form-row-two" style="margin-top: 8px;">
+    <mat-form-field appearance="outline" class="full-width-field">
+      <mat-label>Fecha de Emisión</mat-label>
+      <input matInput type="date" formControlName="fechaEmision">
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width-field">
+      <mat-label>Fecha de Vencimiento (Si aplica)</mat-label>
+      <input matInput type="date" formControlName="fechaVencimiento">
+    </mat-form-field>
+  </div>
+
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="modal-academic-actions">
+  <button mat-button class="btn-modal-cancel" (click)="cancelar()">Cancelar</button>
+  <button mat-flat-button color="primary" class="btn-modal-confirm" [disabled]="reqForm.invalid" (click)="guardar()">
+    <mat-icon>check_circle</mat-icon> Guardar Requisito
+  </button>
+</mat-dialog-actions>

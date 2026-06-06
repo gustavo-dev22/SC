@@ -1,0 +1,70 @@
+@if (cargando()) {
+  <div class="overlay-spinner">
+    <div class="spinner-center-box">
+      <mat-spinner diameter="50" color="primary"></mat-spinner>
+      <p class="spinner-text">Calculando estado del currículum...</p>
+    </div>
+  </div>
+}
+
+<div class="dashboard-header-container" style="margin-bottom: 20px;">
+  <div class="header-left-block">
+    <h1>Ficha Única del Postulante</h1>
+    <p class="header-subtitle">Audite el estado global de su legajo y verifique los requisitos mínimos completados para concursar.</p>
+  </div>
+
+  <div class="header-right-block">
+    <button mat-flat-button 
+            style="background-color: #0f172a; color: white; height: 44px; border-radius: 8px; font-weight: 600;"
+            (click)="imprimirFichaPDF()"
+            [disabled]="porcentaje() < 100"> <mat-icon style="margin-right: 8px;">print</mat-icon>
+      Imprimir Ficha (PDF)
+    </button>
+  </div>
+</div>
+
+<div class="kpi-progress-card">
+  <div class="progress-info-row">
+    <span class="progress-label">
+      <mat-icon [color]="porcentaje() === 100 ? 'primary' : 'warn'">
+        {{ porcentaje() === 100 ? 'check_circle' : 'error_outline' }}
+      </mat-icon>
+      <strong>
+        {{ porcentaje() === 100 ? '¡Curriculum Completo al 100%! Listo para postular' : 'Currículum Incompleto' }}
+      </strong>
+    </span>
+    <span class="progress-percentage-text">{{ porcentaje() }}%</span>
+  </div>
+  
+  <mat-progress-bar mode="determinate" [value]="porcentaje()" [color]="porcentaje() === 100 ? 'primary' : 'accent'" class="custom-bar"></mat-progress-bar>
+  
+  @if (porcentaje() < 100) {
+    <p class="alert-warning-text">
+      ⚠️ Para habilitar la postulación a las plazas CAS, debe completar el registro de las secciones bloqueadas abajo.
+    </p>
+  }
+</div>
+
+<mat-tab-group dynamicHeight class="premium-tab-group" animationDuration="200ms">
+  
+  @for (tab of tabsConfigurar; track tab.id) {
+    
+    <mat-tab [disabled]="!tab.verificarFlag(flagsBD())">
+      
+      <ng-template mat-tab-label>
+        <mat-icon class="tab-icon">{{ tab.icono }}</mat-icon>
+        <span>{{ tab.titulo }}</span>
+        @if (!tab.verificarFlag(flagsBD())) { 
+          <mat-icon class="lock-icon">lock</mat-icon> 
+        }
+      </ng-template>
+      
+      <div class="tab-body-wrapper">
+        <ng-container *ngComponentOutlet="tab.componente; inputs: tab.inputsComponente"></ng-container>
+      </div>
+
+    </mat-tab>
+
+  }
+
+</mat-tab-group>

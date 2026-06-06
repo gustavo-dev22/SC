@@ -1,0 +1,57 @@
+@if (cargando()) {
+  <div class="overlay-spinner">
+    <div class="spinner-center-box">
+      <mat-spinner diameter="50" color="primary"></mat-spinner>
+      <p class="spinner-text">Procesando conocimientos de ofimática...</p>
+    </div>
+  </div>
+}
+
+<div class="dashboard-header-container">
+  <div class="header-left-block">
+    <div class="title-with-badge">
+      <h1>Conocimientos de Ofimática</h1>
+      @if (listaOfimatica().length > 0) {
+        <span class="premium-counter-badge">{{ listaOfimatica().length }}</span>
+      }
+    </div>
+    @if (!modoLectura) {
+      <p class="header-subtitle">Declare su nivel de dominio en procesadores de texto y hojas de cálculo exigidos en el perfil técnico.</p>
+    }
+  </div>
+  @if (!modoLectura) {
+    <div class="header-right-block">
+      <button mat-flat-button color="primary" class="premium-add-button" (click)="abrirModal(null)">
+        <mat-icon>add</mat-icon>
+        <span>Agregar Herramienta</span>
+      </button>
+    </div>
+  }
+</div>
+
+<div class="cards-timeline" style="margin-top: 16px;">
+  @if (listaOfimatica().length === 0) {
+    <div class="empty-state-container">
+      <mat-icon class="empty-icon">computer</mat-icon>
+      <h3>Sin herramientas declaradas</h3>
+      <p>Aún no ha ingresado sus competencias de ofimática en su currículum. Presione el botón superior para empezar.</p>
+    </div>
+  }
+
+  @for (item of listaOfimatica(); track item.idPostulanteOfimatica) {
+    <div class="academic-card">
+      <div class="academic-badge" style="background-color: #fafafa; color: #1e293b; border: 1px solid #e2e8f0;">
+        Nivel: {{ item.nivelClasificacion }}
+      </div>
+      <div class="academic-body">
+        <h3>{{ item.herramientaClasificacion }}</h3>
+      </div>
+      @if (!modoLectura) {
+        <div class="academic-actions">
+          <button mat-icon-button color="primary" (click)="abrirModal(item)" matTooltip="Editar"><mat-icon>edit</mat-icon></button>
+          <button mat-icon-button color="warn" (click)="eliminar(item.idPostulanteOfimatica)" matTooltip="Eliminar"><mat-icon>delete</mat-icon></button>
+        </div>
+      }
+    </div>
+  }
+</div>

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, OnInit, signal, ViewContainerRef } from '@angular/core';
+import { Component, computed, inject, Input, OnInit, signal, ViewContainerRef } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
@@ -17,6 +17,7 @@ import { AlertService } from '../../../shared/services/alert.service';
   styleUrl: './experiencia.css',
 })
 export class Experiencia implements OnInit {
+  @Input() modoLectura = false;
   private dialog = inject(MatDialog);
   private expService = inject(PostulanteExperienciaService);
   private viewContainerRef = inject(ViewContainerRef);

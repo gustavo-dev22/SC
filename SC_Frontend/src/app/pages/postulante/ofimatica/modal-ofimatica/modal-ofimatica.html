@@ -1,0 +1,35 @@
+<h2 mat-dialog-title class="modal-academic-title">
+  <mat-icon color="primary">computer</mat-icon>
+  <span>{{ isEdicion ? 'Modificar Herramienta' : 'Agregar Herramienta de Ofimática' }}</span>
+</h2>
+
+<mat-dialog-content [formGroup]="ofiForm" class="modal-academic-content">
+  
+  <mat-form-field appearance="outline" class="full-width-field">
+    <mat-label>Herramienta Ofimática</mat-label>
+    <mat-select formControlName="idHerramientaCat">
+      <mat-option value="">-- Seleccione la Herramienta --</mat-option>
+      @for (herr of listaHerramientas(); track herr.idValor) {
+        <mat-option [value]="herr.idValor">{{ herr.descripcion }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="full-width-field" style="margin-top: 8px;">
+    <mat-label>Nivel de Dominio Acreditado</mat-label>
+    <mat-select formControlName="idNivelCat">
+      <mat-option value="">-- Seleccione el Nivel --</mat-option>
+      @for (niv of listaNiveles(); track niv.idValor) {
+        <mat-option [value]="niv.idValor">{{ niv.descripcion }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="modal-academic-actions">
+  <button mat-button class="btn-modal-cancel" (click)="cancelar()">Cancelar</button>
+  <button mat-flat-button color="primary" class="btn-modal-confirm" [disabled]="ofiForm.invalid" (click)="guardar()">
+    <mat-icon>check_circle</mat-icon> Guardar Herramienta
+  </button>
+</mat-dialog-actions>

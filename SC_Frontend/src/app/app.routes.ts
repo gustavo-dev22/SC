@@ -56,6 +56,26 @@ export const routes: Routes = [
             {
                 path: 'postulante/experiencia',
                 loadComponent: () => import('./pages/postulante/experiencia/experiencia').then(m => m.Experiencia)
+            },
+            {
+                path: 'postulante/colegiatura',
+                loadComponent: () => import('./pages/postulante/colegiatura/colegiatura').then(m => m.Colegiatura)
+            },
+            {
+                path: 'postulante/idiomas',
+                loadComponent: () => import('./pages/postulante/idioma/idioma').then(m => m.Idiomas)
+            },
+            {
+                path: 'postulante/ofimatica',
+                loadComponent: () => import('./pages/postulante/ofimatica/ofimatica').then(m => m.Ofimatica)
+            },
+            {
+                path: 'postulante/otros-requisitos',
+                loadComponent: () => import('./pages/postulante/otros-requisitos/otros-requisitos').then(m => m.OtrosRequisitos)
+            },
+            {
+                path: 'postulante/ficha-resumen',
+                loadComponent: () => import('./pages/postulante/ficha-resumen/ficha-resumen').then(m => m.FichaResumen)
             }
         ]
     },

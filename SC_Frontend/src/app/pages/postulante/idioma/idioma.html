@@ -1,0 +1,61 @@
+@if (cargando()) {
+  <div class="overlay-spinner">
+    <div class="spinner-center-box">
+      <mat-spinner diameter="50" color="primary"></mat-spinner>
+      <p class="spinner-text">Procesando idiomas y dialectos...</p>
+    </div>
+  </div>
+}
+
+<div class="dashboard-header-container">
+  <div class="header-left-block">
+    <div class="title-with-badge">
+      <h1>Idiomas / Dialectos</h1>
+      @if (listaIdiomas().length > 0) {
+        <span class="premium-counter-badge">{{ listaIdiomas().length }}</span>
+      }
+    </div>
+    @if (!modoLectura) {
+    <p class="header-subtitle">Declare sus competencias en lenguas extranjeras u originarias obligatorias según el perfil de la plaza.</p>
+    }
+  </div>
+  @if (!modoLectura) {
+    <div class="header-right-block">
+    <button mat-flat-button color="primary" class="premium-add-button" (click)="abrirModal(null)">
+        <mat-icon>add</mat-icon>
+        <span>Agregar Idioma</span>
+      </button>
+    </div>
+  } 
+</div>
+
+<div class="cards-timeline" style="margin-top: 16px;">
+  @if (listaIdiomas().length === 0) {
+    <div class="empty-state-container">
+      <mat-icon class="empty-icon">translate</mat-icon>
+      <h3>Sin lenguas declaradas</h3>
+      <p>Aún no ha ingresado ningún idioma en su postulación. Presione el botón superior para declararlo.</p>
+    </div>
+  }
+
+  @for (item of listaIdiomas(); track item.idPostulanteIdioma) {
+    <div class="academic-card">
+      <div class="academic-badge" style="background-color: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe;">
+        {{ item.idiomaClasificacion }}
+      </div>
+      <div class="academic-body">
+        <div style="display: flex; gap: 24px; margin-top: 6px; font-size: 13.5px; color: #475569;">
+          <p style="margin:0;">🗣️ <strong>Habla:</strong> {{ item.nivelHablaClasificacion }}</p>
+          <p style="margin:0;">📖 <strong>Lectura:</strong> {{ item.nivelLecturaClasificacion }}</p>
+          <p style="margin:0;">✍️ <strong>Escritura:</strong> {{ item.nivelEscrituraClasificacion }}</p>
+        </div>
+      </div>
+      @if (!modoLectura) {
+        <div class="academic-actions">
+          <button mat-icon-button color="primary" (click)="abrirModal(item)" matTooltip="Editar"><mat-icon>edit</mat-icon></button>
+          <button mat-icon-button color="warn" (click)="eliminar(item.idPostulanteIdioma)" matTooltip="Eliminar"><mat-icon>delete</mat-icon></button>
+        </div>
+      }
+    </div>
+  }
+</div>

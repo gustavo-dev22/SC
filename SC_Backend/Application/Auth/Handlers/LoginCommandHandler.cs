@@ -135,6 +135,7 @@ namespace Application.Auth.Handlers
     
                 // 11. Declaraciones Juradas (Ajustado)
                 new MenuObjetoDto { IdObjeto = 211, IdPadre = 200, Nombre = "Declaraciones Juradas", Tipo = "S", Url = "/postulante/declaraciones", Icono = "gavel" },
+                new MenuObjetoDto { IdObjeto = 212, IdPadre = 200, Nombre = "Ficha del Postulante", Tipo = "S", Url = "/postulante/ficha-resumen", Icono = "analytics" },
 
                 new MenuObjetoDto { IdObjeto = 300, IdPadre = null, Nombre = "Oportunidades", Tipo = "M", Url = "", Icono = "local_activity" },
                 new MenuObjetoDto { IdObjeto = 301, IdPadre = 300, Nombre = "Buscar Plazas Vacantes", Tipo = "S", Url = "/postulante/buscar-plazas", Icono = "travel_explore" },

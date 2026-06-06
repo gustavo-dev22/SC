@@ -1,0 +1,61 @@
+<h2 mat-dialog-title class="modal-academic-title">
+  <mat-icon color="primary">translate</mat-icon>
+  <span>{{ isEdicion ? 'Modificar Idioma / Dialecto' : 'Declarar Idioma / Dialecto' }}</span>
+</h2>
+
+<mat-dialog-content [formGroup]="idmForm" class="modal-academic-content">
+  
+  <mat-form-field appearance="outline" class="full-width-field">
+    <mat-label>Seleccione el Idioma o Dialecto</mat-label>
+    <mat-select formControlName="idIdiomaCat">
+      <mat-option value="">-- Seleccione --</mat-option>
+      @for (idm of listaIdiomas(); track idm.idValor) {
+        <mat-option [value]="idm.idValor">{{ idm.descripcion }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+  <p style="font-size: 12px; font-weight: 700; color: #64748b; margin: 12px 0 4px 0; letter-spacing: 0.3px;">MATRIZ DE COMPETENCIAS</p>
+
+  <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+    
+    <mat-form-field appearance="outline">
+      <mat-label>🗣️ Habla</mat-label>
+      <mat-select formControlName="idNivelHablaCat">
+        <mat-option value="">-- Seleccione --</mat-option>
+        @for (nv of listaNiveles(); track nv.idValor) {
+          <mat-option [value]="nv.idValor">{{ nv.descripcion }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>📖 Lectura</mat-label>
+      <mat-select formControlName="idNivelLecturaCat">
+        <mat-option value="">-- Seleccione --</mat-option>
+        @for (nv of listaNiveles(); track nv.idValor) {
+          <mat-option [value]="nv.idValor">{{ nv.descripcion }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>✍️ Escritura</mat-label>
+      <mat-select formControlName="idNivelEscrituraCat">
+        <mat-option value="">-- Seleccione --</mat-option>
+        @for (nv of listaNiveles(); track nv.idValor) {
+          <mat-option [value]="nv.idValor">{{ nv.descripcion }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+  </div>
+
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="modal-academic-actions">
+  <button mat-button class="btn-modal-cancel" (click)="cancelar()">Cancelar</button>
+  <button mat-flat-button color="primary" class="btn-modal-confirm" [disabled]="idmForm.invalid" (click)="guardar()">
+    <mat-icon>check_circle</mat-icon> Guardar Idioma
+  </button>
+</mat-dialog-actions>

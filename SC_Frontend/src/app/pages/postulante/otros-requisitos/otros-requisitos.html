@@ -1,0 +1,58 @@
+@if (cargando()) {
+  <div class="overlay-spinner">
+    <div class="spinner-center-box">
+      <mat-spinner diameter="50" color="primary"></mat-spinner>
+      <p class="spinner-text">Sincronizando requisitos del sistema...</p>
+    </div>
+  </div>
+}
+
+<div class="dashboard-header-container">
+  <div class="header-left-block">
+    <div class="title-with-badge">
+      <h1>Otros Requisitos Solicitados</h1>
+      @if (listaRequisitos().length > 0) {
+        <span class="premium-counter-badge">{{ listaRequisitos().length }}</span>
+      }
+    </div>
+    <p class="header-subtitle">Declare licencias de conducir, certificaciones OSCE u otros requisitos específicos exigidos en las bases.</p>
+  </div>
+  <div class="header-right-block">
+    <button mat-flat-button color="primary" class="premium-add-button" (click)="abrirModal(null)">
+      <mat-icon>add</mat-icon>
+      <span>Agregar Requisito</span>
+    </button>
+  </div>
+</div>
+
+<div class="cards-timeline" style="margin-top: 16px;">
+  @if (listaRequisitos().length === 0) {
+    <div class="empty-state-container">
+      <mat-icon class="empty-icon">rule</mat-icon>
+      <h3>Sin requisitos adicionales declarados</h3>
+      <p>Si la plaza de su interés solicita un requisito especial habilitante, declárelo presionando el botón superior.</p>
+    </div>
+  }
+
+  @for (item of listaRequisitos(); track item.idRequisitoEspecial) {
+    <div class="academic-card">
+      <div class="academic-badge" style="background-color: #f8fafc; color: #475569; border: 1px solid #e2e8f0;">
+        Reg. {{ item.numeroRegistro }}
+      </div>
+      <div class="academic-body">
+        <h3 style="margin: 0 0 4px 0;">{{ item.tipoRequisitoClasificacion }}</h3>
+        <p class="inst" style="margin: 0 0 6px 0; color: #1e293b; font-weight: 600;">{{ item.descripcionDocumento }}</p>
+        <p class="period" style="margin: 0;">
+          Emisión: {{ item.fechaEmision ? (item.fechaEmision | date:'dd/MM/yyyy') : 'No registra' }} 
+          @if (item.fechaVencimiento) {
+            <span style="margin-left: 12px; color: #dc2626; font-weight: 600;">⏱️ Vence: {{ item.fechaVencimiento | date:'dd/MM/yyyy' }}</span>
+          }
+        </p>
+      </div>
+      <div class="academic-actions">
+        <button mat-icon-button color="primary" (click)="abrirModal(item)" matTooltip="Editar"><mat-icon>edit</mat-icon></button>
+        <button mat-icon-button color="warn" (click)="eliminar(item.idRequisitoEspecial)" matTooltip="Eliminar"><mat-icon>delete</mat-icon></button>
+      </div>
+    </div>
+  }
+</div>

@@ -104,5 +104,58 @@ namespace Infrastructure.Services
             await connection.ExecuteAsync("sp_PostulanteColegiatura_Mantenimiento", parametros, commandType: CommandType.StoredProcedure);
             return true;
         }
+
+        public async Task<bool> MantenimientoIdiomaAsync(MantenimientoIdiomaCommand command)
+        {
+            using IDbConnection connection = _dbConnectionFactory.CreateConnection();
+            var parametros = new
+            {
+                Accion = command.Accion,
+                IdPostulanteIdioma = command.IdPostulanteIdioma,
+                IdPostulante = command.IdPostulante,
+                IdIdiomaCat = command.IdIdiomaCat,
+                IdNivelHablaCat = command.IdNivelHablaCat,
+                IdNivelLecturaCat = command.IdNivelLecturaCat,
+                IdNivelEscrituraCat = command.IdNivelEscrituraCat
+            };
+
+            await connection.ExecuteAsync("sp_PostulanteIdioma_Mantenimiento", parametros, commandType: CommandType.StoredProcedure);
+            return true;
+        }
+
+        public async Task<bool> MantenimientoOfimaticaAsync(MantenimientoOfimaticaCommand command)
+        {
+            using IDbConnection connection = _dbConnectionFactory.CreateConnection();
+            var parametros = new
+            {
+                Accion = command.Accion,
+                IdPostulanteOfimatica = command.IdPostulanteOfimatica,
+                IdPostulante = command.IdPostulante,
+                IdHerramientaCat = command.IdHerramientaCat,
+                IdNivelCat = command.IdNivelCat
+            };
+
+            await connection.ExecuteAsync("sp_PostulanteOfimatica_Mantenimiento", parametros, commandType: CommandType.StoredProcedure);
+            return true;
+        }
+
+        public async Task<bool> MantenimientoRequisitoEspecialAsync(MantenimientoRequisitoEspecialCommand command)
+        {
+            using IDbConnection connection = _dbConnectionFactory.CreateConnection();
+            var parametros = new
+            {
+                Accion = command.Accion,
+                IdRequisitoEspecial = command.IdRequisitoEspecial,
+                IdPostulante = command.IdPostulante,
+                IdTipoRequisitoCat = command.IdTipoRequisitoCat,
+                DescripcionDocumento = command.DescripcionDocumento,
+                NumeroRegistro = command.NumeroRegistro,
+                FechaEmision = command.FechaEmision,
+                FechaVencimiento = command.FechaVencimiento
+            };
+
+            await connection.ExecuteAsync("sp_PostulanteRequisitoEspecial_Mantenimiento", parametros, commandType: CommandType.StoredProcedure);
+            return true;
+        }
     }
 }

@@ -1,0 +1,37 @@
+<h2 mat-dialog-title class="modal-academic-title">
+  <mat-icon color="primary">card_membership</mat-icon>
+  <span>{{ isEdicion ? 'Modificar Colegiatura' : 'Registrar Colegiatura' }}</span>
+</h2>
+
+<mat-dialog-content [formGroup]="colForm" class="modal-academic-content">
+  
+  <mat-form-field appearance="outline" class="full-width-field">
+    <mat-label>Colegio Profesional</mat-label>
+    <mat-select formControlName="idColegioCat">
+      <mat-option value="">-- Seleccione el Consejo --</mat-option>
+      @for (colegio of listaColegios(); track colegio.idValor) {
+        <mat-option [value]="colegio.idValor">{{ colegio.descripcion }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+
+  <div class="form-row-two" style="margin-top: 8px;">
+    <mat-form-field appearance="outline" class="full-width-field">
+      <mat-label>Número de Colegiatura</mat-label>
+      <input matInput formControlName="numeroColegiacion" placeholder="Ej: 84512">
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width-field">
+      <mat-label>Fecha de Incorporación / Colegiación</mat-label>
+      <input matInput type="date" formControlName="fechaColegiacion">
+    </mat-form-field>
+  </div>
+
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="modal-academic-actions">
+  <button mat-button class="btn-modal-cancel" (click)="cancelar()">Cancelar</button>
+  <button mat-flat-button color="primary" class="btn-modal-confirm" [disabled]="colForm.invalid" (click)="guardar()">
+    <mat-icon>check_circle</mat-icon> Guardar Colegiatura
+  </button>
+</mat-dialog-actions>

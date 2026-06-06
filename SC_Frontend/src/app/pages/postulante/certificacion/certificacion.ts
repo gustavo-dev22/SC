@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, Input, OnInit, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
@@ -17,6 +17,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
   styleUrl: './certificacion.css',
 })
 export class Certificacion implements OnInit {
+  @Input() modoLectura = false;
   private dialog = inject(MatDialog);
   private certService = inject(PostulanteCertificacionService);
   private alertService = inject(AlertService);

@@ -15,5 +15,8 @@ namespace Application.Common.Interfaces
         Task<bool> MantenimientoCertificacionAsync(MantenimientoCertificacionCommand command);
         Task<bool> MantenimientoExperienciaAsync(MantenimientoExperienciaCommand command);
         Task<bool> MantenimientoColegiaturaAsync(MantenimientoColegiaturaCommand command);
+        Task<bool> MantenimientoIdiomaAsync(MantenimientoIdiomaCommand command);
+        Task<bool> MantenimientoOfimaticaAsync(MantenimientoOfimaticaCommand command);
+        Task<bool> MantenimientoRequisitoEspecialAsync(MantenimientoRequisitoEspecialCommand command);
     }
 }

@@ -95,5 +95,45 @@ namespace Infrastructure.Services
                 commandType: CommandType.StoredProcedure
             )).ToList();
         }
+
+        public async Task<List<PostulanteIdiomaDto>> ListarIdiomasAsync(int idPostulante)
+        {
+            using IDbConnection connection = _dbConnectionFactory.CreateConnection();
+            return (await connection.QueryAsync<PostulanteIdiomaDto>(
+                "sp_PostulanteIdioma_Listar",
+                new { IdPostulante = idPostulante },
+                commandType: CommandType.StoredProcedure
+            )).ToList();
+        }
+
+        public async Task<List<PostulanteOfimaticaDto>> ListarOfimaticaAsync(int idPostulante)
+        {
+            using IDbConnection connection = _dbConnectionFactory.CreateConnection();
+            return (await connection.QueryAsync<PostulanteOfimaticaDto>(
+                "sp_PostulanteOfimatica_Listar",
+                new { IdPostulante = idPostulante },
+                commandType: CommandType.StoredProcedure
+            )).ToList();
+        }
+
+        public async Task<List<PostulanteRequisitoEspecialDto>> ListarRequisitosEspecialesAsync(int idPostulante)
+        {
+            using IDbConnection connection = _dbConnectionFactory.CreateConnection();
+            return (await connection.QueryAsync<PostulanteRequisitoEspecialDto>(
+                "sp_PostulanteRequisitoEspecial_Listar",
+                new { IdPostulante = idPostulante },
+                commandType: CommandType.StoredProcedure
+            )).ToList();
+        }
+
+        public async Task<AvanceCurriculumDto> ObtenerAvanceCurriculumAsync(int idPostulante)
+        {
+            using IDbConnection connection = _dbConnectionFactory.CreateConnection();
+            return await connection.QueryFirstOrDefaultAsync<AvanceCurriculumDto>(
+                "sp_Postulante_ObtenerAvanceCurriculum",
+                new { IdPostulante = idPostulante },
+                commandType: CommandType.StoredProcedure
+            ) ?? new AvanceCurriculumDto();
+        }
     }
 }

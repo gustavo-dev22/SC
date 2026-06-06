@@ -17,15 +17,18 @@
         </span>
       }
     </div>
-    <p class="header-subtitle">Registre diplomados, cursos y certificaciones que validen sus competencias técnicas continuas.</p>
+    @if (!modoLectura) {
+      <p class="header-subtitle">Registre diplomados, cursos y certificaciones que validen sus competencias técnicas continuas.</p>
+    }
   </div>
-  
-  <div class="header-right-block">
-    <button mat-flat-button color="primary" class="premium-add-button" (click)="abrirModal(null)">
-      <mat-icon>add</mat-icon>
-      <span>Agregar Certificado</span>
-    </button>
-  </div>
+  @if (!modoLectura) {
+    <div class="header-right-block">
+      <button mat-flat-button color="primary" class="premium-add-button" (click)="abrirModal(null)">
+        <mat-icon>add</mat-icon>
+        <span>Agregar Certificado</span>
+      </button>
+    </div>
+  }
 </div>
 
 <div class="cards-timeline">
@@ -47,14 +50,16 @@
         <p class="period">Fecha de Emisión: {{ item.fechaEmision | date:'dd/MM/yyyy' }}</p>
       </div>
       
-      <div class="academic-actions">
-        <button mat-icon-button color="primary" (click)="abrirModal(item)" matTooltip="Editar Certificado" matTooltipPosition="above">
-          <mat-icon>edit</mat-icon>
-        </button>
-        <button mat-icon-button color="warn" (click)="eliminar(item.idCertificacion)" matTooltip="Eliminar Registro" matTooltipPosition="above">
-          <mat-icon>delete</mat-icon>
-        </button>
-      </div>
+      @if (!modoLectura) {
+        <div class="academic-actions">
+          <button mat-icon-button color="primary" (click)="abrirModal(item)" matTooltip="Editar Certificado" matTooltipPosition="above">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button mat-icon-button color="warn" (click)="eliminar(item.idCertificacion)" matTooltip="Eliminar Registro" matTooltipPosition="above">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      }
     </div>
   }
 </div>

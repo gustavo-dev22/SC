@@ -16,5 +16,9 @@ namespace Application.Common.Interfaces
         Task<List<PostulanteExperienciaDto>> ListarExperienciaAsync(int idPostulante);
         Task<bool> ExisteSuperposicionLaboralAsync(int idPostulante, int idExperiencia, DateTime fechaInicio, DateTime? fechaFin);
         Task<List<PostulanteColegiaturaDto>> ListarColegiaturasAsync(int idPostulante);
+        Task<List<PostulanteIdiomaDto>> ListarIdiomasAsync(int idPostulante);
+        Task<List<PostulanteOfimaticaDto>> ListarOfimaticaAsync(int idPostulante);
+        Task<List<PostulanteRequisitoEspecialDto>> ListarRequisitosEspecialesAsync(int idPostulante);
+        Task<AvanceCurriculumDto> ObtenerAvanceCurriculumAsync(int idPostulante);
     }
 }
