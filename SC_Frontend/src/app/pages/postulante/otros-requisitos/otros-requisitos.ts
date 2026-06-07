@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, Input, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
@@ -17,6 +17,7 @@ import { ModalOtrosRequisitos } from './modal-otros-requisitos/modal-otros-requi
   styleUrls: ['./otros-requisitos.css']
 })
 export class OtrosRequisitos implements OnInit {
+  @Input() modoLectura = false;
   private dialog = inject(MatDialog);
   private reqService = inject(PostulanteOtrosRequisitosService);
   private alertService = inject(AlertService);

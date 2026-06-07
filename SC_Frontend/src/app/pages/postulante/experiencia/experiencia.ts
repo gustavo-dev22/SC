@@ -5,7 +5,6 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { PostulanteExperienciaService } from '../../../services/postulante-experiencia.service';
-import Swal from 'sweetalert2';
 import { ModalExperiencia } from './modal-experiencia/modal-experiencia';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AlertService } from '../../../shared/services/alert.service';
@@ -27,13 +26,10 @@ export class Experiencia implements OnInit {
   public cargando = signal<boolean>(false);
   private idPostulante!: number;
 
-  // 🚀 REGLA DE NEGOCIO ENFOQUE OFICIAL:
-  // 1. Experiencia General: Suma TODOS los días registrados en su historial
   public resumenGeneral = computed(() => this.convertirDiasALegible(
     this.listaExperiencias().reduce((acc, item) => acc + item.totalDiasAcumulados, 0)
   ));
 
-  // 2. Experiencia Específica: Suma únicamente los que aplican al perfil del puesto vacante
   public resumenEspecifico = computed(() => this.convertirDiasALegible(
     this.listaExperiencias().filter(x => x.esExperienciaEspecifica).reduce((acc, item) => acc + item.totalDiasAcumulados, 0)
   ));

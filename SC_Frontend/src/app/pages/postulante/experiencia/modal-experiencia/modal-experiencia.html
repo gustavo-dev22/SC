@@ -33,15 +33,60 @@
     </mat-autocomplete>
   </mat-form-field>
 
+  <div class="dates-form-grid" style="margin-bottom: 4px;">
+    <mat-form-field appearance="outline" class="full-width-field">
+      <mat-label>Sector Laboral</mat-label>
+      <mat-select formControlName="idSectorCat" (selectionChange)="onSectorChange($any($event).value)">
+        <mat-option value="">-- Seleccione --</mat-option>
+        @for (sec of listaSectores(); track sec.idValor) {
+          <mat-option [value]="sec.idValor">{{ sec.descripcion }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width-field">
+      <mat-label>Régimen Laboral Contratado</mat-label>
+      <mat-select formControlName="idRegimenCat">
+        <mat-option value="">-- Seleccione --</mat-option>
+        @for (reg of listaRegimenes(); track reg.idValor) {
+          <mat-option [value]="reg.idValor">{{ reg.descripcion }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </div>
+
   <!-- Fila 3: Los Checkboxes de Clasificación Normativa -->
   <div class="form-row-two" style="margin-top: 4px; margin-bottom: 8px; padding-left: 4px; display: flex; gap: 20px;">
-    <mat-checkbox formControlName="esSectorPublico" color="primary">
+    <!--<mat-checkbox formControlName="esSectorPublico" color="primary">
       <span style="font-weight: 600; color: #475569; font-size: 13px;">Institución del Estado (Sector Público)</span>
-    </mat-checkbox>
+    </mat-checkbox>-->
     
     <mat-checkbox formControlName="esExperienciaEspecifica" color="primary">
       <span style="font-weight: 600; color: #475569; font-size: 13px;">Acredita como Experiencia Específica</span>
     </mat-checkbox>
+  </div>
+
+  <div class="dates-form-grid" style="margin-bottom: 4px;">
+    <mat-form-field appearance="outline" class="full-width-field">
+      <mat-label>Motivo de Término / Cambio</mat-label>
+      <mat-select formControlName="idMotivoCambioCat">
+        <mat-option value="">-- Seleccione el Motivo --</mat-option>
+        @for (mot of listaMotivos(); track mot.idValor) {
+          <mat-option [value]="mot.idValor">{{ mot.descripcion }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline" class="full-width-field">
+      <mat-label>Remuneración Mensual Bruta (S/.)</mat-label>
+      <mat-icon matPrefix style="color: #10b981; margin-right: 4px; font-size: 18px; width: 18px; height: 18px; display: inline-flex; align-items: center;">payments</mat-icon>
+      <input matInput 
+         formControlName="remuneracionMensual" 
+         placeholder="0.00" 
+         type="text"
+         (input)="onRemuneracionInput($any($event.target).value)"
+         (blur)="onRemuneracionBlur()">
+    </mat-form-field>
   </div>
 
   <div class="dates-form-grid">
@@ -58,7 +103,7 @@
 
   <mat-form-field appearance="outline" class="full-width-field">
     <mat-label>Funciones Principales y Logros Desarrollados</mat-label>
-    <textarea matInput formControlName="funcionesPrincipales" rows="4" placeholder="Describa de forma concisa las actividades ejecutadas en el puesto..."></textarea>
+    <textarea matInput formControlName="funcionesPrincipales" rows="4" style="resize: none;" placeholder="Describa de forma concisa las actividades ejecutadas en el puesto..."></textarea>
   </mat-form-field>
 
 </mat-dialog-content>

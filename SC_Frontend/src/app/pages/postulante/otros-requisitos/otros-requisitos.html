@@ -15,14 +15,18 @@
         <span class="premium-counter-badge">{{ listaRequisitos().length }}</span>
       }
     </div>
-    <p class="header-subtitle">Declare licencias de conducir, certificaciones OSCE u otros requisitos específicos exigidos en las bases.</p>
+    @if (!modoLectura) {
+      <p class="header-subtitle">Declare licencias de conducir, certificaciones OSCE u otros requisitos específicos exigidos en las bases.</p>
+    }
   </div>
-  <div class="header-right-block">
-    <button mat-flat-button color="primary" class="premium-add-button" (click)="abrirModal(null)">
-      <mat-icon>add</mat-icon>
-      <span>Agregar Requisito</span>
-    </button>
-  </div>
+  @if (!modoLectura) {
+    <div class="header-right-block">
+      <button mat-flat-button color="primary" class="premium-add-button" (click)="abrirModal(null)">
+        <mat-icon>add</mat-icon>
+        <span>Agregar Requisito</span>
+      </button>
+    </div>
+  }
 </div>
 
 <div class="cards-timeline" style="margin-top: 16px;">
@@ -49,10 +53,12 @@
           }
         </p>
       </div>
-      <div class="academic-actions">
-        <button mat-icon-button color="primary" (click)="abrirModal(item)" matTooltip="Editar"><mat-icon>edit</mat-icon></button>
-        <button mat-icon-button color="warn" (click)="eliminar(item.idRequisitoEspecial)" matTooltip="Eliminar"><mat-icon>delete</mat-icon></button>
-      </div>
+      @if (!modoLectura) {
+        <div class="academic-actions">
+          <button mat-icon-button color="primary" (click)="abrirModal(item)" matTooltip="Editar"><mat-icon>edit</mat-icon></button>
+          <button mat-icon-button color="warn" (click)="eliminar(item.idRequisitoEspecial)" matTooltip="Eliminar"><mat-icon>delete</mat-icon></button>
+        </div>
+      }
     </div>
   }
 </div>

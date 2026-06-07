@@ -157,5 +157,27 @@ namespace Infrastructure.Services
             const string sql = "SELECT id_distrito AS Id, nombre AS Nombre FROM sc_ubigeo_distrito WHERE id_provincia = @IdProv AND activo = 1 ORDER BY nombre";
             return (await connection.QueryAsync<UbigeoDto>(sql, new { IdProv = idProvincia })).ToList();
         }
+
+        public async Task<InfoAdicionalDto?> ObtenerInfoAdicionalAsync(int idPostulante)
+        {
+            using IDbConnection connection = _dbConnectionFactory.CreateConnection();
+
+            using var multi = await connection.QueryMultipleAsync(
+                "sp_Postulante_ObtenerInfoAdicional",
+                new { IdPostulante = idPostulante },
+                commandType: CommandType.StoredProcedure
+            );
+
+            var info = await multi.ReadFirstOrDefaultAsync<dynamic>();
+            if (info == null) return new InfoAdicionalDto(idPostulante, false, new List<string>());
+
+            var deptsIds = (await multi.ReadAsync<string>()).ToList();
+
+            return new InfoAdicionalDto(
+                (int)info.IdPostulante,
+                (bool)info.DisponibilidadInterior,
+                deptsIds
+            );
+        }
     }
 }

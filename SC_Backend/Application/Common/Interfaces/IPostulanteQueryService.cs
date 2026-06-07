@@ -24,5 +24,6 @@ namespace Application.Common.Interfaces
         Task<List<UbigeoDto>> ObtenerDepartamentosAsync();
         Task<List<UbigeoDto>> ObtenerProvinciasAsync(string idDepartamento);
         Task<List<UbigeoDto>> ObtenerDistritosAsync(string idProvincia);
+        Task<InfoAdicionalDto?> ObtenerInfoAdicionalAsync(int idPostulante);
     }
 }

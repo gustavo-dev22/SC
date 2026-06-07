@@ -74,6 +74,10 @@ export const routes: Routes = [
                 loadComponent: () => import('./pages/postulante/otros-requisitos/otros-requisitos').then(m => m.OtrosRequisitos)
             },
             {
+                path: 'postulante/informacion-adicional',
+                loadComponent: () => import('./pages/postulante/info-adicional/info-adicional').then(m => m.InformacionAdicional)
+            },
+            {
                 path: 'postulante/ficha-resumen',
                 loadComponent: () => import('./pages/postulante/ficha-resumen/ficha-resumen').then(m => m.FichaResumen)
             }

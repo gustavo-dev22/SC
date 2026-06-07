@@ -18,5 +18,6 @@ namespace Application.Common.Interfaces
         Task<bool> MantenimientoIdiomaAsync(MantenimientoIdiomaCommand command);
         Task<bool> MantenimientoOfimaticaAsync(MantenimientoOfimaticaCommand command);
         Task<bool> MantenimientoRequisitoEspecialAsync(MantenimientoRequisitoEspecialCommand command);
+        Task<bool> GuardarInfoAdicionalAsync(GuardarInfoAdicionalCommand command);
     }
 }

@@ -99,7 +99,11 @@ namespace Infrastructure.Services
                 FechaFin = command.FechaFin, // Puede ser null de forma nativa
                 EsSectorPublico = command.EsSectorPublico,
                 EsExperienciaEspecifica = command.EsExperienciaEspecifica,
-                FuncionesPrincipales = command.FuncionesPrincipales
+                FuncionesPrincipales = command.FuncionesPrincipales,
+                IdSectorCat = command.IdSectorCat,
+                IdRegimenCat = command.IdRegimenCat,
+                IdMotivoCambioCat = command.IdMotivoCambioCat,
+                RemuneracionMensual = command.RemuneracionMensual
             };
 
             await connection.ExecuteAsync("sp_PostulanteExperiencia_Mantenimiento", parametros, commandType: CommandType.StoredProcedure);
@@ -177,6 +181,35 @@ namespace Infrastructure.Services
             };
 
             await connection.ExecuteAsync("sp_PostulanteRequisitoEspecial_Mantenimiento", parametros, commandType: CommandType.StoredProcedure);
+            return true;
+        }
+
+        public async Task<bool> GuardarInfoAdicionalAsync(GuardarInfoAdicionalCommand command)
+        {
+            using IDbConnection connection = _dbConnectionFactory.CreateConnection();
+
+            var dtDepartamentos = new DataTable();
+            dtDepartamentos.Columns.Add("id_departamento", typeof(string));
+
+            if (command.DepartamentosIds != null)
+            {
+                foreach (var id in command.DepartamentosIds)
+                {
+                    dtDepartamentos.Rows.Add(id);
+                }
+            }
+
+            var parametros = new DynamicParameters();
+            parametros.Add("@IdPostulante", command.IdPostulante);
+            parametros.Add("@DisponibilidadInterior", command.DisponibilidadInterior);
+            parametros.Add("@DepartamentosSelected", dtDepartamentos.AsTableValuedParameter("dbo.UDTT_DepartamentosIds"));
+
+            await connection.ExecuteAsync(
+                "sp_Postulante_GuardarInfoAdicional",
+                parametros,
+                commandType: CommandType.StoredProcedure
+            );
+
             return true;
         }
     }

@@ -141,24 +141,10 @@ export class DatosPersonales implements OnInit {
         if (res.success && res.data) {
           const p = res.data;
 
-          this.perfilForm.patchValue({
-            telefono: p.telefono,
-            fechaNacimiento: p.fechaNacimiento ? p.fechaNacimiento.substring(0, 10) : '', // Formato YYYY-MM-DD
-            idSexoCat: p.idSexoCat || '',
-            idTipoViaCat: p.idTipoViaCat || '',
-            direccion: p.direccion,
-            numeroVia: p.numeroVia,
-            numeroDepto: p.numeroDepto,
-            interior: p.interior,
-            manzana: p.manzana,
-            lote: p.lote,
-            kilometro: p.kilometro,
-            blockEdificio: p.blockEdificio,
-            etapa: p.etapa,
-            idTipoZonaCat: p.idTipoZonaCat || '',
-            nombreZona: p.nombreZona,
-            referenciaDireccion: p.referenciaDireccion
-          });
+          if (p.fechaNacimiento) {
+            p.fechaNacimiento = p.fechaNacimiento.split('T')[0];
+          }
+          this.perfilForm.patchValue(p);
 
           if (p.idDepartamento) {
             // A. Pintamos el departamento guardado

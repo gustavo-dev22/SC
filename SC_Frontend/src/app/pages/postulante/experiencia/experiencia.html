@@ -58,7 +58,6 @@
         <div class="academic-badge" [class.badge-publico]="item.esSectorPublico" [class.badge-privado]="!item.esSectorPublico">
           {{ item.esSectorPublico ? 'Sector Público' : 'Sector Privado' }}
         </div>
-        <!-- Renderizado dinámico del distintivo de específica -->
         @if (item.esExperienciaEspecifica) {
           <div class="academic-badge badge-especifica">
             ✓ Específica

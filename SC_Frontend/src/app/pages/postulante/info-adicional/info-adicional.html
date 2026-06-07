@@ -1,0 +1,49 @@
+<div class="dashboard-header-context">
+  <div class="title-block">
+    <h1>Información Adicional Obligatoria</h1>
+    <p>Declare sus condiciones de disponibilidad logística y requerimientos institucionales.</p>
+</div>
+
+<mat-card class="table-card mat-elevation-z2" style="margin-top: 16px; padding: 24px;">
+  <form [formGroup]="infoForm" (ngSubmit)="onSubmit()">
+    
+    <div style="border: 1px solid #e2e8f0; padding: 16px; border-radius: 8px; background-color: #f8fafc;">
+      <label style="font-size: 14px; font-weight: 600; color: #334155; display: block; margin-bottom: 8px;">
+        ¿Cuenta con disponibilidad efectiva para trasladarse o trabajar al interior del país según requerimiento de la entidad?
+      </label>
+      
+      <mat-radio-group formControlName="disponibilidadInterior" color="primary" style="display: flex; gap: 32px; margin-top: 4px;">
+        <mat-radio-button [value]="true">Sí, cuento con total disponibilidad</mat-radio-button>
+        <mat-radio-button [value]="false">No me es posible trasladarme</mat-radio-button>
+      </mat-radio-group>
+    </div>
+
+    @if (infoForm.get('disponibilidadInterior')?.value) {
+      <div style="margin-top: 16px; animation: fadeInForm 0.2s ease-out;">
+        <p style="font-size: 12.5px; font-weight: 700; color: #1e293b; margin-bottom: 8px; text-transform: uppercase; border-left: 3px solid #10b981; padding-left: 8px;">
+          Seleccione los Departamentos de su Preferencia / Disponibilidad
+        </p>
+        
+        <mat-form-field appearance="outline" style="width: 100%;">
+          <mat-label>Departamentos disponibles</mat-label>
+          <mat-select formControlName="departamentosIds" multiple placeholder="Puede elegir uno o varios departamentos">
+            @for (dep of listaDepartamentos(); track dep.id) {
+              <mat-option [value]="dep.id">{{ dep.nombre }}</mat-option>
+            }
+          </mat-select>
+          <mat-icon matSuffix style="color: #64748b;">map</mat-icon>
+          @if (infoForm.get('departamentosIds')?.hasError('required')) {
+            <mat-error>Debe seleccionar al menos un departamento para acreditar su disponibilidad.</mat-error>
+          }
+        </mat-form-field>
+      </div>
+    }
+
+    <div style="display: flex; justify-content: flex-end; margin-top: 24px; border-top: 1px solid #e2e8f0; padding-top: 16px;">
+      <button mat-flat-button color="primary" type="submit" [disabled]="infoForm.invalid || cargando()" style="padding: 0 24px;">
+        <mat-icon>save</mat-icon> Finalizar y Guardar Cambios
+      </button>
+    </div>
+
+  </form>
+</mat-card>
