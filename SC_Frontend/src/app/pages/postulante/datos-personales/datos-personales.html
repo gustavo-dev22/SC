@@ -9,7 +9,7 @@
 
 <div class="dashboard-header-context">
   <div class="title-block">
-    <h1>Mis Datos Personales</h1>
+    <h1>Datos Personales</h1>
     <p>Gestione su información de contacto, ubicación e identidad legal obligatoria para concursar.</p>
   </div>
 </div>
@@ -21,7 +21,7 @@
       <form [formGroup]="perfilForm" (ngSubmit)="onSubmit()">
         
         <div class="section-indicator">
-          <mat-icon>lock</mat-icon> Informática Legal (Inmutable)
+          <mat-icon>lock</mat-icon> Datos básicos obligatorios para identificación legal y contacto de notificaciones
         </div>
         
         <div class="form-grid-three">
@@ -57,37 +57,104 @@
 
         <div class="form-grid-three">
           <mat-form-field appearance="outline">
-            <mat-label>Teléfono Celular (9 dígitos)</mat-label>
-            <input matInput formControlName="telefono" maxlength="9" placeholder="Ej: 999888777">
-            @if (perfilForm.get('telefono')?.hasError('required')) { <mat-error>Requerido.</mat-error> }
-            @if (perfilForm.get('telefono')?.hasError('pattern')) { <mat-error>9 dígitos numéricos.</mat-error> }
+            <mat-label>Teléfono Celular</mat-label>
+            <input matInput formControlName="telefono" maxlength="9">
           </mat-form-field>
 
           <mat-form-field appearance="outline">
             <mat-label>Fecha de Nacimiento</mat-label>
             <input matInput type="date" formControlName="fechaNacimiento">
-            @if (perfilForm.get('fechaNacimiento')?.hasError('required')) { <mat-error>Requerido.</mat-error> }
           </mat-form-field>
 
           <mat-form-field appearance="outline">
             <mat-label>Sexo</mat-label>
             <mat-select formControlName="idSexoCat">
-                <mat-option value="">-- Seleccione --</mat-option> 
-                
-                @for (sexo of listaSexo(); track sexo.idValor) {
+              <mat-option value="">-- Seleccione --</mat-option>
+              @for (sexo of listaSexo(); track sexo.idValor) {
                 <mat-option [value]="sexo.idValor">{{ sexo.descripcion }}</mat-option>
-                }
+              }
             </mat-select>
-            @if (perfilForm.get('idSexoCat')?.hasError('required')) { <mat-error>Seleccione una opción.</mat-error> }
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="triple-width">
-            <mat-label>Dirección Domiciliaria Actual</mat-label>
-            <input matInput formControlName="direccion" placeholder="Ej: Av. Universitaria 4512 - Comas">
-            @if (perfilForm.get('direccion')?.hasError('required')) { <mat-error>La dirección es obligatoria.</mat-error> }
-            @if (perfilForm.get('direccion')?.hasError('minlength')) { <mat-error>Escriba una dirección detallada.</mat-error> }
           </mat-form-field>
         </div>
+
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px 16px;">
+          
+          <mat-form-field appearance="outline">
+            <mat-label>Tipo de Vía</mat-label>
+            <mat-select formControlName="idTipoViaCat">
+              <mat-option value="">-- Seleccione --</mat-option>
+              @for (via of listaTipoVia(); track via.idValor) {
+                <mat-option [value]="via.idValor">{{ via.descripcion }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" style="grid-column: span 3;">
+            <mat-label>Nombre de Vía / Domicilio Actual</mat-label>
+            <input matInput formControlName="direccion" placeholder="Ej: Universitaria / Las Magnolias">
+          </mat-form-field>
+
+          <mat-form-field appearance="outline"><mat-label>Nro. Vía</mat-label><input matInput formControlName="numeroVia"></mat-form-field>
+          <mat-form-field appearance="outline"><mat-label>Nro. Dpto</mat-label><input matInput formControlName="numeroDepto"></mat-form-field>
+          <mat-form-field appearance="outline"><mat-label>Interior</mat-label><input matInput formControlName="interior"></mat-form-field>
+          <mat-form-field appearance="outline"><mat-label>Manzana</mat-label><input matInput formControlName="manzana"></mat-form-field>
+          <mat-form-field appearance="outline"><mat-label>Lote</mat-label><input matInput formControlName="lote"></mat-form-field>
+          <mat-form-field appearance="outline"><mat-label>Kilómetro</mat-label><input matInput formControlName="kilometro"></mat-form-field>
+          <mat-form-field appearance="outline"><mat-label>Block</mat-label><input matInput formControlName="blockEdificio"></mat-form-field>
+          <mat-form-field appearance="outline"><mat-label>Etapa</mat-label><input matInput formControlName="etapa"></mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Tipo de Zona</mat-label>
+            <mat-select formControlName="idTipoZonaCat">
+              <mat-option value="">-- Seleccione --</mat-option>
+              @for (zona of listaTipoZona(); track zona.idValor) {
+                <mat-option [value]="zona.idValor">{{ zona.descripcion }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" style="grid-column: span 3;">
+            <mat-label>Nombre de la Zona (Asociación/Urb/A.H.)</mat-label>
+            <input matInput formControlName="nombreZona" placeholder="Ej: Urbanización San Felipe">
+          </mat-form-field>
+        </div>
+
+        <div class="form-grid-three">
+          <mat-form-field appearance="outline">
+            <mat-label>Departamento</mat-label>
+            <mat-select formControlName="idDepartamento" (selectionChange)="onDepartamentoChange($event.value)">
+              <mat-option value="">-- Seleccione --</mat-option>
+              @for (dep of departamentos(); track dep.id) {
+                <mat-option [value]="dep.id">{{ dep.nombre }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Provincia</mat-label>
+            <mat-select formControlName="idProvincia" (selectionChange)="onProvinciaChange($event.value)">
+              <mat-option value="">-- Seleccione --</mat-option>
+              @for (prov of provincias(); track prov.id) {
+                <mat-option [value]="prov.id">{{ prov.nombre }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Distrito</mat-label>
+            <mat-select formControlName="idUbigeoDistrito">
+              <mat-option value="">-- Seleccione --</mat-option>
+              @for (dist of distritos(); track dist.id) {
+                <mat-option [value]="dist.id">{{ dist.nombre }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <mat-form-field appearance="outline" class="full-width-field" style="margin-top: 12px;">
+          <mat-label>Referencia de la Dirección</mat-label>
+          <textarea matInput style="resize: none;" formControlName="referenciaDireccion" rows="2" placeholder="Ej: A dos cuadras del cruce con la Av. Guillermo de la Fuente..."></textarea>
+        </mat-form-field>
 
         <div class="form-actions-footer">
           <button mat-flat-button color="primary" class="btn-save-profile" type="submit" [disabled]="perfilForm.invalid">

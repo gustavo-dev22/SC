@@ -47,6 +47,21 @@
       <div class="academic-body">
         <h3>{{ item.colegioProfesionalClasificacion }}</h3>
         <p class="period">Fecha de Inscripción: {{ item.fechaColegiacion | date:'dd/MM/yyyy' }}</p>
+
+        <div style="margin-top: 6px;">
+          @if (item.habilitado) {
+            <span class="status-indicator state-active" style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; font-size: 11.5px;">
+              🟢 HABILITADO
+            </span>
+          } @else {
+            <span class="status-indicator state-inactive" style="display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; font-size: 11.5px; margin-bottom: 4px;">
+              🔴 NO HABILITADO
+            </span>
+            <p style="margin: 4px 0 0 0; font-size: 12px; color: #64748b; font-style: italic; font-weight: 500;">
+              <strong>Motivo:</strong> {{ item.motivoNoHabilitado }}
+            </p>
+          }
+        </div>
       </div>
       @if (!modoLectura) {
         <div class="academic-actions">

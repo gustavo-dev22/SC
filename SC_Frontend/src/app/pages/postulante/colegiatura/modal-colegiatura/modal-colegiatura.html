@@ -27,6 +27,26 @@
     </mat-form-field>
   </div>
 
+  <div style="margin: 12px 0 4px 0; border: 1px solid #e2e8f0; padding: 12px 16px; border-radius: 8px; background-color: #f8fafc;">
+    <label style="font-size: 13px; font-weight: 600; color: #475569; display: block; margin-bottom: 6px;">
+      ¿Se encuentra actualmente Habilitado por su Colegio Profesional?
+    </label>
+    <mat-radio-group formControlName="habilitado" color="primary" style="display: flex; gap: 24px;">
+      <mat-radio-button [value]="true">Sí, me encuentro habilitado</mat-radio-button>
+      <mat-radio-button [value]="false">No me encuentro habilitado</mat-radio-button>
+    </mat-radio-group>
+  </div>
+
+  @if (!colForm.get('habilitado')?.value) {
+    <mat-form-field appearance="outline" class="full-width-field" style="margin-top: 12px; animation: fadeInForm 0.25s ease-out;">
+      <mat-label>Especifique el Motivo de No Habilitación</mat-label>
+      <input matInput formControlName="motivoNoHabilitado" placeholder="Ej: Pendiente de pago de cuotas ordinarias / Licencia temporal">
+      @if (colForm.get('motivoNoHabilitado')?.hasError('required')) {
+        <mat-error>El motivo de no habilitación es requerido por el comité evaluador.</mat-error>
+      }
+    </mat-form-field>
+  }
+
 </mat-dialog-content>
 
 <mat-dialog-actions align="end" class="modal-academic-actions">

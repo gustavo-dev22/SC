@@ -15,5 +15,7 @@ namespace Application.Postulantes.Dtos
         public string NumeroColegiacion { get; set; } = string.Empty;
         public DateTime FechaColegiacion { get; set; }
         public string? CertificadoHabilitacionRuta { get; set; }
+        public bool Habilitado { get; set; }
+        public string MotivoNoHabilitado { get; set; } = string.Empty;
     }
 }

@@ -9,6 +9,6 @@ namespace Application.Postulantes.Commands
 {
     public record MantenimientoColegiaturaCommand(
         string Accion, int IdColegiatura, int IdPostulante, int IdColegioCat,
-        string NumeroColegiacion, DateTime FechaColegiacion, string? CertificadoHabilitacionRuta
+        string NumeroColegiacion, DateTime FechaColegiacion, bool Habilitado, string? MotivoNoHabilitado, string? CertificadoHabilitacionRuta
     ) : IRequest<bool>;
 }

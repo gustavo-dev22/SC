@@ -114,3 +114,19 @@
 ::ng-deep .mat-mdc-progress-spinner {
   --mdc-circular-progress-active-indicator-color: #2563eb; /* Forzado de color azul plano */
 }
+
+.subsection-title {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 24px 0 12px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-left: 3px solid #2563eb;
+  padding-left: 8px;
+}
+
+.full-width-field {
+  width: 100% !important;
+  grid-column: 1 / -1;
+}

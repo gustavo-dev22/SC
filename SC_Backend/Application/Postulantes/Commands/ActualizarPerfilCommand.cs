@@ -12,6 +12,19 @@ namespace Application.Postulantes.Commands
         string Telefono,
         DateTime FechaNacimiento,
         int IdSexoCat,
-        string Direccion
+        string Direccion,
+        int IdTipoViaCat,             // Obligatorio
+        string? NumeroVia,            // Opcional
+        string? NumeroDepto,          // Opcional
+        string? Interior,             // Opcional
+        string? Manzana,              // Opcional
+        string? Lote,                 // Opcional
+        string? Kilometro,            // Opcional
+        string? BlockEdificio,        // Opcional
+        string? Etapa,                // Opcional
+        int IdTipoZonaCat,            // Obligatorio
+        string NombreZona,            // Obligatorio
+        string IdUbigeoDistrito,      // Obligatorio
+        string? ReferenciaDireccion   // Opcional
     ) : IRequest<bool>;
 }

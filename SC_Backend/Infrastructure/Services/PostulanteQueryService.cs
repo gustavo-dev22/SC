@@ -1,12 +1,13 @@
-﻿using Application.Common.Interfaces;
-using Application.Postulantes.Dtos;
-using Dapper;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Application.Common.Dtos;
+using Application.Common.Interfaces;
+using Application.Postulantes.Dtos;
+using Dapper;
 
 namespace Infrastructure.Services
 {
@@ -134,6 +135,27 @@ namespace Infrastructure.Services
                 new { IdPostulante = idPostulante },
                 commandType: CommandType.StoredProcedure
             ) ?? new AvanceCurriculumDto();
+        }
+
+        public async Task<List<UbigeoDto>> ObtenerDepartamentosAsync()
+        {
+            using IDbConnection connection = _dbConnectionFactory.CreateConnection();
+            const string sql = "SELECT id_departamento AS Id, nombre AS Nombre FROM sc_ubigeo_departamento WHERE activo = 1 ORDER BY nombre";
+            return (await connection.QueryAsync<UbigeoDto>(sql)).ToList();
+        }
+
+        public async Task<List<UbigeoDto>> ObtenerProvinciasAsync(string idDepartamento)
+        {
+            using IDbConnection connection = _dbConnectionFactory.CreateConnection();
+            const string sql = "SELECT id_provincia AS Id, nombre AS Nombre FROM sc_ubigeo_provincia WHERE id_departamento = @IdDep AND activo = 1 ORDER BY nombre";
+            return (await connection.QueryAsync<UbigeoDto>(sql, new { IdDep = idDepartamento })).ToList();
+        }
+
+        public async Task<List<UbigeoDto>> ObtenerDistritosAsync(string idProvincia)
+        {
+            using IDbConnection connection = _dbConnectionFactory.CreateConnection();
+            const string sql = "SELECT id_distrito AS Id, nombre AS Nombre FROM sc_ubigeo_distrito WHERE id_provincia = @IdProv AND activo = 1 ORDER BY nombre";
+            return (await connection.QueryAsync<UbigeoDto>(sql, new { IdProv = idProvincia })).ToList();
         }
     }
 }

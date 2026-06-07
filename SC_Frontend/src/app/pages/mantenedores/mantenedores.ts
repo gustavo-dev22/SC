@@ -1,4 +1,4 @@
-import { Component, effect, inject, OnInit, signal } from '@angular/core';
+import { Component, effect, inject, OnInit, signal, ViewChild } from '@angular/core';
 import { CatalogoService } from '../../services/catalogo.service';
 import { MatTableModule } from '@angular/material/table';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -10,7 +10,7 @@ import { CommonModule } from '@angular/common';
 import { MatDialog } from '@angular/material/dialog';
 import { ModalForm } from './modal-form/modal-form';
 import Swal from 'sweetalert2';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ModalTipo } from './modal-tipo/modal-tipo';
@@ -23,6 +23,7 @@ import { MatMenuModule } from '@angular/material/menu';
   styleUrl: './mantenedores.css',
 })
 export class Mantenedores implements OnInit {
+  @ViewChild(MatPaginator) paginator!: MatPaginator;
   private catalogoService = inject(CatalogoService);
   private dialog = inject(MatDialog);
 
@@ -43,14 +44,7 @@ export class Mantenedores implements OnInit {
   public tablaColumnas: string[] = ['codigo', 'descripcion', 'orden', 'estado', 'acciones'];
   public dummySkeletonRows = Array(5).fill(0);
 
-  constructor() {
-    effect(() => {
-      const idTipo = this.idCatalogoSeleccionado();
-      if (idTipo) {
-        this.cargarDatos(); 
-      }
-    });
-  }
+  constructor() {}
 
   ngOnInit(): void {
     this.cargarTiposDeCatalogo();
@@ -107,6 +101,10 @@ export class Mantenedores implements OnInit {
   cambiarSeleccion(idTipo: number): void {
     this.paginaActual.set(1);
     this.idCatalogoSeleccionado.set(idTipo);
+    if (this.paginator) {
+      this.paginator.pageIndex = 0;
+    }
+    this.cargarDatos();
   }
 
   abrirFormularioModal(elemento: any = null): void {

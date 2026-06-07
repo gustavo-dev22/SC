@@ -238,3 +238,7 @@ td.mat-mdc-cell {
 }
 
 .activate-btn mat-icon { color: #10b981; }
+
+.hide-paginator {
+  display: none !important;
+}

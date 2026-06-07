@@ -1,9 +1,10 @@
-﻿using Application.Postulantes.Dtos;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Application.Common.Dtos;
+using Application.Postulantes.Dtos;
 
 namespace Application.Common.Interfaces
 {
@@ -20,5 +21,8 @@ namespace Application.Common.Interfaces
         Task<List<PostulanteOfimaticaDto>> ListarOfimaticaAsync(int idPostulante);
         Task<List<PostulanteRequisitoEspecialDto>> ListarRequisitosEspecialesAsync(int idPostulante);
         Task<AvanceCurriculumDto> ObtenerAvanceCurriculumAsync(int idPostulante);
+        Task<List<UbigeoDto>> ObtenerDepartamentosAsync();
+        Task<List<UbigeoDto>> ObtenerProvinciasAsync(string idDepartamento);
+        Task<List<UbigeoDto>> ObtenerDistritosAsync(string idProvincia);
     }
 }

@@ -34,18 +34,38 @@ namespace Infrastructure.Services
         public async Task<bool> ActualizarPerfilAsync(ActualizarPerfilCommand command)
         {
             using IDbConnection connection = _dbConnectionFactory.CreateConnection();
+
+            var parametros = new
+            {
+                IdPostulante = command.IdPostulante,
+                Telefono = command.Telefono,
+                FechaNacimiento = command.FechaNacimiento,
+                IdSexoCat = command.IdSexoCat,
+                Direccion = command.Direccion,
+
+                // Campos obligatorios ampliados
+                IdTipoViaCat = command.IdTipoViaCat,
+                IdTipoZonaCat = command.IdTipoZonaCat,
+                NombreZona = command.NombreZona,
+                IdUbigeoDistrito = command.IdUbigeoDistrito,
+
+                NumeroVia = command.NumeroVia ?? string.Empty,
+                NumeroDepto = command.NumeroDepto ?? string.Empty,
+                Interior = command.Interior ?? string.Empty,
+                Manzana = command.Manzana ?? string.Empty,
+                Lote = command.Lote ?? string.Empty,
+                Kilometro = command.Kilometro ?? string.Empty,
+                BlockEdificio = command.BlockEdificio ?? string.Empty,
+                Etapa = command.Etapa ?? string.Empty,
+                ReferenciaDireccion = command.ReferenciaDireccion ?? string.Empty
+            };
+
             await connection.ExecuteAsync(
                 "sp_Postulante_ActualizarPerfil",
-                new
-                {
-                    command.IdPostulante,
-                    command.Telefono,
-                    command.FechaNacimiento,
-                    command.IdSexoCat,
-                    command.Direccion
-                },
+                parametros,
                 commandType: CommandType.StoredProcedure
             );
+
             return true;
         }
 
@@ -98,7 +118,9 @@ namespace Infrastructure.Services
                 IdColegioCat = command.IdColegioCat,
                 NumeroColegiacion = command.NumeroColegiacion,
                 FechaColegiacion = command.FechaColegiacion == default ? DateTime.Now : command.FechaColegiacion,
-                CertificadoHabilitacionRuta = command.CertificadoHabilitacionRuta ?? string.Empty
+                CertificadoHabilitacionRuta = command.CertificadoHabilitacionRuta ?? string.Empty,
+                Habilitado = command.Habilitado,
+                MotivoNoHabilitado = command.MotivoNoHabilitado ?? string.Empty
             };
 
             await connection.ExecuteAsync("sp_PostulanteColegiatura_Mantenimiento", parametros, commandType: CommandType.StoredProcedure);

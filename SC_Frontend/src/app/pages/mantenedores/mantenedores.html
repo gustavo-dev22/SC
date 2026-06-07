@@ -58,96 +58,94 @@
 
   <div class="data-display-area">
     @if (idCatalogoSeleccionado()) {
-      
-      @if (cargandoTablaSkeleton()) {
-        <div class="skeleton-container mat-elevation-z1">
-          <div class="skeleton-header"></div>
-          @for (row of dummySkeletonRows; track $index) {
-            <div class="skeleton-row"></div>
-          }
-        </div>
-      } @else {
-        <div class="table-card mat-elevation-z2">
-          <table mat-table [dataSource]="registrosTabla()">
-
-            <ng-container matColumnDef="codigo">
-              <th mat-header-cell *matHeaderCellDef> Código </th>
-              <td mat-cell *matCellDef="let element"> <span class="code-pill">{{element.codigoValor}}</span> </td>
-            </ng-container>
-
-            <ng-container matColumnDef="descripcion">
-              <th mat-header-cell *matHeaderCellDef> Descripción del Parámetro </th>
-              <td mat-cell *matCellDef="let element" class="font-medium"> {{element.descripcion}} </td>
-            </ng-container>
-
-            <ng-container matColumnDef="orden">
-              <th mat-header-cell *matHeaderCellDef> Orden </th>
-              <td mat-cell *matCellDef="let element"> {{element.orden}} </td>
-            </ng-container>
-
-            <ng-container matColumnDef="estado">
-              <th mat-header-cell *matHeaderCellDef> Estado </th>
-              <td mat-cell *matCellDef="let element">
-                <span class="status-indicator" [ngClass]="element.activo ? 'state-active' : 'state-inactive'">
-                  {{ element.activo ? 'Activo' : 'Inactivo' }}
-                </span>
-              </td>
-            </ng-container>
-
-            <ng-container matColumnDef="acciones">
-              <th mat-header-cell *matHeaderCellDef style="text-align: right; padding-right: 24px;"> Acciones </th>
-              <td mat-cell *matCellDef="let element" style="text-align: right; padding-right: 16px;">
-                <button mat-icon-button class="action-btn edit-btn" (click)="abrirFormularioModal(element)" matTooltip="Editar" matTooltipPosition="above">
-                  <mat-icon>edit</mat-icon>
-                </button>
-                @if (element.activo) {
-                  <button mat-icon-button class="action-btn delete-btn" (click)="cambiarEstadoLogico(element, false)" matTooltip="Desactivar / Ocultar" matTooltipPosition="above">
-                    <mat-icon>block</mat-icon>
-                  </button>
-                } @else {
-                  <button mat-icon-button class="action-btn activate-btn" (click)="cambiarEstadoLogico(element, true)" matTooltip="Activar / Mostrar" matTooltipPosition="above">
-                    <mat-icon>check_circle</mat-icon>
-                  </button>
-                }
-              </td>
-            </ng-container>
-
-            <ng-container matColumnDef="noData">
-              <td mat-footer-cell *matFooterCellDef [attr.colspan]="tablaColumnas.length" class="no-data-colspan-cell">
-                <div class="no-data-flex-container">
-                  <mat-icon class="no-data-icon">layers_clear</mat-icon>
-                  <span>Este catálogo no cuenta con registros iniciales configurados. Comience agregando uno nuevo.</span>
-                </div>
-              </td>
-            </ng-container>
-
-            <tr mat-header-row *matHeaderRowDef="tablaColumnas"></tr>
-            <tr mat-row *matRowDef="let row; columns: tablaColumnas;"></tr>
-
-            @if (registrosTabla().length === 0) {
-              <tr mat-footer-row *matFooterRowDef="['noData']" class="no-data-footer-row"></tr>
+      <div class="table-card mat-elevation-z2">
+        @if (cargandoTablaSkeleton()) {
+          <div class="skeleton-container mat-elevation-z1">
+            <div class="skeleton-header"></div>
+            @for (row of dummySkeletonRows; track $index) {
+              <div class="skeleton-row"></div>
             }
-          </table>
+          </div>
+        } @else {
+            <table mat-table [dataSource]="registrosTabla()">
 
-          @if (registrosTabla().length > 0) {
-            <mat-paginator [length]="totalRegistros()"
-                          [pageSize]="tamanoPagina()"
-                          [pageSizeOptions]="[10, 20, 50]"
-                          (page)="onPageChange($event)"
-                          aria-label="Seleccionar página">
-            </mat-paginator>
-          }
-        </div>
-      }
+              <ng-container matColumnDef="codigo">
+                <th mat-header-cell *matHeaderCellDef> Código </th>
+                <td mat-cell *matCellDef="let element"> <span class="code-pill">{{element.codigoValor}}</span> </td>
+              </ng-container>
+
+              <ng-container matColumnDef="descripcion">
+                <th mat-header-cell *matHeaderCellDef> Descripción del Parámetro </th>
+                <td mat-cell *matCellDef="let element" class="font-medium"> {{element.descripcion}} </td>
+              </ng-container>
+
+              <ng-container matColumnDef="orden">
+                <th mat-header-cell *matHeaderCellDef> Orden </th>
+                <td mat-cell *matCellDef="let element"> {{element.orden}} </td>
+              </ng-container>
+
+              <ng-container matColumnDef="estado">
+                <th mat-header-cell *matHeaderCellDef> Estado </th>
+                <td mat-cell *matCellDef="let element">
+                  <span class="status-indicator" [ngClass]="element.activo ? 'state-active' : 'state-inactive'">
+                    {{ element.activo ? 'Activo' : 'Inactivo' }}
+                  </span>
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="acciones">
+                <th mat-header-cell *matHeaderCellDef style="text-align: right; padding-right: 24px;"> Acciones </th>
+                <td mat-cell *matCellDef="let element" style="text-align: right; padding-right: 16px;">
+                  <button mat-icon-button class="action-btn edit-btn" (click)="abrirFormularioModal(element)" matTooltip="Editar" matTooltipPosition="above">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                  @if (element.activo) {
+                    <button mat-icon-button class="action-btn delete-btn" (click)="cambiarEstadoLogico(element, false)" matTooltip="Desactivar / Ocultar" matTooltipPosition="above">
+                      <mat-icon>block</mat-icon>
+                    </button>
+                  } @else {
+                    <button mat-icon-button class="action-btn activate-btn" (click)="cambiarEstadoLogico(element, true)" matTooltip="Activar / Mostrar" matTooltipPosition="above">
+                      <mat-icon>check_circle</mat-icon>
+                    </button>
+                  }
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="noData">
+                <td mat-footer-cell *matFooterCellDef [attr.colspan]="tablaColumnas.length" class="no-data-colspan-cell">
+                  <div class="no-data-flex-container">
+                    <mat-icon class="no-data-icon">layers_clear</mat-icon>
+                    <span>Este catálogo no cuenta con registros iniciales configurados. Comience agregando uno nuevo.</span>
+                  </div>
+                </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="tablaColumnas"></tr>
+              <tr mat-row *matRowDef="let row; columns: tablaColumnas;"></tr>
+
+              @if (registrosTabla().length === 0) {
+                <tr mat-footer-row *matFooterRowDef="['noData']" class="no-data-footer-row"></tr>
+              }
+            </table>
+        }
+        
+        <mat-paginator [length]="totalRegistros()"
+                       [pageSize]="tamanoPagina()"
+                       [pageSizeOptions]="[10, 20, 50]"
+                       (page)="onPageChange($event)"
+                       aria-label="Seleccionar página"
+                       [ngClass]="{ 'hide-paginator': totalRegistros() === 0 || cargandoTablaSkeleton() }">
+        </mat-paginator>
+      </div>
 
     } @else {
-      <div class="premium-placeholder">
-        <div class="icon-circle">
-          <mat-icon>tune</mat-icon>
+        <div class="premium-placeholder">
+          <div class="icon-circle">
+            <mat-icon>tune</mat-icon>
+          </div>
+          <h3>Módulo de Gestión Paramétrica</h3>
+          <p>Por favor, seleccione un eje de la lista lateral izquierda para auditar sus llaves transaccionales.</p>
         </div>
-        <h3>Módulo de Gestión Paramétrica</h3>
-        <p>Por favor, seleccione un eje de la lista lateral izquierda para auditar sus llaves transaccionales.</p>
-      </div>
     }
   </div>
 </div>

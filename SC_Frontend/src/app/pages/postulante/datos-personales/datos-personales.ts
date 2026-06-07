@@ -8,10 +8,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
-import Swal from 'sweetalert2';
 import { PostulantePerfilService } from '../../../services/postulante-perfil.service';
 import { CatalogoService } from '../../../services/catalogo.service';
 import { AlertService } from '../../../shared/services/alert.service';
+import { UbigeoService } from '../../../services/ubigeo.service';
 
 @Component({
   selector: 'app-datos-personales',
@@ -27,11 +27,18 @@ export class DatosPersonales implements OnInit {
   private perfilService = inject(PostulantePerfilService);
   private catalogoService = inject(CatalogoService);
   private alertService = inject(AlertService);
+  private ubigeoService = inject(UbigeoService);
 
   public perfilForm!: FormGroup;
   public cargando = signal<boolean>(false);
   public listaSexo = signal<any[]>([]); 
   private idPostulanteLogueado!: number;
+
+  public listaTipoVia = signal<any[]>([]);
+  public listaTipoZona = signal<any[]>([]);
+  public departamentos = signal<any[]>([]);
+  public provincias = signal<any[]>([]);
+  public distritos = signal<any[]>([]);
 
   ngOnInit(): void {
     this.inicializarFormulario();
@@ -49,7 +56,23 @@ export class DatosPersonales implements OnInit {
       telefono: ['', [Validators.required, Validators.pattern('^[0-9]{9}$')]],
       fechaNacimiento: ['', [Validators.required]],
       idSexoCat: [0, [Validators.required, Validators.min(1)]],
-      direccion: ['', [Validators.required, Validators.minLength(10)]]
+      direccion: ['', [Validators.required, Validators.minLength(10)]],
+      idTipoViaCat: ['', [Validators.required]],
+      numeroVia: [''],
+      numeroDepto: [''],
+      interior: [''],
+      manzana: [''],
+      lote: [''],
+      kilometro: [''],
+      blockEdificio: [''],
+      etapa: [''],
+      idTipoZonaCat: ['', [Validators.required]],
+      nombreZona: ['', [Validators.required]],
+
+      idDepartamento: ['', [Validators.required]],
+      idProvincia: ['', [Validators.required]],
+      idUbigeoDistrito: ['', [Validators.required]],
+      referenciaDireccion: ['']
     });
   }
 
@@ -81,6 +104,34 @@ export class DatosPersonales implements OnInit {
         } 
       }
     });
+
+    this.catalogoService.getValoresByCodigo('TIPO_VIA').subscribe(res => this.listaTipoVia.set(res.data));
+    this.catalogoService.getValoresByCodigo('TIPO_ZONA').subscribe(res => this.listaTipoZona.set(res.data));
+    
+    this.ubigeoService.getDepartamentos().subscribe(res => {
+      if (res.success) this.departamentos.set(res.data);
+    });
+  }
+
+  onDepartamentoChange(idDep: string): void {
+    this.perfilForm.patchValue({ idProvincia: '', idUbigeoDistrito: '' }); // Limpieza inmediata
+    this.provincias.set([]);
+    this.distritos.set([]);
+
+    if (!idDep) return;
+    this.ubigeoService.getProvincias(idDep).subscribe(res => {
+      if (res.success) this.provincias.set(res.data);
+    });
+  }
+
+  onProvinciaChange(idProv: string): void {
+    this.perfilForm.patchValue({ idUbigeoDistrito: '' }); // Limpieza inmediata
+    this.distritos.set([]);
+
+    if (!idProv) return;
+    this.ubigeoService.getDistritos(idProv).subscribe(res => {
+      if (res.success) this.distritos.set(res.data);
+    });
   }
 
   cargarDatosPerfil(): void {
@@ -88,10 +139,51 @@ export class DatosPersonales implements OnInit {
     this.perfilService.getPerfil(this.idPostulanteLogueado).subscribe({
       next: (res) => {
         if (res.success && res.data) {
-          if (res.data.fechaNacimiento) {
-            res.data.fechaNacimiento = res.data.fechaNacimiento.split('T')[0];
-          }
-          this.perfilForm.patchValue(res.data);
+          const p = res.data;
+
+          this.perfilForm.patchValue({
+            telefono: p.telefono,
+            fechaNacimiento: p.fechaNacimiento ? p.fechaNacimiento.substring(0, 10) : '', // Formato YYYY-MM-DD
+            idSexoCat: p.idSexoCat || '',
+            idTipoViaCat: p.idTipoViaCat || '',
+            direccion: p.direccion,
+            numeroVia: p.numeroVia,
+            numeroDepto: p.numeroDepto,
+            interior: p.interior,
+            manzana: p.manzana,
+            lote: p.lote,
+            kilometro: p.kilometro,
+            blockEdificio: p.blockEdificio,
+            etapa: p.etapa,
+            idTipoZonaCat: p.idTipoZonaCat || '',
+            nombreZona: p.nombreZona,
+            referenciaDireccion: p.referenciaDireccion
+          });
+
+          if (p.idDepartamento) {
+            // A. Pintamos el departamento guardado
+            this.perfilForm.get('idDepartamento')?.setValue(p.idDepartamento, { emitEvent: false });
+
+            // B. Cargamos de forma síncrona/secuencial las Provincias de ese departamento
+            this.ubigeoService.getProvincias(p.idDepartamento).subscribe(resProv => {
+              if (resProv.success) {
+                this.provincias.set(resProv.data);
+                
+                // C. Una vez cargada la lista de provincias, seleccionamos la provincia guardada
+                this.perfilForm.get('idProvincia')?.setValue(p.idProvincia, { emitEvent: false });
+
+                // D. Cargamos de forma secuencial los Distritos de esa provincia
+                this.ubigeoService.getDistritos(p.idProvincia).subscribe(resDist => {
+                  if (resDist.success) {
+                    this.distritos.set(resDist.data);
+                    
+                    // E. Finalmente, autoseleccionamos el distrito del postulante
+                    this.perfilForm.get('idUbigeoDistrito')?.setValue(p.idUbigeoDistrito, { emitEvent: false });
+                  }
+                });
+              }
+            });
+        }
         }
         this.cargando.set(false);
       },
@@ -114,7 +206,24 @@ export class DatosPersonales implements OnInit {
       telefono: formValues.telefono,
       fechaNacimiento: formValues.fechaNacimiento,
       idSexoCat: formValues.idSexoCat,
-      direccion: formValues.direccion
+      direccion: formValues.direccion,
+      
+      // Configuración estructural de la dirección (Campos obligatorios y opcionales)
+      idTipoViaCat: formValues.idTipoViaCat,
+      numeroVia: formValues.numeroVia,
+      numeroDepto: formValues.numeroDepto,
+      interior: formValues.interior,
+      manzana: formValues.manzana,
+      lote: formValues.lote,
+      kilometro: formValues.kilometro,
+      blockEdificio: formValues.blockEdificio,
+      etapa: formValues.etapa,
+      idTipoZonaCat: formValues.idTipoZonaCat,
+      nombreZona: formValues.nombreZona,
+      
+      // Ubigeo jerárquico (Se envía solo el distrito final que contiene toda la cadena INEI)
+      idUbigeoDistrito: formValues.idUbigeoDistrito,
+      referenciaDireccion: formValues.referenciaDireccion
     };
 
     this.perfilService.updatePerfil(payload).subscribe({

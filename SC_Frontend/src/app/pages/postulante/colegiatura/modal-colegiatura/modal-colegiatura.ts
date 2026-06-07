@@ -7,14 +7,15 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { CatalogoService } from '../../../../services/catalogo.service'; // Tu servicio de listas/parámetros
+import { CatalogoService } from '../../../../services/catalogo.service';
+import { MatRadioModule } from '@angular/material/radio';
 
 @Component({
   selector: 'app-modal-colegiatura',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, MatDialogModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatButtonModule, MatIconModule],
+  imports: [CommonModule, ReactiveFormsModule, MatDialogModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatButtonModule, MatIconModule, MatRadioModule],
   templateUrl: './modal-colegiatura.html',
-  styleUrls: ['../../formacion/modal-formacion/modal-formacion.css'] // Reutiliza la maquetación limpia de los modales
+  styleUrls: ['../../formacion/modal-formacion/modal-formacion.css']
 })
 export class ModalColegiatura implements OnInit {
   private fb = inject(FormBuilder);
@@ -24,26 +25,47 @@ export class ModalColegiatura implements OnInit {
 
   public colForm!: FormGroup;
   public isEdicion = false;
-  public listaColegios = signal<any[]>([]); // Semilla de catálogos (CIP, CAL, etc.)
+  public listaColegios = signal<any[]>([]);
 
   ngOnInit(): void {
     this.isEdicion = !!this.data?.elemento;
     this.cargarCatalogoColegios();
     this.inicializarFormulario();
+    this.escucharCambiosHabilitacion();
   }
 
   cargarCatalogoColegios(): void {
-    // Llamas a tu endpoint de sc_catalogo_valor pasando el código correspondiente a Consejos Profesionales
     this.catalogoService.getValoresByCodigo('COLEGIOS_PROFESIONALES').subscribe(res => {
       if (res.success) this.listaColegios.set(res.data);
     });
   }
 
   inicializarFormulario(): void {
+    const elemento = this.data?.elemento;
+    const esHabilitado = elemento ? elemento.habilitado : true;
+
     this.colForm = this.fb.group({
       idColegioCat: [this.data?.elemento?.idColegioCat || '', [Validators.required]],
       numeroColegiacion: [this.data?.elemento?.numeroColegiacion || '', [Validators.required, Validators.maxLength(30)]],
-      fechaColegiacion: [this.data?.elemento?.fechaColegiacion ? this.data.elemento.fechaColegiacion.split('T')[0] : '', [Validators.required]]
+      fechaColegiacion: [this.data?.elemento?.fechaColegiacion ? this.data.elemento.fechaColegiacion.split('T')[0] : '', [Validators.required]],
+      habilitado: [esHabilitado, [Validators.required]],
+      motivoNoHabilitado: [elemento?.motivoNoHabilitado || '', elemento?.habilitado === false ? [Validators.required, Validators.maxLength(250)] : [Validators.maxLength(250)]]
+    });
+  }
+
+  escucharCambiosHabilitacion(): void {
+    this.colForm.get('habilitado')?.valueChanges.subscribe((estaHabilitado: boolean) => {
+      const motivoControl = this.colForm.get('motivoNoHabilitado');
+      
+      if (estaHabilitado) {
+        motivoControl?.clearValidators();
+        motivoControl?.setValue('');
+        motivoControl?.setValidators([Validators.maxLength(250)]);
+      } else {
+        motivoControl?.setValidators([Validators.required, Validators.maxLength(250)]);
+      }
+      
+      motivoControl?.updateValueAndValidity();
     });
   }
 
@@ -53,7 +75,7 @@ export class ModalColegiatura implements OnInit {
       accion: this.isEdicion ? 'MODIFICAR' : 'REGISTRAR',
       idColegiatura: this.data?.elemento?.idColegiatura || 0,
       ...this.colForm.value,
-      certificadoHabilitacionRuta: '' // Dejado en blanco para cuando implementemos el file-uploader general
+      certificadoHabilitacionRuta: ''
     });
   }
 
