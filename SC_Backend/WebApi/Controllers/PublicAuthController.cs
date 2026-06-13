@@ -1,4 +1,5 @@
-﻿using Application.Common.Dtos;
+﻿using Application.Auth.Commands;
+using Application.Common.Dtos;
 using Application.Postulantes.Commands;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -25,6 +26,22 @@ namespace WebApi.Controllers
             {
                 return BadRequest(BaseResponse<bool>.Fail(ex.Message));
             }
+        }
+
+        [HttpPost("solicitar-recuperacion")]
+        public async Task<IActionResult> SolicitarRecuperacion([FromBody] SolicitarRecuperacionCommand command)
+        {
+            var resultado = await _mediator.Send(command);
+            if (!resultado.Success) return BadRequest(new { message = resultado.Message });
+            return Ok(resultado);
+        }
+
+        [HttpPost("restablecer-password")]
+        public async Task<IActionResult> RestablecerPassword([FromBody] RestablecerPasswordCommand command)
+        {
+            bool exito = await _mediator.Send(command);
+            if (!exito) return BadRequest(new { message = "El token es inválido o ha expirado. Solicite un nuevo enlace." });
+            return Ok(new { message = "Contraseña actualizada correctamente." });
         }
     }
 }

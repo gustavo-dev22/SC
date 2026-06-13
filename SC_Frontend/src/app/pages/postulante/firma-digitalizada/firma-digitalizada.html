@@ -1,0 +1,62 @@
+<div class="dashboard-header-context">
+  <div class="title-block">
+    <h1>Firma Digitalizada</h1>
+    @if (!modoLectura) {
+      <p>Suba la imagen de su firma manuscrita para el autoguardado de los formatos de postulación.</p>
+    }
+  </div>
+</div>
+
+@if (cargando()) {
+  <div class="overlay-spinner">
+    <div class="spinner-center-box">
+      <mat-spinner diameter="50" color="primary"></mat-spinner>
+      <p class="spinner-text">Procesando imagen de firma...</p>
+    </div>
+  </div>
+}
+
+<mat-card class="table-card mat-elevation-z2" style="margin-top: 16px; padding: 32px; max-width: 600px; margin-left: auto; margin-right: auto;">
+  <div style="text-align: center;">
+    
+    @if (!modoLectura) {
+      <p style="font-size: 13px; color: #64748b; margin-bottom: 24px;">
+        💡 <strong>Recomendación:</strong> Firme sobre una hoja en blanco limpia y tome una foto nítida. Se sugiere recortar la imagen de forma horizontal enfocando solo el trazo.
+      </p>
+    }
+
+    @if (urlFirmaPreview()) {
+      <div style="animation: fadeInForm 0.3s ease-out;">
+        <span style="font-size: 11px; font-weight: 700; color: #16a34a; background-color: #f0fdf4; padding: 4px 12px; border-radius: 12px; display: inline-block; margin-bottom: 12px;">
+            ✓ REGISTRO VIGENTE CONFORMADO
+        </span>
+        
+        <div style="border: 2px dashed #cbd5e1; padding: 20px; border-radius: 8px; background-color: #ffffff; max-width: 400px; margin: 0 auto 20px auto; min-height: 150px; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);">
+          <img [src]="urlFirmaPreview()" alt="Firma del Postulante" style="max-width: 100%; max-height: 140px; object-fit: contain;">
+        </div>
+      </div>
+    } 
+    @else {
+      <div style="border: 2px dashed #cbd5e1; padding: 40px 20px; border-radius: 8px; background-color: #f8fafc; max-width: 400px; margin: 0 auto 24px auto; min-height: 150px; display: flex; flex-direction: column; align-items: center; justify-content: center; animation: fadeInForm 0.3s ease-out;">
+        <mat-icon [style.color]="modoLectura ? '#ef4444' : '#94a3b8'" style="font-size: 48px; width: 48px; height: 48px; margin-bottom: 12px;">
+          {{ modoLectura ? 'warning' : 'draw' }}
+        </mat-icon>
+        <h3 style="margin: 0; font-size: 14px; font-weight: 600;" [style.color]="modoLectura ? '#b91c1c' : '#475569'">
+          {{ modoLectura ? 'Falta Adjuntar Firma Digitalizada' : 'Sin firma digitalizada' }}
+        </h3>
+        <p style="margin: 4px 0 0 0; font-size: 12px; color: #64748b; text-align: center; max-width: 280px;">
+          {{ modoLectura ? 'Debe regresar al menú principal de Firma para cargar su rúbrica antes de enviar su postulación.' : 'Aún no ha subido su rúbrica al sistema transaccional de convocatorias.' }}
+        </p>
+      </div>
+    }
+
+    @if (!modoLectura) {
+      <input type="file" #fileInput (change)="onFileSelected($event)" accept="image/png, image/jpeg, image/jpg" style="display: none;">
+      <button mat-flat-button [color]="urlFirmaPreview() ? 'accent' : 'primary'" (click)="fileInput.click()" style="padding: 0 24px;">
+        <mat-icon>{{ urlFirmaPreview() ? 'sync' : 'cloud_upload' }}</mat-icon>
+        {{ urlFirmaPreview() ? 'Reemplazar Firma Existente' : 'Subir Imagen de mi Firma' }}
+      </button>
+    }
+
+  </div>
+</mat-card>

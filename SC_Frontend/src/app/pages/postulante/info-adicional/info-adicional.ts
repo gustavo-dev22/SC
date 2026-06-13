@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, Input, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -7,18 +7,31 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { UbigeoService } from '../../../services/ubigeo.service';
 import { PostulanteInfoAdicionalService } from '../../../services/postulante-info-adicional.service';
 import { AlertService } from '../../../shared/services/alert.service';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-informacion-adicional',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, MatFormFieldModule, MatSelectModule, MatRadioModule, MatButtonModule, MatIconModule, MatCardModule],
+  imports: [
+    CommonModule, 
+    ReactiveFormsModule, 
+    MatFormFieldModule, 
+    MatSelectModule, 
+    MatRadioModule, 
+    MatButtonModule, 
+    MatIconModule, 
+    MatCardModule,
+    MatProgressSpinnerModule
+  ],
   templateUrl: './info-adicional.html',
   styleUrls: ['./info-adicional.css']
 })
 export class InformacionAdicional implements OnInit {
+  @Input() modoLectura: boolean = false;
   private fb = inject(FormBuilder);
   private ubigeoService = inject(UbigeoService);
   private postulanteInfoAdicionalService = inject(PostulanteInfoAdicionalService);
@@ -30,26 +43,53 @@ export class InformacionAdicional implements OnInit {
   private idPostulante!: number;
 
   ngOnInit(): void {
+    this.cargando.set(true);
+
     const profile = JSON.parse(sessionStorage.getItem('user_profile') || '{}');
-    const tokenParts = atob(profile.token).split('-');
-    this.idPostulante = Number(tokenParts[1]);
+    if (profile.token) {
+      const tokenParts = atob(profile.token).split('-');
+      this.idPostulante = Number(tokenParts[1]);
+    }
+
     this.crearFormulario();
-    this.cargarDepartamentosMaestro();
     this.escucharCambiosDisponibilidad();
+
+    this.cargarDatosIniciales();
   }
 
   crearFormulario(): void {
     this.infoForm = this.fb.group({
       disponibilidadInterior: [false, [Validators.required]],
-      departamentosIds: [[]] // Array de strings vacío por defecto
+      departamentosIds: [[]] 
     });
   }
 
-  cargarDepartamentosMaestro(): void {
-    this.ubigeoService.getDepartamentos().subscribe(res => {
-      if (res.success) {
-        this.listaDepartamentos.set(res.data);
-        this.recuperarDatosGuardados(); // Solo leemos de la BD una vez tengamos el catálogo listo
+  cargarDatosIniciales(): void {
+    forkJoin({
+      departamentos: this.ubigeoService.getDepartamentos(),
+      infoAdicional: this.postulanteInfoAdicionalService.getInfoAdicional(this.idPostulante)
+    }).subscribe({
+      next: (res) => {
+        if (res.departamentos.success) {
+          this.listaDepartamentos.set(res.departamentos.data);
+        }
+
+        if (res.infoAdicional.success && res.infoAdicional.data) {
+          this.infoForm.patchValue({
+            disponibilidadInterior: res.infoAdicional.data.disponibilidadInterior,
+            departamentosIds: res.infoAdicional.data.departamentosIds || []
+          });
+
+          if (this.modoLectura) {
+            this.infoForm.disable({ emitEvent: false });
+          }
+        }
+
+        this.cargando.set(false);
+      },
+      error: (err) => {
+        this.cargando.set(false);
+        this.alertService.error('Error del Sistema', 'No se pudieron recuperar los catálogos de geolocalización.');
       }
     });
   }
@@ -61,25 +101,9 @@ export class InformacionAdicional implements OnInit {
         depControl?.setValidators([Validators.required]);
       } else {
         depControl?.clearValidators();
-        depControl?.setValue([]); // Limpiamos la selección si marca que No
+        depControl?.setValue([]);
       }
       depControl?.updateValueAndValidity();
-    });
-  }
-
-  recuperarDatosGuardados(): void {
-    this.cargando.set(true);
-    this.postulanteInfoAdicionalService.getInfoAdicional(this.idPostulante).subscribe({
-      next: (res) => {
-        if (res.success && res.data) {
-          this.infoForm.patchValue({
-            disponibilidadInterior: res.data.disponibilidadInterior,
-            departamentosIds: res.data.departamentosIds || []
-          });
-        }
-        this.cargando.set(false);
-      },
-      error: () => this.cargando.set(false)
     });
   }
 

@@ -20,7 +20,11 @@ export const routes: Routes = [
     },
     {
         path: 'auth/recuperar-clave',
-        loadComponent: () => import('./pages/auth/recuperar-clave/recuperar-clave').then(m => m.RecuperarClave)
+        loadComponent: () => import('./pages/auth/solicitar-recuperacion/solicitar-recuperacion').then(m => m.SolicitarRecuperacion)
+    },
+    { 
+        path: 'auth/restablecer-password', 
+        loadComponent: () => import('./pages/auth/recuperar-clave/recuperar-clave').then(m => m.RecuperarClave) 
     },
 
     // 3. RUTAS PRIVADAS / INTRANET (Protegidas por Guard y envueltas en el Layout de navegación)
@@ -78,8 +82,16 @@ export const routes: Routes = [
                 loadComponent: () => import('./pages/postulante/info-adicional/info-adicional').then(m => m.InformacionAdicional)
             },
             {
+                path: 'postulante/firma',
+                loadComponent: () => import('./pages/postulante/firma-digitalizada/firma-digitalizada').then(m => m.FirmaDigitalizada)
+            },
+            {
                 path: 'postulante/ficha-resumen',
                 loadComponent: () => import('./pages/postulante/ficha-resumen/ficha-resumen').then(m => m.FichaResumen)
+            },
+            {
+                path: 'postulante/declaraciones',
+                loadComponent: () => import('./pages/postulante/declaraciones-juradas/declaraciones-juradas').then(m => m.DeclaracionesJuradas)
             }
         ]
     },

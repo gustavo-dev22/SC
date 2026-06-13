@@ -1,0 +1,35 @@
+<div style="display: flex; justify-content: center; align-items: center; min-height: 80vh; background-color: #f1f5f9; padding: 16px;">
+  <mat-card style="max-width: 450px; width: 100%; padding: 32px; border-radius: 12px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);">
+    <div style="text-align: center; margin-bottom: 24px;">
+      <mat-icon style="font-size: 48px; width: 48px; height: 48px; color: #1e3c72;">lock_reset</mat-icon>
+      <h2 style="margin: 12px 0 4px 0; font-size: 20px; font-weight: 700; color: #0f172a;">¿Olvidó su contraseña?</h2>
+      <p style="margin: 0; font-size: 13px; color: #64748b;">Ingrese su número de documento de identidad para generar su acceso temporal.</p>
+    </div>
+
+    <form [formGroup]="recuperarForm" (ngSubmit)="enviarSolicitud()">
+      <mat-form-field appearance="outline" style="width: 100%; margin-bottom: 16px;">
+        <mat-label>Número de Documento (DNI)</mat-label>
+        <input matInput formControlName="numDocumento" placeholder="Ingrese su DNI" maxlength="15">
+        <mat-icon matSuffix style="color: #64748b;">badge</mat-icon>
+      </mat-form-field>
+
+      <button mat-flat-button color="primary" type="submit" [disabled]="recuperarForm.invalid || cargando()" style="width: 100%; height: 46px; border-radius: 8px; font-weight: 600;">
+        {{ cargando() ? 'Procesando...' : 'Generar Acceso Temporal' }}
+      </button>
+      
+      <div style="text-align: center; margin-top: 16px;">
+        <a routerLink="/auth/login" style="font-size: 13px; color: #1e3c72; text-decoration: none; font-weight: 500;">Regresar al Login</a>
+      </div>
+    </form>
+
+    @if (linkDesarrolloSimulado()) {
+      <div style="margin-top: 24px; padding: 16px; border: 1px dashed #3b82f6; background-color: #eff6ff; border-radius: 8px; animation: fadeInForm 0.3s ease-out;">
+        <p style="margin: 0 0 8px 0; font-size: 11px; font-weight: 700; color: #1d4ed8; text-transform: uppercase;">⚠️ MODO LOCAL (Simulación de Correo):</p>
+        <p style="margin: 0 0 12px 0; font-size: 12px; color: #1e40af;">Haga clic en el siguiente enlace simulado para abrir la pantalla de reseteo con el token inyectado:</p>
+        <a [href]="linkDesarrolloSimulado()" style="display: inline-block; font-size: 12px; font-weight: 600; color: #ffffff; background-color: #2563eb; padding: 6px 12px; border-radius: 4px; text-decoration: none;">
+          Simular clic en Correo Recibido
+        </a>
+      </div>
+    }
+  </mat-card>
+</div>

@@ -1,12 +1,14 @@
-﻿using Application.Common.Interfaces;
-using Application.Postulantes.Commands;
-using Dapper;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Application.Auth.Dtos;
+using Application.Common.Interfaces;
+using Application.Postulantes.Commands;
+using Application.Postulantes.Dtos;
+using Dapper;
 
 namespace Infrastructure.Services
 {
@@ -206,6 +208,65 @@ namespace Infrastructure.Services
 
             await connection.ExecuteAsync(
                 "sp_Postulante_GuardarInfoAdicional",
+                parametros,
+                commandType: CommandType.StoredProcedure
+            );
+
+            return true;
+        }
+
+        public async Task<bool> GuardarFirmaAsync(int idPostulante, byte[] archivoBytes, string tipoMime)
+        {
+            using IDbConnection connection = _dbConnectionFactory.CreateConnection();
+            var parametros = new { IdPostulante = idPostulante, FirmaDigitalizada = archivoBytes, FirmaTipoMime = tipoMime };
+            await connection.ExecuteAsync("sp_Postulante_ActualizarFirma", parametros, commandType: CommandType.StoredProcedure);
+            return true;
+        }
+
+        public async Task<DatosPostulanteTokenDto?> RegistrarTokenRecuperacionAsync(string numDocumento, string token)
+        {
+            using IDbConnection connection = _dbConnectionFactory.CreateConnection();
+
+            return await connection.QueryFirstOrDefaultAsync<DatosPostulanteTokenDto>(
+                "sp_Postulante_RegistrarTokenRecuperacion",
+                new { NumDocumento = numDocumento, TokenRecuperacion = token, MinutosExpiracion = 20 },
+                commandType: CommandType.StoredProcedure
+            );
+        }
+
+        public async Task<bool> RestablecerPasswordAsync(string token, string nuevoPasswordHash)
+        {
+            using IDbConnection connection = _dbConnectionFactory.CreateConnection();
+
+            int resultado = await connection.ExecuteScalarAsync<int>(
+                "sp_Postulante_RestablecerPassword",
+                new { TokenRecuperacion = token, NuevoPasswordHash = nuevoPasswordHash },
+                commandType: CommandType.StoredProcedure
+            );
+
+            return resultado == 1;
+        }
+
+        public async Task<bool> GuardarDeclaracionesAsync(int idPostulante, List<GuardarDeclaracionItemDto> declaraciones)
+        {
+            using IDbConnection connection = _dbConnectionFactory.CreateConnection();
+
+            var dtDeclaraciones = new DataTable();
+            dtDeclaraciones.Columns.Add("id_declaracion_cat", typeof(int));
+            dtDeclaraciones.Columns.Add("aceptado", typeof(bool));
+
+            foreach (var d in declaraciones)
+            {
+                dtDeclaraciones.Rows.Add(d.IdDeclaracionCat, d.Aceptado);
+            }
+
+            var parametros = new DynamicParameters();
+            parametros.Add("@IdPostulante", idPostulante);
+            // Vinculamos el UDTT de SQL Server de manera limpia
+            parametros.Add("@DeclaracionesSelected", dtDeclaraciones.AsTableValuedParameter("dbo.UDTT_PostulanteDeclaraciones"));
+
+            await connection.ExecuteAsync(
+                "sp_PostulanteDeclaracion_Guardar",
                 parametros,
                 commandType: CommandType.StoredProcedure
             );

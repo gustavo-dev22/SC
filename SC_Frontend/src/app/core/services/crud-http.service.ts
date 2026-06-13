@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
@@ -9,13 +9,13 @@ export class CrudHttpService {
   private apiUrl = environment.apiUrl;
 
   // GET Genérico
-  public get<T>(endpoint: string): Observable<T> {
-    return this.http.get<T>(`${this.apiUrl}/${endpoint}`);
+  public get<T>(endpoint: string, opcionesExtra?: { headers?: HttpHeaders; params?: HttpParams; responseType?: any }): Observable<T> {
+    return this.http.get<T>(`${this.apiUrl}/${endpoint}`, opcionesExtra);
   }
 
   // POST Genérico
-  public post<T>(endpoint: string, payload: any): Observable<T> {
-    return this.http.post<T>(`${this.apiUrl}/${endpoint}`, payload);
+  public post<T>(endpoint: string, payload: any, opcionesExtra?: { headers?: HttpHeaders; params?: HttpParams; responseType?: any }): Observable<T> {
+    return this.http.post<T>(`${this.apiUrl}/${endpoint}`, payload, opcionesExtra);
   }
 
   // PUT Genérico

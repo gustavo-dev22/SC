@@ -1,0 +1,51 @@
+<div class="dashboard-header-context">
+  <div class="title-block">
+    <h1>Declaraciones Juradas Obligatorias</h1>
+    <p>Lea detenidamente cada enunciado y marque su conformidad bajo el alcance legal vigente.</p>
+  </div>
+</div>
+
+@if (cargando()) {
+  <div class="overlay-spinner">
+    <mat-spinner diameter="50" color="primary"></mat-spinner>
+    <p style="margin-top: 12px; font-weight: 500; color: #1e3c72;">Cargando declaraciones juradas...</p>
+  </div>
+}
+
+<mat-card class="table-card mat-elevation-z2" style="margin-top: 16px; padding: 24px;">
+  <div style="display: flex; flex-direction: column; gap: 20px;">
+    
+    @for (ddjj of listaDeclaraciones(); track ddjj.idDeclaracionCat) {
+      <div style="border: 1px solid #cbd5e1; border-radius: 8px; background-color: #f8fafc; padding: 20px; transition: all 0.2s;" 
+           [style.border-left]="ddjj.aceptado ? '4px solid #10b981' : '4px solid #94a3b8'">
+        
+        <h3 style="margin: 0 0 8px 0; font-size: 15px; font-weight: 700; color: #1e293b;">
+          {{ ddjj.tituloDeclaracion }}
+        </h3>
+        
+        <p style="margin: 0 0 16px 0; font-size: 13px; color: #475569; line-height: 1.6; text-align: justify; white-space: pre-line;">
+          {{ ddjj.textoLegal }}
+        </p>
+
+        <mat-checkbox 
+            color="primary" 
+            [checked]="ddjj.aceptado" 
+            (change)="onCheckChange(ddjj.idDeclaracionCat, $event.checked)"
+            [disabled]="modoLectura">
+            <span style="font-size: 12.5px; font-weight: 600; color: #0f172a;">
+                Declaro bajo juramento cumplir y aceptar las condiciones descritas arriba.
+            </span>
+        </mat-checkbox>
+      </div>
+    }
+
+    @if (!modoLectura) {
+      <div style="display: flex; justify-content: flex-end; margin-top: 16px; border-top: 1px solid #e2e8f0; padding-top: 16px;">
+        <button mat-flat-button color="primary" (click)="guardarCambios()" [disabled]="!todasAceptadas() || cargando()" style="padding: 0 24px; height: 44px;">
+          <mat-icon>save</mat-icon> Confirmar y Guardar Declaraciones
+        </button>
+      </div>
+    }
+
+  </div>
+</mat-card>

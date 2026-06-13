@@ -1,9 +1,11 @@
-﻿using Application.Postulantes.Commands;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Application.Auth.Dtos;
+using Application.Postulantes.Commands;
+using Application.Postulantes.Dtos;
 
 namespace Application.Common.Interfaces
 {
@@ -19,5 +21,9 @@ namespace Application.Common.Interfaces
         Task<bool> MantenimientoOfimaticaAsync(MantenimientoOfimaticaCommand command);
         Task<bool> MantenimientoRequisitoEspecialAsync(MantenimientoRequisitoEspecialCommand command);
         Task<bool> GuardarInfoAdicionalAsync(GuardarInfoAdicionalCommand command);
+        Task<bool> GuardarFirmaAsync(int idPostulante, byte[] archivoBytes, string tipoMime);
+        Task<DatosPostulanteTokenDto?> RegistrarTokenRecuperacionAsync(string numDocumento, string token);
+        Task<bool> RestablecerPasswordAsync(string token, string nuevoPasswordHash);
+        Task<bool> GuardarDeclaracionesAsync(int idPostulante, List<GuardarDeclaracionItemDto> declaraciones);
     }
 }

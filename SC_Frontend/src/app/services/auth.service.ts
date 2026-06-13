@@ -21,4 +21,12 @@ export class AuthService {
   registrarPostulante(payload: any): Observable<any> {
     return this.crudHttp.post<any>('public/auth/registro', payload);
   }
+
+  solicitarEnlaceRecuperacion(numDocumento: string): Observable<any> {
+    return this.crudHttp.post('public/auth/solicitar-recuperacion', { numDocumento });
+  }
+
+  confirmarRestablecimiento(token: string, nuevoPassword: string): Observable<any> {
+    return this.crudHttp.post('public/auth/restablecer-password', { token, nuevoPassword });
+  }
 }

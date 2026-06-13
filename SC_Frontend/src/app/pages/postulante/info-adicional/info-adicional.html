@@ -1,10 +1,21 @@
 <div class="dashboard-header-context">
   <div class="title-block">
-    <h1>Información Adicional Obligatoria</h1>
-    <p>Declare sus condiciones de disponibilidad logística y requerimientos institucionales.</p>
-</div>
+    <h1>Información Adicional</h1>
+    @if (!modoLectura) {
+      <p>Declare sus condiciones de disponibilidad logística y requerimientos institucionales.</p>
+    }
+  </div> </div>
 
-<mat-card class="table-card mat-elevation-z2" style="margin-top: 16px; padding: 24px;">
+@if (cargando()) {
+  <div class="overlay-spinner">
+    <div class="spinner-center-box">
+      <mat-spinner diameter="50" color="primary"></mat-spinner>
+      <p class="spinner-text">Sincronizando información...</p>
+    </div>
+  </div>
+}
+
+<mat-card class="table-card mat-elevation-z2" [style.margin-top]="modoLectura ? '0px' : '16px'" style="padding: 24px;">
   <form [formGroup]="infoForm" (ngSubmit)="onSubmit()">
     
     <div style="border: 1px solid #e2e8f0; padding: 16px; border-radius: 8px; background-color: #f8fafc;">
@@ -18,7 +29,7 @@
       </mat-radio-group>
     </div>
 
-    @if (infoForm.get('disponibilidadInterior')?.value) {
+    @if (infoForm.get('disponibilidadInterior')?.value || infoForm.get('disponibilidadInterior')?.disabled) {
       <div style="margin-top: 16px; animation: fadeInForm 0.2s ease-out;">
         <p style="font-size: 12.5px; font-weight: 700; color: #1e293b; margin-bottom: 8px; text-transform: uppercase; border-left: 3px solid #10b981; padding-left: 8px;">
           Seleccione los Departamentos de su Preferencia / Disponibilidad
@@ -39,11 +50,12 @@
       </div>
     }
 
-    <div style="display: flex; justify-content: flex-end; margin-top: 24px; border-top: 1px solid #e2e8f0; padding-top: 16px;">
-      <button mat-flat-button color="primary" type="submit" [disabled]="infoForm.invalid || cargando()" style="padding: 0 24px;">
-        <mat-icon>save</mat-icon> Finalizar y Guardar Cambios
-      </button>
-    </div>
-
+    @if (!modoLectura) {
+      <div style="display: flex; justify-content: flex-end; margin-top: 24px; border-top: 1px solid #e2e8f0; padding-top: 16px;">
+        <button mat-flat-button color="primary" type="submit" [disabled]="infoForm.invalid || cargando()" style="padding: 0 24px;">
+          <mat-icon>save</mat-icon> Finalizar y Guardar Cambios
+        </button>
+      </div>
+    }
   </form>
 </mat-card>

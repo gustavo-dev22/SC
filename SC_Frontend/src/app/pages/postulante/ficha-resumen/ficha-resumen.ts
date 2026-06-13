@@ -3,13 +3,11 @@ import { CommonModule, NgComponentOutlet } from '@angular/common';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { PostulanteResumenService } from '../../../services/postulante-resumen.service';
 import { TabConfig } from '../../../core/models/tabConfig.model';
 import { AlertService } from '../../../shared/services/alert.service';
 
-// Importamos los subcomponentes de las listas para meterlos en los TABS
 import { Formacion } from '../formacion/formacion';
 import { Colegiatura } from '../colegiatura/colegiatura';
 import { Idiomas } from '../idioma/idioma';
@@ -17,6 +15,9 @@ import { Ofimatica } from '../ofimatica/ofimatica';
 import { Certificacion } from '../certificacion/certificacion';
 import { Experiencia } from '../experiencia/experiencia';
 import { OtrosRequisitos } from '../otros-requisitos/otros-requisitos';
+import { InformacionAdicional } from '../info-adicional/info-adicional';
+import { FirmaDigitalizada } from '../firma-digitalizada/firma-digitalizada';
+import { PostulanteFichaService } from '../../../services/postulante-ficha.service';
 
 @Component({
   selector: 'app-ficha-resumen',
@@ -27,6 +28,7 @@ import { OtrosRequisitos } from '../otros-requisitos/otros-requisitos';
 })
 export class FichaResumen implements OnInit {
   private resumenService = inject(PostulanteResumenService);
+  private fichaService = inject(PostulanteFichaService);
   private alertService = inject(AlertService);
 
   public cargando = signal<boolean>(false);
@@ -90,6 +92,22 @@ export class FichaResumen implements OnInit {
       componente: OtrosRequisitos, 
       verificarFlag: (f) => f.tieneOtrosRequisitos,
       inputsComponente: { modoLectura: true }
+    },
+    { 
+      id: 'info-adicional', 
+      titulo: 'Información Adicional', 
+      icono: 'info', 
+      componente: InformacionAdicional, 
+      verificarFlag: (f) => f.tieneInformacionAdicional,
+      inputsComponente: { modoLectura: true }
+    },
+    { 
+      id: 'firma-digital', 
+      titulo: 'Firma Digital', 
+      icono: 'fingerprint', 
+      componente: FirmaDigitalizada, 
+      verificarFlag: (f) => f.tieneFirma,
+      inputsComponente: { modoLectura: true }
     }
   ];
 
@@ -117,9 +135,35 @@ export class FichaResumen implements OnInit {
   }
 
   imprimirFichaPDF(): void {
-    this.alertService.advertencia(
-      'Módulo en Desarrollo',
-      'La generación del reporte automatizado en formato PDF se encuentra en fase de maquetación con iTextSharp / QuestPDF en el Backend. Estará disponible en la siguiente entrega.'
-    );
+    this.cargando.set(true);
+
+    this.fichaService.imprimirFichaReporte(this.idPostulante).subscribe({
+      next: (blob: Blob) => {
+        // Creamos un Blob explícito forzando el tipo MIME de PDF
+        const pdfBlob = new Blob([blob], { type: 'application/pdf' });
+        const fileURL = URL.createObjectURL(pdfBlob);
+        
+        // 🚀 SOLUCIÓN AL NOMBRE: Creamos un ancla temporal en el DOM
+        const link = document.createElement('a');
+        link.href = fileURL;
+        link.target = '_blank';
+        
+        // Forzamos el nombre exacto que quieres ver al descargar
+        link.download = `FICHA_POSTULANTE_${this.idPostulante.toString().padStart(6, '0')}.pdf`;
+        
+        // Lo añadimos al cuerpo del DOM, lo gatillamos y lo removemos instantáneamente
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        // Limpieza preventiva de memoria
+        setTimeout(() => URL.revokeObjectURL(fileURL), 10000);
+        this.cargando.set(false);
+      },
+      error: () => {
+        this.cargando.set(false);
+        this.alertService.error('Error', 'No se pudo generar el reporte.');
+      }
+    });
   }
 }

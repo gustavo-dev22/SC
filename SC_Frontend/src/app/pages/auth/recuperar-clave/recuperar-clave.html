@@ -1,1 +1,32 @@
-<p>recuperar-clave works!</p>
+<div style="display: flex; justify-content: center; align-items: center; min-height: 80vh; background-color: #f1f5f9; padding: 16px;">
+  <mat-card style="max-width: 450px; width: 100%; padding: 32px; border-radius: 12px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);">
+    <div style="text-align: center; margin-bottom: 24px;">
+      <mat-icon style="font-size: 48px; width: 48px; height: 48px; color: #10b981;">published_with_changes</mat-icon>
+      <h2 style="margin: 12px 0 4px 0; font-size: 20px; font-weight: 700; color: #0f172a;">Nueva Contraseña</h2>
+      <p style="margin: 0; font-size: 13px; color: #64748b;">Configure su nueva credencial de ingreso al sistema transaccional.</p>
+    </div>
+
+    @if (resetForm) {
+      <form [formGroup]="resetForm" (ngSubmit)="onSubmit()">
+        <mat-form-field appearance="outline" style="width: 100%; margin-bottom: 12px;">
+          <mat-label>Nueva Contraseña</mat-label>
+          <input matInput formControlName="password" type="password" placeholder="Mínimo 6 caracteres">
+          <mat-icon matSuffix style="color: #64748b;">lock</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" style="width: 100%; margin-bottom: 16px;">
+          <mat-label>Confirmar Contraseña</mat-label>
+          <input matInput formControlName="confirmPassword" type="password" placeholder="Repita la contraseña">
+          <mat-icon matSuffix style="color: #64748b;">lock_clock</mat-icon>
+          @if (resetForm.hasError('mismatch')) {
+            <mat-error style="display: block; margin-top: 4px;">Las contraseñas ingresadas no coinciden.</mat-error>
+          }
+        </mat-form-field>
+
+        <button mat-flat-button type="submit" [disabled]="resetForm.invalid || cargando()" style="width: 100%; height: 46px; border-radius: 8px; font-weight: 600; background-color: #10b981; color: white;">
+          {{ cargando() ? 'Guardando...' : 'Restablecer y Guardar' }}
+        </button>
+      </form>
+    }
+  </mat-card>
+</div>

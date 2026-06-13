@@ -25,5 +25,8 @@ namespace Application.Common.Interfaces
         Task<List<UbigeoDto>> ObtenerProvinciasAsync(string idDepartamento);
         Task<List<UbigeoDto>> ObtenerDistritosAsync(string idProvincia);
         Task<InfoAdicionalDto?> ObtenerInfoAdicionalAsync(int idPostulante);
+        Task<PostulanteFirmaDto?> ObtenerFirmaAsync(int idPostulante);
+        Task<byte[]> ObtenerFichaPdfAsync(int idPostulante);
+        Task<List<PostulanteDeclaracionDto>> ListarDeclaracionesAsync(int idPostulante, int idTipo);
     }
 }
