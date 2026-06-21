@@ -25,5 +25,7 @@ namespace Application.Common.Interfaces
         Task<DatosPostulanteTokenDto?> RegistrarTokenRecuperacionAsync(string numDocumento, string token);
         Task<bool> RestablecerPasswordAsync(string token, string nuevoPasswordHash);
         Task<bool> GuardarDeclaracionesAsync(int idPostulante, List<GuardarDeclaracionItemDto> declaraciones);
+        Task<int> ObtenerTotalPostulacionesAnualAsync(int anio);
+        Task<bool> InsertarPostulacionLocalAsync(int idPostulante, int idPlaza, int idEstadoCat, string codigoPostulacion);
     }
 }

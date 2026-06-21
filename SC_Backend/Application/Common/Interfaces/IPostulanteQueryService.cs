@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Application.Common.Dtos;
+using Application.Oportunidades.Dtos;
 using Application.Postulantes.Dtos;
 
 namespace Application.Common.Interfaces
@@ -28,5 +29,7 @@ namespace Application.Common.Interfaces
         Task<PostulanteFirmaDto?> ObtenerFirmaAsync(int idPostulante);
         Task<byte[]> ObtenerFichaPdfAsync(int idPostulante);
         Task<List<PostulanteDeclaracionDto>> ListarDeclaracionesAsync(int idPostulante, int idTipo);
+        Task<byte[]?> ObtenerFirmaBytesAsync(int idPostulante);
+        Task<byte[]> ObtenerConstanciaPostulacionPdfAsync(MisPostulacionesDto datos, byte[]? firmaPostulanteBytes);
     }
 }

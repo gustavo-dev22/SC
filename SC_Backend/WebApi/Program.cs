@@ -6,7 +6,12 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
-builder.Services.AddHttpClient();
+builder.Services.AddHttpClient("SistemaPublicacionConvocatorias", client =>
+{
+    // IMPORTANTE: Recuerda poner el "/" al final de la URL base para que Spring Boot ensamble bien las rutas
+    client.BaseAddress = new Uri("http://localhost:8080/api/");
+    client.DefaultRequestHeaders.Add("Accept", "application/json");
+});
 
 builder.Services.AddApplicationServices();
 builder.Services.AddInfrastructureServices(builder.Configuration);
@@ -15,7 +20,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("CorsAngularPolicy", policy =>
     {
-        policy.WithOrigins("http://localhost:4200", "http://127.0.0.1:4200") // Permite el origen de tu frontend
+        policy.WithOrigins("http://localhost:4200", "http://127.0.0.1:4200", "http://localhost:4201", "http://127.0.0.1:4201") // Permite el origen de tu frontend
               .AllowAnyMethod()                                             // Permite POST, GET, OPTIONS, PUT, DELETE
               .AllowAnyHeader();                                          
     });

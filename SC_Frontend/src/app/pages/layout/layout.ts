@@ -8,6 +8,7 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import Swal from 'sweetalert2';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-layout',
@@ -17,6 +18,7 @@ import Swal from 'sweetalert2';
 })
 export class Layout implements OnInit {
   private router = inject(Router);
+  private authService = inject(AuthService);
 
   // Signals reactivos para la UI
   public nombreUsuario = signal<string>('Usuario');
@@ -28,20 +30,22 @@ export class Layout implements OnInit {
   }
 
   cargarPerfilYMenus(): void {
-    const rawProfile = sessionStorage.getItem('user_profile');
-    if (!rawProfile) {
-      this.logoutSencillo();
-      return;
-    }
+    try {
+      const rawProfile = sessionStorage.getItem('user_profile');
+      if (!rawProfile) {
+        this.authService.logout(); // ← delegar al servicio
+        return;
+      }
 
-    const profile = JSON.parse(rawProfile);
-    this.nombreUsuario.set(profile.nombreCompleto);
-    this.rolUsuario.set(profile.rol);
+      const profile = JSON.parse(rawProfile); // ← ahora protegido por try/catch
+      this.nombreUsuario.set(profile.nombreCompleto);
+      this.rolUsuario.set(profile.rol);
 
-    // ANALISIS SENIOR: Agrupar submenús debajo de sus respectivos menús padres
-    // La estructura de SASI nos da los objetos planos. Los mapearemos eficientemente:
-    if (profile.menus && Array.isArray(profile.menus)) {
-      this.menuItems.set(this.estructurarMenuSasi(profile.menus));
+      if (profile.menus && Array.isArray(profile.menus)) {
+        this.menuItems.set(this.estructurarMenuSasi(profile.menus));
+      }
+    } catch {
+      this.authService.logout(); // ← JSON corrupto → sesión inválida → logout
     }
   }
 
@@ -81,15 +85,8 @@ export class Layout implements OnInit {
       heightAuto: false
     }).then((result) => {
       if (result.isConfirmed) {
-        this.logoutSencillo();
+        this.authService.logout();
       }
     });
-  }
-
-  private logoutSencillo(): void {
-    // Limpieza absoluta de la sesión de información
-    sessionStorage.clear();
-    // Redirección forzada al Login
-    this.router.navigate(['/login']);
   }
 }

@@ -92,6 +92,14 @@ export const routes: Routes = [
             {
                 path: 'postulante/declaraciones',
                 loadComponent: () => import('./pages/postulante/declaraciones-juradas/declaraciones-juradas').then(m => m.DeclaracionesJuradas)
+            },
+            {
+                path: 'postulante/buscar-plazas',
+                loadComponent: () => import('./pages/buscar-plazas/buscar-plazas').then(m => m.BuscarPlazas)
+            },
+            {
+                path: 'postulante/resumen',
+                loadComponent: () => import('./pages/resumen-postulaciones/resumen-postulaciones').then(m => m.ResumenPostulaciones)
             }
         ]
     },

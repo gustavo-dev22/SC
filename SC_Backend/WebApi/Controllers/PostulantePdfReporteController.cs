@@ -22,5 +22,18 @@ namespace WebApi.Controllers
             // Retornamos el File Content Result nativo de ASP.NET Core
             return File(pdfBytes, "application/pdf", nombreArchivo);
         }
+
+        [HttpGet("reporte-constancia/{idPostulacion:int}")]
+        [ProducesResponseType(typeof(FileResult), 200)]
+        public async Task<IActionResult> ImprimirConstanciaPdf(int idPostulacion)
+        {
+            // Enviamos la Query por el bus de MediatR
+            byte[] pdfBytes = await _mediator.Send(new ObtenerConstanciaPdfQuery(idPostulacion));
+
+            string nombreArchivo = $"CONSTANCIA_POSTULACION_{idPostulacion:D6}.pdf";
+
+            // Retornamos el File Content Result nativo de ASP.NET Core
+            return File(pdfBytes, "application/pdf", nombreArchivo);
+        }
     }
 }

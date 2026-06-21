@@ -7,6 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { LoginRequest } from '../../core/models/auth.model';
 import Swal from 'sweetalert2';
 
 @Component({
@@ -59,22 +60,26 @@ export class Login {
     this.cargando.set(true);
     this.errorLogin.set(null);
 
-    const { usuario, contrasena } = this.loginForm.value;
+        const { usuario, contrasena } = this.loginForm.value;
 
-    this._authService.login(usuario, contrasena, this.esExterno()).subscribe({
+    const request: LoginRequest = {
+      username:   usuario,
+      password:   contrasena,
+      isExternal: this.esExterno()
+    };
+
+    this._authService.login(request).subscribe({
       next: (res) => {
         if (res.success) {
-          sessionStorage.setItem('token', res.data.token);
-          sessionStorage.setItem('user_profile', JSON.stringify(res.data));
-          
-          // ALERTA PREMIUM DE ÉXITO
+          // ✅ El AuthService ya guardó el token y el perfil en guardarSesion()
+          // No se necesita sessionStorage aquí
           Swal.fire({
             title: '¡Acceso Concedido!',
-            text: res.message, 
+            text: res.message,
             icon: 'success',
             timer: 2000,
             showConfirmButton: false,
-            heightAuto: false, 
+            heightAuto: false,
             background: '#ffffff',
             iconColor: '#2a5298'
           }).then(() => {

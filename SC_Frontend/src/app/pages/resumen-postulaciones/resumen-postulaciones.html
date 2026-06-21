@@ -1,0 +1,84 @@
+@if (cargando()) {
+  <div class="overlay-spinner">
+    <div class="spinner-center-box">
+      <mat-spinner diameter="50" color="primary"></mat-spinner>
+      <p class="spinner-text">Sincronizando historial de postulaciones...</p>
+    </div>
+  </div>
+}
+
+<div class="panel-resumen-container" style="padding: 24px;">
+  
+  <div class="header-seccion" style="margin-bottom: 20px;">
+    <h2 style="font-weight: 700; color: #1e3c72; margin: 0;">Mis Postulaciones</h2>
+    <p style="color: #666; margin: 4px 0 0 0;">Consulte el estado de sus postulaciones y realice el seguimiento a los procesos de selección.</p>
+  </div>
+
+  @if (!cargando()) {
+    
+    @if (postulaciones().length === 0) {
+      <div class="alerta-vacia" style="text-align: center; padding: 48px; border: 2px dashed #ccc; border-radius: 8px;">
+        <mat-icon style="font-size: 48px; width: 48px; height: 48px; color: #999;">assignment_late</mat-icon>
+        <p style="font-size: 16px; font-weight: 600; color: #555; margin-top: 12px;">Usted aún no registra ninguna postulación activa.</p>
+      </div>
+    } @else {
+      
+      <div class="mat-elevation-z2" style="border-radius: 8px; overflow: hidden;">
+        <table mat-table [dataSource]="postulaciones()" style="width: 100%;">
+
+          <ng-container matColumnDef="codigoPostulacion">
+            <th mat-header-cell *matHeaderCellDef style="font-weight: 700; background: #f5f7fa;"> N° Expediente </th>
+            <td mat-cell *matCellDef="let element" style="font-weight: 600; color: #2c3e50;"> {{element.codigoPostulacion}} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="convocatoria">
+            <th mat-header-cell *matHeaderCellDef style="font-weight: 700; background: #f5f7fa;"> Convocatoria </th>
+            <td mat-cell *matCellDef="let element"> {{element.codigoConvocatoria}} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="puesto">
+            <th mat-header-cell *matHeaderCellDef style="font-weight: 700; background: #f5f7fa;"> Puesto / Oficina </th>
+            <td mat-cell *matCellDef="let element">
+              <div style="font-weight: 600;">{{element.nombrePuesto}}</div>
+              <div style="font-size: 11px; color: #7f8c8d;">{{element.unidadOrganica}}</div>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="fecha">
+            <th mat-header-cell *matHeaderCellDef style="font-weight: 700; background: #f5f7fa;"> Fecha Postulación </th>
+            <td mat-cell *matCellDef="let element"> {{element.fechaPostulacion | date:'dd/MM/yyyy HH:mm'}} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="remuneracion">
+            <th mat-header-cell *matHeaderCellDef style="font-weight: 700; background: #f5f7fa;"> Remuneración </th>
+            <td mat-cell *matCellDef="let element"> {{element.remuneracion | currency:'S/. '}} </td>
+          </ng-container>
+
+          <ng-container matColumnDef="estado">
+            <th mat-header-cell *matHeaderCellDef style="font-weight: 700; background: #f5f7fa; text-align: center;"> Estado </th>
+            <td mat-cell *matCellDef="let element" style="text-align: center;">
+              <span [className]="'badge-estado ' + obtenerClaseEstado(element.estadoCodigo)">
+                {{element.estadoDescripcion}}
+              </span>
+            </td>
+          </ng-container>
+
+          <ng-container matColumnDef="acciones">
+            <th mat-header-cell *matHeaderCellDef style="font-weight: 700; background: #f5f7fa; text-align: center;"> Ficha </th>
+            <td mat-cell *matCellDef="let element" style="text-align: center;">
+              <button mat-icon-button 
+                      color="warn" 
+                      matTooltip="Descargar Constancia"
+                      (click)="descargarConstanciaPDF(element)">
+                <mat-icon>picture_as_pdf</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="columnasClave"></tr>
+          <tr mat-row *matRowDef="let row; columns: columnasClave;"></tr>
+        </table>
+      </div>
+    }
+  }
+</div>

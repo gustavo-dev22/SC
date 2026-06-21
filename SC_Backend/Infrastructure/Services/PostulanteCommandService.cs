@@ -273,5 +273,31 @@ namespace Infrastructure.Services
 
             return true;
         }
+
+        public async Task<int> ObtenerTotalPostulacionesAnualAsync(int anio)
+        {
+            using IDbConnection connection = _dbConnectionFactory.CreateConnection();
+            const string sql = "SELECT COUNT(1) FROM sc_postulacion WHERE YEAR(fecha_postulacion) = @Anio";
+            return await connection.ExecuteScalarAsync<int>(sql, new { Anio = anio });
+        }
+
+        public async Task<bool> InsertarPostulacionLocalAsync(int idPostulante, int idPlaza, int idEstadoCat, string codigoPostulacion)
+        {
+            using IDbConnection connection = _dbConnectionFactory.CreateConnection();
+
+            int idGenerado = await connection.ExecuteScalarAsync<int>(
+                "sp_Postulacion_Registrar",
+                new
+                {
+                    IdPostulante = idPostulante,
+                    IdPlaza = idPlaza,
+                    IdEstadoPostulacionCat = idEstadoCat,
+                    CodigoPostulacion = codigoPostulacion
+                },
+                commandType: CommandType.StoredProcedure
+            );
+
+            return idGenerado > 0;
+        }
     }
 }

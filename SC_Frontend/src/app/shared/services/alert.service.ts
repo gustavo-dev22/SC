@@ -38,7 +38,7 @@ export class AlertService {
     });
   }
 
-  public confirmacion(titulo: string, mensaje: string): Observable<boolean> {
+  public confirmacion(titulo: string, mensaje: string, textoBotonOk: string = 'Sí, Eliminar', textoBotonCancelar: string = 'Cancelar'): Observable<boolean> {
     const dialogRef = this.dialog.open(ModalAlertaComponent, {
       width: '380px',
       disableClose: true,
@@ -48,7 +48,9 @@ export class AlertService {
         mensaje, 
         icono: 'help_outline', 
         tipo: 'confirmacion', 
-        esDecision: true      
+        esDecision: true,
+        textoBotonOk,
+        textoBotonCancelar      
       }
     });
 

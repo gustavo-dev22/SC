@@ -1,16 +1,14 @@
 import { CanActivateFn, Router } from '@angular/router';
 import { inject } from '@angular/core';
+import { AuthService } from '../../services/auth.service';
 
-export const authGuard: CanActivateFn = (route, state) => {
-  const router = inject(Router);
-  const token = sessionStorage.getItem('token');
+export const authGuard: CanActivateFn = () => {
+  const authService = inject(AuthService);
+  const router      = inject(Router);
 
-  if (token) {
-    // El token existe, el acceso está permitido
-    return true;
-  }
+  // ✅ El guard consulta al servicio, no al sessionStorage directamente
+  if (authService.isAuthenticated()) return true;
 
-  // No hay token activo, redirigimos de inmediato a la pantalla de Login
   router.navigate(['/login']);
   return false;
 };

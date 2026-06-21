@@ -1,0 +1,38 @@
+<div style="padding: 24px; position: relative;">
+  <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
+    <div>
+      <span style="font-size: 11px; font-weight: 700; background-color: #eff6ff; color: #1e40af; padding: 4px 8px; border-radius: 4px;">
+        {{ data.codigoConvocatoria }}
+      </span>
+      <h2 style="margin: 8px 0 2px 0; font-size: 18px; font-weight: 800; color: #1e293b;">{{ data.nombrePuesto }}</h2>
+      <p style="margin: 0; font-size: 13px; color: #64748b;">{{ data.unidadOrganica }}</p>
+    </div>
+    <button mat-icon-button mat-dialog-close><mat-icon>close</mat-icon></button>
+  </div>
+
+  <mat-dialog-content style="margin: 0; padding: 0 4px; max-height: 60vh; overflow-y: auto;">
+    <div style="background-color: #f8fafc; padding: 14px; border-radius: 8px; margin-bottom: 16px; display: flex; justify-content: space-between;">
+      <span><strong>Remuneración Mensual:</strong> S/. {{ data.remuneracion | number:'1.2-2' }}</span>
+      <span [style.color]="esVencida ? '#ef4444' : '#10b981'"><strong>Fin de Postulación:</strong> {{ data.fechaFin | date:'dd/MM/yyyy' }}</span>
+    </div>
+
+    <h4 style="font-weight: 700; margin-bottom: 6px; color: #0f172a;">Alcance del Puesto</h4>
+    <p style="font-size: 13px; color: #475569; line-height: 1.5; margin-bottom: 16px;">
+      Esta posición se rige bajo la modalidad de Contratación Administrativa de Servicios (CAS) de la institución. El postulante seleccionado se incorporará a las actividades asignadas a la unidad orgánica correspondiente.
+    </p>
+  </mat-dialog-content>
+
+  <mat-dialog-actions style="justify-content: flex-end; padding-top: 16px; border-top: 1px solid #e2e8f0; margin-top: 16px;">
+    <button mat-button mat-dialog-close style="font-weight: 600;">Cerrar</button>
+    
+    @if (esVencida) {
+      <button mat-flat-button disabled>Convocatoria Cerrada</button>
+    } @else if (data.yaPostulo) {
+      <button mat-flat-button disabled>Ya Registrado</button>
+    } @else {
+      <button mat-flat-button color="primary" (click)="postularDesdeDetalle()" style="background-color: #1e3c72; color: white; font-weight: 600;">
+        Aplicar a esta Plaza
+      </button>
+    }
+  </mat-dialog-actions>
+</div>

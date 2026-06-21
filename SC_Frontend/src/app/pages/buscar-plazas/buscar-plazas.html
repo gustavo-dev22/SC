@@ -1,0 +1,113 @@
+@if (cargando()) {
+  <div class="overlay-spinner">
+    <div class="spinner-center-box">
+      <mat-spinner diameter="50" color="primary"></mat-spinner>
+      <p class="spinner-text">Consultando listado de plazas...</p>
+    </div>
+  </div>
+}
+
+<div style="padding: 24px; background-color: #f8fafc; min-height: 85vh;">
+  
+  <div style="margin-bottom: 24px; border-bottom: 1px solid #e2e8f0; padding-bottom: 16px;">
+    <h1 style="font-size: 24px; font-weight: 800; color: #1e3c72; margin: 0 0 6px 0;">Oportunidades Laborales / Plazas Vacantes</h1>
+    <p style="margin: 0; font-size: 13.5px; color: #64748b; line-height: 1.5;">Explore las convocatorias vigentes integradas in tiempo real desde el Sistema de Publicación (SPC). Postule según su perfil profesional.</p>
+  </div>
+
+  <div style="margin-bottom: 20px;">
+    <mat-form-field appearance="outline" style="width: 100%;">
+      <mat-label>Filtrar vacantes por cargo, puesto o unidad orgánica...</mat-label>
+      <input matInput (keyup)="onSearchKeyup($event)" placeholder="Ej. Analista de Sistemas, Especialista Legal, Auxiliar...">
+      <mat-icon matSuffix style="color: #64748b;">search</mat-icon>
+    </mat-form-field>
+  </div>
+
+  @if (!cargando()) {
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px;">
+      
+      @for (plaza of listaPlazas(); track plaza.idPlaza) {
+        <mat-card style="border: 1px solid #e2e8f0; border-radius: 10px; padding: 20px; background-color: #ffffff; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02); display: flex; flex-direction: column; justify-content: space-between; min-height: 180px;">
+          
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+              <span style="font-size: 11px; font-weight: 700; background-color: #eff6ff; color: #1e40af; padding: 4px 8px; border-radius: 4px; border: 1px solid #bfdbfe;">
+                {{ plaza.codigoConvocatoria }}
+              </span>
+              <span style="font-size: 13.5px; font-weight: 700; color: #0f172a;">
+                S/. {{ plaza.remuneracion | number:'1.2-2' }}
+              </span>
+            </div>
+            
+            <h3 style="margin: 0 0 6px 0; font-size: 15px; font-weight: 700; color: #1e293b; line-height: 1.4;">
+              {{ plaza.nombrePuesto }}
+            </h3>
+            
+            <p style="margin: 0 0 16px 0; font-size: 12.5px; color: #64748b; display: flex; align-items: center; gap: 6px;">
+              <mat-icon style="font-size: 16px; width: 16px; height: 16px; color: #94a3b8;">corporate_fare</mat-icon>
+              {{ plaza.unidadOrganica }}
+            </p>
+          </div>
+
+          <div style="border-top: 1px solid #f1f5f9; padding-top: 12px; display: flex; justify-content: space-between; align-items: center;">
+          
+            @if (verificarVencimiento(plaza.fechaFin)) {
+              <span style="font-size: 11px; color: #ef4444; font-weight: 700; background-color: #fef2f2; padding: 2px 6px; border-radius: 4px;">
+                ⚠️ VENCIDO EL {{ plaza.fechaFin | date:'dd/MM/yyyy' }}
+              </span>
+              <div style="display: flex; gap: 8px; align-items: center;">
+                <button mat-button (click)="abrirDetailPlaza(plaza)" style="font-size: 12.5px; font-weight: 600; color: #64748b;">
+                  Ver Detalle
+                </button>
+                <button mat-flat-button [disabled]="true" style="font-size: 12px; font-weight: 700; border-radius: 6px;">
+                  Cerrado
+                </button>
+              </div>
+            } @else {
+              <span style="font-size: 11.5px; color: #10b981; font-weight: 600;">
+                Vence: {{ plaza.fechaFin | date:'dd/MM/yyyy' }}
+              </span>
+
+              <div style="display: flex; gap: 8px; align-items: center;">
+                <button mat-button (click)="abrirDetailPlaza(plaza)" style="font-size: 12.5px; font-weight: 600; color: #1e3c72;">
+                  Ver Detalle
+                </button>
+
+                @if (plaza.yaPostulo) {
+                  <button mat-flat-button [disabled]="true" style="font-size: 12px; font-weight: 700; border-radius: 6px;">
+                    <mat-icon style="font-size: 16px; width: 16px; height: 16px;">check_circle</mat-icon> Ya Postuló
+                  </button>
+                } @else {
+                  <button mat-flat-button color="primary" (click)="validarRequisitosPreviosPostulacion(plaza)" 
+                          style="font-weight: 700; font-size: 12.5px; border-radius: 6px; background-color: #1e3c72; color: white !important;">
+                    <mat-icon style="font-size: 18px; width: 18px; height: 18px; margin-right: 4px; color: white !important;">send</mat-icon> Postular
+                  </button>
+                }
+              </div>
+            }
+          </div>
+
+        </mat-card>
+      } @empty {
+        <div style="grid-column: 1/-1; text-align: center; background-color: #ffffff; border: 1px dashed #cbd5e1; padding: 40px; border-radius: 8px;">
+          <mat-icon style="font-size: 40px; width: 40px; height: 40px; color: #94a3b8;">work_outline</mat-icon>
+          <p style="margin: 8px 0 0 0; color: #64748b; font-size: 14px; font-weight: 500;">No hay convocatorias públicas ni plazas vacantes vigentes en este momento.</p>
+        </div>
+      }
+
+    </div>
+
+    @if (listaPlazas().length > 0) {
+      <mat-paginator 
+        style="margin-top: 24px; border-radius: 8px; border: 1px solid #e2e8f0; background-color: #ffffff;"
+        [length]="totalRegistros()"
+        [pageSize]="registrosPorPagina()"
+        [pageSizeOptions]="[6, 12, 24]"
+        [pageIndex]="paginaActual() - 1"
+        (page)="onCambiarPagina($event)">
+      </mat-paginator>
+    }
+
+  }
+
+</div>

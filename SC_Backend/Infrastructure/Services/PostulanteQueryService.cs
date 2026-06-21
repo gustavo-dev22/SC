@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Application.Common.Dtos;
 using Application.Common.Interfaces;
+using Application.Oportunidades.Dtos;
 using Application.Postulantes.Dtos;
 using Application.Postulantes.Dtos.FichaPostulante;
 using Dapper;
@@ -501,6 +502,136 @@ namespace Infrastructure.Services
             }).GeneratePdf();
 
             return pdfBytes;
+        }
+
+        public async Task<byte[]> ObtenerConstanciaPostulacionPdfAsync(MisPostulacionesDto datos, byte[]? firmaPostulanteBytes)
+        {
+            // QuestPDF procesa en memoria pura sin tocar disco
+            var pdfBytes = Document.Create(container =>
+            {
+                container.Page(page =>
+                {
+                    page.Size(PageSizes.A4);
+                    page.Margin(1.2f, Unit.Centimetre);
+                    page.PageColor(Colors.White);
+                    page.DefaultTextStyle(x => x.FontSize(9).FontFamily("Arial"));
+
+                    // 1. CABECERA GENERAL DEL DOCUMENTO
+                    page.Header().Row(row =>
+                    {
+                        row.RelativeItem().Column(col =>
+                        {
+                            col.Item().Text("SISTEMA DE CONVOCATORIAS DE PERSONAL (SCP)").FontSize(12).Bold().FontColor(Colors.Blue.Darken3);
+                            col.Item().Text("CONSTANCIA DE POSTULACIÓN ELECTRÓNICA OFICIAL").FontSize(9.5f).Bold().FontColor(Colors.Grey.Darken2);
+                        });
+
+                        // N° de Expediente Correlativo Único visible arriba a la derecha
+                        row.ConstantItem(120).Text($"{datos.CodigoPostulacion}").FontSize(10).Bold().AlignRight().FontColor(Colors.Blue.Darken4);
+                    });
+
+                    // 2. CUERPO DEL REPORTE
+                    page.Content().PaddingVertical(0.5f, Unit.Centimetre).Column(col =>
+                    {
+                        col.Spacing(16);
+
+                        // A) DATOS DEL EXPEDIENTE
+                        col.Item().Column(seccion =>
+                        {
+                            seccion.Item().Text("1. DATOS DEL EXPEDIENTE DE INSCRIPCIÓN").FontSize(9.5f).Bold().FontColor(Colors.Blue.Darken3);
+                            seccion.Item().PaddingTop(3).Table(table =>
+                            {
+                                table.ColumnsDefinition(cd => { cd.ConstantColumn(130); cd.RelativeColumn(); cd.ConstantColumn(100); cd.RelativeColumn(); });
+
+                                table.Cell().PaddingVertical(3).Text("N° de Expediente:").Bold();
+                                table.Cell().PaddingVertical(3).Text(datos.CodigoPostulacion).FontColor(Colors.Blue.Darken3).Bold();
+
+                                table.Cell().PaddingVertical(3).Text("Fecha de Registro:").Bold();
+                                table.Cell().PaddingVertical(3).Text(datos.FechaPostulacion.ToString("dd/MM/yyyy HH:mm:ss"));
+
+                                table.Cell().PaddingVertical(3).Text("Estado del Proceso:").Bold();
+                                table.Cell().ColumnSpan(3).PaddingVertical(3).Text(datos.EstadoDescripcion).FontColor(Colors.Green.Darken3).Bold();
+                            });
+                        });
+
+                        // B) DATOS DE LA CONVOCATORIA Y PLAZA VACANTE
+                        col.Item().Column(seccion =>
+                        {
+                            seccion.Item().Text("2. DATOS DE LA PLAZA VACANTE SOLICITADA").FontSize(9.5f).Bold().FontColor(Colors.Blue.Darken3);
+                            seccion.Item().PaddingTop(3).Table(table =>
+                            {
+                                table.ColumnsDefinition(cd => { cd.ConstantColumn(130); cd.RelativeColumn(); });
+
+                                table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).PaddingVertical(4).Text("Código Convocatoria:").Bold();
+                                table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).PaddingVertical(4).Text(datos.CodigoConvocatoria);
+
+                                table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).PaddingVertical(4).Text("Puesto / Cargo:").Bold();
+                                table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).PaddingVertical(4).Text(datos.NombrePuesto).Bold();
+
+                                table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).PaddingVertical(4).Text("Unidad Orgánica:").Bold();
+                                table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).PaddingVertical(4).Text(datos.UnidadOrganica);
+
+                                table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).PaddingVertical(4).Text("Remuneración Mensual:").Bold();
+                                table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).PaddingVertical(4).Text(string.Format("S/. {0:N2}", datos.Remuneracion)).Bold();
+                            });
+                        });
+
+                        // C) DECLARACIÓN JURADA LEGAL
+                        col.Item().Column(seccion =>
+                        {
+                            seccion.Item().Text("3. DECLARACIÓN JURADA Y CONFORMIDAD").FontSize(9.5f).Bold().FontColor(Colors.Blue.Darken3);
+                            seccion.Item().PaddingTop(4).Background(Colors.Grey.Lighten4).Padding(8).Text(
+                                "El postulante declara bajo juramento que toda la información consignada en su Currículum Vitae " +
+                                "electrónico, así como las Declaraciones Juradas Obligatorias aceptadas en la plataforma, son verdaderas, " +
+                                "completas y se ajustan estrictamente a la realidad. Asimismo, manifiesta cumplir con el perfil y las " +
+                                "bases específicas exigidas para la presente convocatoria, sometiéndose a las verificaciones posteriores " +
+                                "que la institución estime pertinentes bajo el alcance de la Ley N° 27444 (Ley del Procedimiento Administrativo General)."
+                            ).FontSize(8.5f).LineHeight(1.5f).Justify();
+                        });
+
+                        // D) BLOQUE DE FIRMA DIGITALIZADA DEL CIUDADANO
+                        col.Item().PaddingTop(20).AlignCenter().Width(180).Column(fCol =>
+                        {
+                            if (firmaPostulanteBytes != null && firmaPostulanteBytes.Length > 0)
+                            {
+                                fCol.Item().AlignCenter().Width(120).Image(firmaPostulanteBytes);
+                            }
+                            else
+                            {
+                                fCol.Item().PaddingTop(10).PaddingBottom(10).AlignCenter().Text("[ FALTA CARGAR FIRMA ]").FontColor(Colors.Red.Medium).Bold();
+                            }
+
+                            fCol.Item().PaddingTop(6);
+
+                            // Línea y textos centrados usando los métodos nativos alineados de QuestPDF
+                            fCol.Item().BorderTop(1f).BorderColor(Colors.Grey.Darken1).AlignCenter().PaddingTop(2)
+                                .Text("Firma del Postulante").FontSize(8.5f).Bold().AlignCenter();
+
+                            fCol.Item().AlignCenter().PaddingTop(2)
+                                .Text("Documento Firmado Electrónicamente").FontSize(8).FontColor(Colors.Grey.Darken1).AlignCenter();
+                        });
+                    });
+
+                    // 3. PIE DE PÁGINA (Paginación automática)
+                    page.Footer().AlignCenter().Text(x => {
+                        x.Span("Página ").FontSize(7.5f).FontColor(Colors.Grey.Medium);
+                        x.CurrentPageNumber().FontSize(7.5f).FontColor(Colors.Grey.Medium);
+                        x.Span(" de ").FontSize(7.5f).FontColor(Colors.Grey.Medium);
+                        x.TotalPages().FontSize(7.5f).FontColor(Colors.Grey.Medium);
+                    });
+                });
+            }).GeneratePdf();
+
+            return pdfBytes;
+        }
+
+        public async Task<byte[]?> ObtenerFirmaBytesAsync(int idPostulante)
+        {
+            using IDbConnection connection = _dbConnectionFactory.CreateConnection();
+
+            // Suponiendo que la firma_digitalizada vive en sc_postulante
+            const string sql = "SELECT firma_digitalizada FROM sc_postulante WHERE id_postulante = @IdPostulante";
+
+            return await connection.QueryFirstOrDefaultAsync<byte[]>(sql, new { IdPostulante = idPostulante });
         }
 
         public async Task<List<PostulanteDeclaracionDto>> ListarDeclaracionesAsync(int idPostulante, int idTipo)

@@ -29,6 +29,8 @@ namespace Infrastructure
             services.AddScoped<IPostulanteQueryService, PostulanteQueryService>();
             services.AddScoped<IPostulanteCommandService, PostulanteCommandService>();
 
+            services.AddScoped<IOportunidadesQueryService, OportunidadesQueryService>();
+
             // Retornamos el contenedor para permitir encadenamiento (Fluent API)
             return services;
         }
