@@ -27,5 +27,7 @@ namespace Application.Common.Interfaces
         Task<bool> GuardarDeclaracionesAsync(int idPostulante, List<GuardarDeclaracionItemDto> declaraciones);
         Task<int> ObtenerTotalPostulacionesAnualAsync(int anio);
         Task<bool> InsertarPostulacionLocalAsync(int idPostulante, int idPlaza, int idEstadoCat, string codigoPostulacion);
+        Task<bool> CrearNotificacionAsync(int idPostulante, string titulo, string mensaje, int idTipoAlertaCat);
+        Task<bool> InsertarTicketAsync(int idPostulante, int? idPlaza, int idTipoTicketCat, string asunto, string descripcion);
     }
 }

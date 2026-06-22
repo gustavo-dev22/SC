@@ -100,6 +100,14 @@ export const routes: Routes = [
             {
                 path: 'postulante/resumen',
                 loadComponent: () => import('./pages/resumen-postulaciones/resumen-postulaciones').then(m => m.ResumenPostulaciones)
+            },
+            {
+                path: 'postulante/notificaciones',
+                loadComponent: () => import('./pages/postulante/alertas-notificaciones/alertas-notificaciones').then(m => m.AlertasNotificaciones)
+            },
+            {
+                path: 'postulante/consultas-reclamos',
+                loadComponent: () => import('./pages/postulante/consultas-reclamos/consultas-reclamos').then(m => m.ConsultasReclamos)
             }
         ]
     },

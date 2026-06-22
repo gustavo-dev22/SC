@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Application.Common.Dtos;
+﻿using Application.Common.Dtos;
 using Application.Common.Interfaces;
 using Application.Oportunidades.Dtos;
 using Application.Postulantes.Dtos;
@@ -13,16 +7,26 @@ using Dapper;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Net.Http.Json;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Infrastructure.Services
 {
     public class PostulanteQueryService : IPostulanteQueryService
     {
         private readonly IDbConnectionFactory _dbConnectionFactory;
-        public PostulanteQueryService(IDbConnectionFactory dbConnectionFactory)
+        private readonly IHttpClientFactory _httpClientFactory;
+
+        public PostulanteQueryService(IDbConnectionFactory dbConnectionFactory, IHttpClientFactory httpClientFactory)
         {
             _dbConnectionFactory = dbConnectionFactory;
             QuestPDF.Settings.License = LicenseType.Community;
+            _httpClientFactory = httpClientFactory;
         }
 
         public async Task<dynamic> ObtenerByDocumentoAsync(string numDocumento)
@@ -642,6 +646,67 @@ namespace Infrastructure.Services
                 new { IdPostulante = idPostulante, IdTipoDeclaraciones = idTipo },
                 commandType: CommandType.StoredProcedure
             )).ToList();
+        }
+
+        public async Task<List<NotificacionDto>> ObtenerNotificacionesAsync(int idPostulante)
+        {
+            using IDbConnection connection = _dbConnectionFactory.CreateConnection();
+            return (await connection.QueryAsync<NotificacionDto>(
+                "sp_Notificacion_ListarPorPostulante",
+                new { IdPostulante = idPostulante },
+                commandType: CommandType.StoredProcedure
+            )).ToList();
+        }
+
+        public async Task<bool> MarcarNotificacionLeidaAsync(int idNotificacion)
+        {
+            using IDbConnection connection = _dbConnectionFactory.CreateConnection();
+            int filasAfectadas = await connection.ExecuteAsync(
+                "sp_Notificacion_MarcarComoLeida",
+                new { IdNotificacion = idNotificacion },
+                commandType: CommandType.StoredProcedure
+            );
+            return filasAfectadas > 0;
+        }
+
+        public async Task<List<SoporteTicketDto>> ObtenerTicketsPorPostulanteAsync(int idPostulante)
+        {
+            using IDbConnection connection = _dbConnectionFactory.CreateConnection();
+
+            // 1. Traemos la data base desde SQL Server
+            var tickets = (await connection.QueryAsync<SoporteTicketDto>(
+                "sp_SoporteTicket_ListarPorPostulante",
+                new { IdPostulante = idPostulante },
+                commandType: CommandType.StoredProcedure
+            )).ToList();
+
+            // 2. 🚀 NUEVO: Inyectamos el cliente HTTP para cruzar con Spring Boot (Java)
+            var client = _httpClientFactory.CreateClient("SistemaPublicacionConvocatorias");
+
+            foreach (var ticket in tickets)
+            {
+                // Si el ticket tiene una plaza vinculada, recuperamos su código real desde Java
+                if (ticket.IdPlaza.HasValue && ticket.IdPlaza.Value > 0)
+                {
+                    try
+                    {
+                        // Consumimos el endpoint del SPC de Java pasándole el IdPlaza
+                        var plazaJava = await client.GetFromJsonAsync<PlazaJavaDto>($"convocatorias/{ticket.IdPlaza}");
+                        if (plazaJava != null)
+                        {
+                            // Asignamos el código real de la convocatoria (Ej: CAS-2026-004)
+                            ticket.CodigoConvocatoria = plazaJava.CodigoConvocatoria;
+                        }
+                    }
+                    catch
+                    {
+                        // Fail-safe: si el microservicio de Java no responde, dejamos el valor por defecto
+                        ticket.CodigoConvocatoria = "CONV-PROCESO";
+                    }
+                }
+            }
+
+            return tickets;
         }
     }
 }

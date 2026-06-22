@@ -1,0 +1,50 @@
+@if (cargando()) {
+  <div class="overlay-spinner">
+    <div class="spinner-center-box">
+      <mat-spinner diameter="50" color="primary"></mat-spinner>
+      <p class="spinner-text">Sincronizando alertas y notificaciones...</p>
+    </div>
+  </div>
+}
+
+<div style="padding: 24px; background-color: #f8fafc; min-height: 85vh;">
+  <div style="margin-bottom: 24px; border-bottom: 1px solid #e2e8f0; padding-bottom: 16px;">
+    <h1 style="font-size: 24px; font-weight: 800; color: #1e3c72; margin: 0 0 6px 0;">Alertas y Notificaciones</h1>
+    <p style="margin: 0; font-size: 13.5px; color: #64748b;">Manténgase al tanto del estado de sus postulaciones de manera oficial.</p>
+  </div>
+
+  @if (!cargando()) {
+    @if (listaNotificaciones().length === 0) {
+      <div style="text-align: center; padding: 48px; border: 2px dashed #cbd5e1; border-radius: 8px; background: #fff;">
+        <mat-icon style="font-size: 48px; width: 48px; height: 48px; color: #94a3b8;">notifications_off</mat-icon>
+        <p style="font-size: 15px; font-weight: 600; color: #475569; margin-top: 12px;">Usted no registra ninguna notificación o alerta en este momento.</p>
+      </div>
+    } @else {
+      <div style="display: flex; flex-direction: column; gap: 12px;">
+        @for (notif of listaNotificaciones(); track notif.idNotificacion) {
+          <div (mouseenter)="marcarIndividualComoLeida(notif)" 
+               style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; background-color: #ffffff; display: flex; gap: 16px; align-items: center; transition: all 0.3s ease; cursor: pointer;"
+               [style.border-left]="notif.idTipoAlertaCat === 2 ? '4px solid #ef4444' : notif.idTipoAlertaCat === 3 ? '4px solid #10b981' : '4px solid #3b82f6'"
+               [style.opacity]="notif.leido ? '0.6' : '1'"
+               [style.background-color]="notif.leido ? '#f8fafc' : '#ffffff'">
+            
+            <mat-icon [style.color]="notif.idTipoAlertaCat === 2 ? '#ef4444' : notif.idTipoAlertaCat === 3 ? '#10b981' : '#3b82f6'">
+              {{ notif.idTipoAlertaCat === 2 ? 'warning' : notif.idTipoAlertaCat === 3 ? 'check_circle' : 'info' }}
+            </mat-icon>
+
+            <div style="flex-grow: 1;">
+              <h3 style="margin: 0 0 4px 0; font-size: 14.5px; font-weight: 700; color: #1e293b;">
+                {{ notif.titulo }}
+                @if (!notif.leido) {
+                  <span style="font-size: 10px; background-color: #eff6ff; color: #1e40af; padding: 2px 6px; border-radius: 4px; margin-left: 8px; border: 1px solid #bfdbfe;">Nuevo</span>
+                }
+              </h3>
+              <p style="margin: 0 0 4px 0; font-size: 13px; color: #475569;">{{ notif.mensaje }}</p>
+              <span style="font-size: 11px; color: #94a3b8;">🕒 {{ notif.fechaEnvio | date:'dd/MM/yyyy HH:mm' }}</span>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  }
+</div>

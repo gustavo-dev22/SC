@@ -22,7 +22,6 @@ namespace Application.Oportunidades.Handlers
 
         public async Task<bool> Handle(RegistrarPostulacionCommand request, CancellationToken cancellationToken)
         {
-            // 1. 🚀 INSTANCIAMOS EL DOMINIO: Cargamos el objeto rico de negocio en memoria
             var domainPostulacion = new Postulacion(
                 request.IdPostulante,
                 request.IdPlaza,
@@ -30,26 +29,42 @@ namespace Application.Oportunidades.Handlers
                 request.YaPostulo
             );
 
-            // 2. 🚀 VALIDACIÓN DE DOMINIO: Evaluamos las invariantes antes de tocar la BD
             var (esValido, mensajeError) = domainPostulacion.ValidarReglasDePostulacion();
             if (!esValido)
             {
                 throw new InvalidOperationException(mensajeError);
             }
 
-            // 3. 🚀 GENERACIÓN DE DATOS DE DOMINIO: Creamos el correlativo oficial
             int totalPostulacionesAnio = await _commandService.ObtenerTotalPostulacionesAnualAsync(DateTime.Now.Year);
             string codigoGenerado = domainPostulacion.GenerarCodigoCorrelativo(totalPostulacionesAnio);
 
             int idEstadoInscritoCat = (int)EstadoPostulacion.Inscrito;
 
-            // 4. 🚀 PERSISTENCIA EN INFRAESTRUCTURA: Guardamos con Dapper
-            return await _commandService.InsertarPostulacionLocalAsync(
+            bool resultadoPostulacion = await _commandService.InsertarPostulacionLocalAsync(
                 request.IdPostulante,
                 request.IdPlaza,
                 idEstadoInscritoCat,
                 codigoGenerado
             );
+
+            if (resultadoPostulacion)
+            {
+                try
+                {
+                    string tituloNotif = "Postulación Recibida Conforme";
+                    string mensajeNotif = $"¡Éxito! Su postulación fue registrada correctamente bajo el N° de Expediente: {codigoGenerado}. Puede descargar su constancia en la sección de historial.";
+
+                    // Tipo de Alerta Catálogo: 3 (Éxito / Verde)
+                    await _commandService.CrearNotificacionAsync(request.IdPostulante, tituloNotif, mensajeNotif, 3);
+                }
+                catch
+                {
+                    // Mecanismo preventivo (Fail-safe): Si falla la inserción de la alerta por red o timeout,
+                    // no dañamos ni tiramos abajo la postulación principal que ya se guardó con éxito.
+                }
+            }
+
+            return resultadoPostulacion;
         }
     }
 }

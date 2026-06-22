@@ -31,5 +31,8 @@ namespace Application.Common.Interfaces
         Task<List<PostulanteDeclaracionDto>> ListarDeclaracionesAsync(int idPostulante, int idTipo);
         Task<byte[]?> ObtenerFirmaBytesAsync(int idPostulante);
         Task<byte[]> ObtenerConstanciaPostulacionPdfAsync(MisPostulacionesDto datos, byte[]? firmaPostulanteBytes);
+        Task<List<NotificacionDto>> ObtenerNotificacionesAsync(int idPostulante);
+        Task<bool> MarcarNotificacionLeidaAsync(int idNotificacion);
+        Task<List<SoporteTicketDto>> ObtenerTicketsPorPostulanteAsync(int idPostulante);
     }
 }

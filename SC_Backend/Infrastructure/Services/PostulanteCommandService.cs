@@ -299,5 +299,44 @@ namespace Infrastructure.Services
 
             return idGenerado > 0;
         }
+
+        public async Task<bool> CrearNotificacionAsync(int idPostulante, string titulo, string mensaje, int idTipoAlertaCat)
+        {
+            using IDbConnection connection = _dbConnectionFactory.CreateConnection();
+
+            int filasAfectadas = await connection.ExecuteAsync(
+                "sp_Notificacion_Insertar",
+                new
+                {
+                    IdPostulante = idPostulante,
+                    Titulo = titulo,
+                    Mensaje = mensaje,
+                    IdTipoAlertaCat = idTipoAlertaCat
+                },
+                commandType: CommandType.StoredProcedure
+            );
+
+            return filasAfectadas > 0;
+        }
+
+        public async Task<bool> InsertarTicketAsync(int idPostulante, int? idPlaza, int idTipoTicketCat, string asunto, string descripcion)
+        {
+            using IDbConnection connection = _dbConnectionFactory.CreateConnection();
+
+            int filasAfectadas = await connection.QuerySingleAsync<int>(
+                "sp_SoporteTicket_Insertar",
+                new
+                {
+                    IdPostulante = idPostulante,
+                    IdPlaza = idPlaza,
+                    IdTipoTicketCat = idTipoTicketCat,
+                    Asunto = asunto,
+                    Descripcion = descripcion
+                },
+                commandType: CommandType.StoredProcedure
+            );
+
+            return filasAfectadas > 0;
+        }
     }
 }
