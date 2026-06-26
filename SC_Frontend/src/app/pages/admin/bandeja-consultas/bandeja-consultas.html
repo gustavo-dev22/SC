@@ -1,0 +1,159 @@
+@if (cargando()) {
+  <div class="overlay-spinner">
+    <div class="spinner-center-box">
+      <mat-spinner diameter="50" color="primary"></mat-spinner>
+      <p class="spinner-text">Cargando bandeja global de incidencias...</p>
+    </div>
+  </div>
+}
+
+<div style="padding: 24px; background-color: #f8fafc; min-height: 85vh;">
+  
+  <div style="margin-bottom: 24px; border-bottom: 1px solid #e2e8f0; padding-bottom: 16px;">
+    <h1 style="font-size: 24px; font-weight: 800; color: #1e3c72; margin: 0 0 6px 0;">Bandeja de Consultas Técnicas</h1>
+    <p style="margin: 0; font-size: 13.5px; color: #64748b;">Administre, analice y responda las incidencias de los usuarios postulantes a nivel nacional.</p>
+  </div>
+
+  <div style="display: flex; gap: 16px; margin-bottom: 20px; align-items: center; background: white; padding: 16px; border-radius: 8px; border: 1px solid #e2e8f0;">
+    
+    <!-- Filtro por Texto Predictivo (DNI / Nombre) -->
+    <mat-form-field appearance="outline" style="flex: 1; margin-bottom: -1.25em;">
+      <mat-label>Buscar por Postulante (Nombre o DNI)</mat-label>
+      <input matInput [value]="filtroTexto()" (keyup)="onKeyupBusqueda($event)" placeholder="Ej. 47403344 o Karin Viviana...">
+      <mat-icon matSuffix style="color: #64748b;">search</mat-icon>
+    </mat-form-field>
+
+    <!-- Filtro por Estado del Workflow -->
+    <mat-form-field appearance="outline" style="width: 240px; margin-bottom: -1.25em;">
+      <mat-label>Filtrar por Estado</mat-label>
+      <mat-select [value]="filtroEstado()" (selectionChange)="aplicarFiltroEstado($event.value)">
+        <mat-option [value]="undefined">-- Todos los Estados --</mat-option>
+        @for (estado of listaEstadosTicket(); track estado.idValor) {
+          <mat-option [value]="estado.idValor">{{ estado.descripcion }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  @if (!cargando()) {
+    <div class="mat-elevation-z2" style="border-radius: 8px; overflow: hidden; background: white;">
+      <table mat-table [dataSource]="ticketsBandeja()" style="width: 100%;">
+
+        <ng-container matColumnDef="ticket">
+          <th mat-header-cell *matHeaderCellDef style="font-weight: 700; background: #f5f7fa;"> N° Ticket </th>
+          <td mat-cell *matCellDef="let element" style="font-weight: 600;"> #{{element.idTicket | number:'3.0-0'}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="postulante">
+          <th mat-header-cell *matHeaderCellDef style="font-weight: 700; background: #f5f7fa;"> Postulante / DNI </th>
+          <td mat-cell *matCellDef="let element">
+            <div style="font-weight: 600; color: #1e293b;">{{element.postulanteNombreCompleto}}</div>
+            <div style="font-size: 11px; color: #64748b;">DNI: {{element.postulanteDni}}</div>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="incidencia">
+          <th mat-header-cell *matHeaderCellDef style="font-weight: 700; background: #f5f7fa;"> Tipo / Asunto </th>
+          <td mat-cell *matCellDef="let element">
+            <span style="font-size: 10.5px; font-weight: 700; background-color: #f1f5f9; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-bottom: 4px;">
+              {{element.tipoTicketDescripcion}}
+            </span>
+            <div style="font-weight: 600; font-size: 13px;">{{element.asunto}}</div>
+            <div style="font-size: 12px; color: #475569; max-width: 300px; text-align: justify;">{{element.descripcion}}</div>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="convocatoria">
+          <th mat-header-cell *matHeaderCellDef style="font-weight: 700; background: #f5f7fa;"> Convocatoria </th>
+          <td mat-cell *matCellDef="let element"> {{element.codigoConvocatoria}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="estado">
+          <th mat-header-cell *matHeaderCellDef style="font-weight: 700; background: #f5f7fa; text-align: center;"> Estado </th>
+          <td mat-cell *matCellDef="let element" style="text-align: center;">
+            <span style="font-size: 11px; font-weight: bold; padding: 4px 10px; border-radius: 4px;"
+                  [style.background-color]="element.idEstadoTicketCat === 1105 ? '#e6f4ea' : 
+                                            element.idEstadoTicketCat === 1106 ? '#fce8e6' : 
+                                            element.idEstadoTicketCat === 1103 ? '#e8f0fe' : '#fef7e0'"
+                  [style.color]="element.idEstadoTicketCat === 1105 ? '#137333' : 
+                                element.idEstadoTicketCat === 1106 ? '#c5221f' : 
+                                element.idEstadoTicketCat === 1103 ? '#1a73e8' : '#b06000'">
+              {{ 
+                element.idEstadoTicketCat === 1107 ? 'Registrado' : 
+                element.idEstadoTicketCat === 1103 ? 'Recibido' : 
+                element.idEstadoTicketCat === 1104 ? 'En Evaluación' : 
+                element.idEstadoTicketCat === 1105 ? 'Atendido' : 
+                element.idEstadoTicketCat === 1106 ? 'Improcedente' : 'Desconocido' 
+              }}
+            </span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="fecha">
+          <th mat-header-cell *matHeaderCellDef style="font-weight: 700; background: #f5f7fa;"> F. Registro </th>
+          <td mat-cell *matCellDef="let element"> {{element.fechaRegistro | date:'dd/MM/yyyy HH:mm'}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="acciones">
+            <th mat-header-cell *matHeaderCellDef style="font-weight: 700; background: #f5f7fa; text-align: center;"> Resolución </th>
+            <td mat-cell *matCellDef="let element" style="text-align: center; padding: 12px 0;">
+                
+                @if (element.idEstadoTicketCat === 1107) {
+                <button mat-flat-button color="primary" style="font-size: 11px; height: 32px; background: #1e3c72;"
+                        (click)="procesarTicket(element.idTicket, '', 1103)">
+                    <mat-icon style="font-size: 14px; width:14px; height:14px;">assignment_turned_in</mat-icon> Recepcionar
+                </button>
+                }
+
+                @if (element.idEstadoTicketCat === 1103) {
+                <div style="display: flex; justify-content: center; padding: 8px;">
+                    <button mat-stroked-button style="font-size: 11px; height: 32px; color: #b06000; border-color: #fef7e0; background-color: #fff7e6; font-weight: 600;"
+                            (click)="procesarTicket(element.idTicket, 'Iniciando validación técnica.', 1104)">
+                    <mat-icon style="font-size: 14px; width:14px; height:14px;">search</mat-icon> Evaluar Ticket
+                    </button>
+                </div>
+                }
+
+                @if (element.idEstadoTicketCat === 1104) {
+                <div style="display: flex; flex-direction: column; gap: 6px; padding: 8px; max-width: 280px; margin: 0 auto;">
+                    <input matInput placeholder="Escriba la solución o descargo técnico..." 
+                        style="border: 1px solid #cbd5e1; padding: 8px; border-radius: 4px; font-size: 12px; background: #fff;"
+                        #respuestaTxt>
+                    <div style="display: flex; gap: 6px; justify-content: center;">
+                    <button mat-flat-button style="font-size: 11px; height: 32px; background: #137333; color:white; font-weight: 600;"
+                            (click)="procesarTicket(element.idTicket, respuestaTxt.value, 1105)">
+                        Atender
+                    </button>
+                    <button mat-flat-button color="warn" style="font-size: 11px; height: 32px; font-weight: 600;"
+                            (click)="procesarTicket(element.idTicket, respuestaTxt.value, 1106)">
+                        Improcedente
+                    </button>
+                    </div>
+                </div>
+                }
+
+                @if (element.idEstadoTicketCat === 1105 || element.idEstadoTicketCat === 1106) {
+                <div style="background-color: #f8fafc; padding: 8px; border-radius: 4px; max-width: 240px; text-align: left; font-size: 11.5px; border-left: 3px solid #64748b; margin: 0 auto;">
+                    <span style="font-weight: 700; color: #475569; display: block; margin-bottom: 2px;">Respuesta Oficial:</span>
+                    <p style="margin: 0; color: #1e293b; line-height: 1.3; text-align: justify;">{{element.respuestaSoporte}}</p>
+                </div>
+                }
+
+            </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="['ticket', 'postulante', 'incidencia', 'convocatoria', 'estado', 'fecha', 'acciones']"></tr>
+        <tr mat-row *matRowDef="let row; columns: ['ticket', 'postulante', 'incidencia', 'convocatoria', 'estado', 'fecha', 'acciones'];"></tr>
+      </table>
+
+      @if (ticketsBandeja().length === 0) {
+        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 48px; background: white; text-align: center;">
+          <mat-icon style="font-size: 48px; width: 48px; height: 48px; color: #94a3b8; margin-bottom: 12px;">layers_clear</mat-icon>
+          <h3 style="margin: 0; font-size: 14px; font-weight: 700; color: #475569;">No se encontraron resultados</h3>
+          <p style="margin: 4px 0 0 0; font-size: 12.5px; color: #94a3b8; max-width: 320px;">No existen tickets que coincidan con el DNI, nombre o estado seleccionado en los filtros.</p>
+        </div>
+      }
+      
+    </div>
+  }
+</div>

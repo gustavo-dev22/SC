@@ -12,6 +12,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { CatalogoService } from '../../../services/catalogo.service';
 import { OportunidadesService } from '../../../services/oportunidades.service';
+import { MatDialog } from '@angular/material/dialog';
+import { HistorialTicketsModal } from './historial-tickets-modal/historial-tickets-modal';
 
 @Component({
   selector: 'app-consultas-reclamos',
@@ -24,6 +26,7 @@ export class ConsultasReclamos implements OnInit {
   private alertService = inject(AlertService);
   private catalogoService = inject(CatalogoService);
   private os = inject(OportunidadesService);
+  private dialog = inject(MatDialog);
 
   public listaTickets = signal<any[]>([]);
   public listaTiposTicket = signal<any[]>([]);
@@ -38,6 +41,7 @@ export class ConsultasReclamos implements OnInit {
   private idPostulante!: number;
 
   public esReclamoCalificacion = computed(() => this.tipoSeleccionado() === 1101);
+  public ultimosTresTickets = computed(() => this.listaTickets().slice(0, 3));
 
   ngOnInit(): void {
     const profile = JSON.parse(sessionStorage.getItem('user_profile') || '{}');
@@ -79,6 +83,14 @@ export class ConsultasReclamos implements OnInit {
         this.cargando.set(false);
       },
       error: () => this.cargando.set(false)
+    });
+  }
+
+  verTodoElHistorial(): void {
+    this.dialog.open(HistorialTicketsModal, {
+      width: '850px',
+      disableClose: false,
+      data: { tickets: this.listaTickets() } // Pasamos la data en caliente
     });
   }
 

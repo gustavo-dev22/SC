@@ -108,6 +108,18 @@ export const routes: Routes = [
             {
                 path: 'postulante/consultas-reclamos',
                 loadComponent: () => import('./pages/postulante/consultas-reclamos/consultas-reclamos').then(m => m.ConsultasReclamos)
+            },
+            {
+                path: 'admin/bandeja-consultas',
+                loadComponent: () => import('./pages/admin/bandeja-consultas/bandeja-consultas').then(m => m.BandejaConsultas)
+            },
+            {
+                path: 'admin/log-procesos',
+                loadComponent: () => import('./pages/admin/trazabilidad-postulaciones/trazabilidad-postulaciones').then(m => m.TrazabilidadPostulaciones)
+            },
+            {
+                path: 'admin/logs-auditoria',
+                loadComponent: () => import('./pages/admin/logs-auditoria/logs-auditoria').then(m => m.LogsAuditoria)
             }
         ]
     },

@@ -1,0 +1,44 @@
+<h2 mat-dialog-title style="font-weight: 800; color: #1e3c72;">Historial Completo de Solicitudes</h2>
+    
+    <mat-dialog-content style="min-height: 380px; padding-top: 12px;">
+      <table mat-table [dataSource]="dataSource" style="width: 100%;">
+
+        <ng-container matColumnDef="ticket">
+          <th mat-header-cell *matHeaderCellDef style="font-weight: 700;"> Ticket </th>
+          <td mat-cell *matCellDef="let element" style="font-weight: 600;"> #{{element.idTicket | number:'3.0-0'}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="asunto">
+          <th mat-header-cell *matHeaderCellDef style="font-weight: 700;"> Tipo / Asunto </th>
+          <td mat-cell *matCellDef="let element">
+            <div style="font-weight: 700; font-size: 13px; color: #334155;">{{element.asunto}}</div>
+            <div style="font-size: 11px; color: #64748b;">{{element.tipoTicketDescripcion}}</div>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="fecha">
+          <th mat-header-cell *matHeaderCellDef style="font-weight: 700;"> F. Registro </th>
+          <td mat-cell *matCellDef="let element" style="font-size: 12.5px;"> {{element.fechaRegistro | date:'dd/MM/yyyy HH:mm'}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="estado">
+          <th mat-header-cell *matHeaderCellDef style="font-weight: 700; text-align: center;"> Estado </th>
+          <td mat-cell *matCellDef="let element" style="text-align: center;">
+            <span style="font-size: 11px; font-weight: bold; padding: 2px 8px; border-radius: 4px;"
+                  [style.background-color]="element.idEstadoTicketCat === 1105 ? '#e6f4ea' : element.idEstadoTicketCat === 1106 ? '#fce8e6' : '#fef7e0'"
+                  [style.color]="element.idEstadoTicketCat === 1105 ? '#137333' : element.idEstadoTicketCat === 1106 ? '#c5221f' : '#b06000'">
+              {{ element.idEstadoTicketCat === 1103 ? 'Recibido' : element.idEstadoTicketCat === 1104 ? 'En Evaluación' : element.idEstadoTicketCat === 1105 ? 'Atendido' : element.idEstadoTicketCat === 1106 ? 'Improcedente' : 'Registrado' }}
+            </span>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="columnas"></tr>
+        <tr mat-row *matRowDef="let row; columns: columnas;"></tr>
+      </table>
+
+      <mat-paginator [pageSize]="5" [pageSizeOptions]="[5]" showFirstLastButtons style="margin-top: 12px;"></mat-paginator>
+    </mat-dialog-content>
+
+    <mat-dialog-actions align="end" style="padding-bottom: 16px; padding-right: 24px;">
+      <button mat-stroked-button (click)="cerrarModal()" style="font-weight: 600;">Cerrar</button>
+    </mat-dialog-actions>

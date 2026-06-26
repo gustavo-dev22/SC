@@ -15,7 +15,7 @@
   </div>
 
   @if (!cargando()) {
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; align-items: start;">
       
       <mat-card style="padding: 24px; border-radius: 10px; border: 1px solid #e2e8f0;">
         <h2 style="margin: 0 0 16px 0; font-size: 16px; font-weight: 700; color: #1e3c72;">Nueva Solicitud</h2>
@@ -66,18 +66,33 @@
       </mat-card>
 
       <div style="display: flex; flex-direction: column; gap: 12px;">
-        <h2 style="margin: 0; font-size: 16px; font-weight: 700; color: #1e3c72;">Mis Tickets Registrados</h2>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <h2 style="margin: 0; font-size: 16px; font-weight: 700; color: #1e3c72;">Mis Tickets Registrados</h2>
+          
+          @if (listaTickets().length > 3) {
+            <button mat-button color="primary" style="font-weight: 700; font-size: 13px;" (click)="verTodoElHistorial()">
+              Ver historial completo ({{listaTickets().length}}) →
+            </button>
+          }
+        </div>
         
-        @for (ticket of listaTickets(); track ticket.idTicket) {
+        @for (ticket of ultimosTresTickets(); track ticket.idTicket) {
           <mat-card style="padding: 16px; border: 1px solid #e2e8f0; border-radius: 8px;">
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
               <span style="font-size: 11px; font-weight: 700; background-color: #f1f5f9; padding: 4px 8px; border-radius: 4px;">
                 TICKET #{{ticket.idTicket | number:'3.0-0'}}
               </span>
               <span style="font-size: 11px; font-weight: bold; padding: 2px 8px; border-radius: 4px;"
-                    [style.background-color]="ticket.idEstadoTicketCat === 3 ? '#e6f4ea' : '#fef7e0'"
-                    [style.color]="ticket.idEstadoTicketCat === 3 ? '#137333' : '#b06000'">
-                {{ ticket.idEstadoTicketCat === 1 ? 'Recibido' : ticket.idEstadoTicketCat === 3 ? 'Atendido' : 'En Evaluación' }}
+                    [style.background-color]="ticket.idEstadoTicketCat === 1105 ? '#e6f4ea' : 
+                                              ticket.idEstadoTicketCat === 1106 ? '#fce8e6' : '#fef7e0'"
+                    [style.color]="ticket.idEstadoTicketCat === 1105 ? '#137333' : 
+                                  ticket.idEstadoTicketCat === 1106 ? '#c5221f' : '#b06000'">
+                {{ 
+                  ticket.idEstadoTicketCat === 1103 ? 'Recibido' : 
+                  ticket.idEstadoTicketCat === 1104 ? 'En Evaluación' : 
+                  ticket.idEstadoTicketCat === 1105 ? 'Atendido' : 
+                  ticket.idEstadoTicketCat === 1106 ? 'Improcedente' : 'Registrado' 
+                }}
               </span>
             </div>
 
