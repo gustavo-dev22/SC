@@ -1,1 +1,141 @@
-<p>dashboard works!</p>
+@if (cargando()) {
+  <div class="overlay-spinner">
+    <div class="spinner-center-box">
+      <mat-spinner diameter="50" color="primary"></mat-spinner>
+      <p class="spinner-text">Cargando panel personalizado...</p>
+    </div>
+  </div>
+}
+
+<div style="padding: 24px; background-color: #f8fafc; min-height: 85vh;">
+
+  @if (!cargando() && userRol() === 'Administrador' && dataDashboard()) {
+    <div style="margin-bottom: 24px;">
+      <h1 style="font-size: 24px; font-weight: 800; color: #1e3c72; margin: 0 0 6px 0;">Panel de Control General</h1>
+      <p style="margin: 0; font-size: 13.5px; color: #64748b;">Monitoreo analítico en tiempo real de la plataforma del sistema de selección.</p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 24px;">
+      
+      <mat-card style="padding: 20px; border-left: 4px solid #1e3c72; border-radius: 6px; background: white;">
+        <div style="font-size: 11.5px; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Postulantes Registrados</div>
+        <div style="font-size: 28px; font-weight: 800; color: #1e293b; margin-top: 6px;">
+          {{ dataDashboard().metricas.totalPostulantes | number }}
+        </div>
+      </mat-card>
+
+      <mat-card style="padding: 20px; border-left: 4px solid #10b981; border-radius: 6px; background: white;">
+        <div style="font-size: 11.5px; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Expedientes Enviados (2026)</div>
+        <div style="font-size: 28px; font-weight: 800; color: #1e293b; margin-top: 6px;">
+          {{ dataDashboard().metricas.totalPostulacionesAnio | number }}
+        </div>
+      </mat-card>
+
+      <mat-card style="padding: 20px; border-left: 4px solid #b91c1c; border-radius: 6px; background: white;" 
+                [style.background-color]="dataDashboard().metricas.ticketsSoportePendientes > 0 ? '#fef2f2' : 'white'">
+        <div style="font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;"
+            [style.color]="dataDashboard().metricas.ticketsSoportePendientes > 0 ? '#b91c1c' : '#64748b'">
+            Soporte Técnico en Cola
+        </div>
+        <div style="font-size: 28px; font-weight: 800; margin-top: 6px;"
+            [style.color]="dataDashboard().metricas.ticketsSoportePendientes > 0 ? '#991b1b' : '#1e293b'">
+            {{ dataDashboard().metricas.ticketsSoportePendientes }} 
+            @if (dataDashboard().metricas.ticketsSoportePendientes === 1) {
+            Pendiente
+            } @else {
+            Pendientes
+            }
+        </div>
+      </mat-card>
+
+    </div>
+
+    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px;">
+      
+      <mat-card style="padding: 20px; background: white; border-radius: 8px;">
+        <h3 style="margin: 0 0 16px 0; font-size: 14px; font-weight: 700; color: #1e3c72;">Distribución de Expedientes por Etapa</h3>
+        
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          @for (item of dataDashboard().distribucionEstados; track item.estadoDescripcion) {
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f8fafc; border-radius: 6px; border: 1px solid #f1f5f9;">
+              <span style="font-size: 13px; font-weight: 600; color: #475569;">{{ item.estadoDescripcion }}</span>
+              <span style="font-size: 13px; font-weight: 700; background: #e2e8f0; padding: 2px 8px; border-radius: 4px; color: #1e293b;">
+                {{ item.total }}
+              </span>
+            </div>
+          }
+        </div>
+      </mat-card>
+
+      <mat-card style="padding: 20px; background: white; border-radius: 8px;">
+        <h3 style="margin: 0 0 16px 0; font-size: 14px; font-weight: 700; color: #1e3c72;">Resumen Operativo</h3>
+        <p style="font-size: 12.5px; color: #64748b; line-height: 1.4; margin-bottom: 16px;">
+          Plataforma activa y auditada. Recuerde revisar periódicamente los logs para garantizar la transparencia del concurso.
+        </p>
+        <button mat-stroked-button color="primary" style="width: 100%; font-weight: 600;" (click)="cargarDatosDashboard()">
+          <mat-icon style="font-size: 16px; width:16px; height:16px;">refresh</mat-icon> Actualizar Panel
+        </button>
+      </mat-card>
+
+    </div>
+  }
+
+  @if (!cargando() && userRol() === 'POSTULANTE') {
+    <div>
+      <div style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); padding: 32px; border-radius: 12px; color: white; margin-bottom: 24px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+        <h1 style="margin: 0 0 8px 0; font-size: 26px; font-weight: 800;">¡Bienvenido de vuelta, {{ nombreUsuario() }}!</h1>
+        <p style="margin: 0; font-size: 14px; opacity: 0.9;">Haga seguimiento al estado de sus expedientes o postule a nuevas convocatorias públicas vigentes.</p>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px; align-items: start;">
+        
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+          <h2 style="margin: 0; font-size: 16px; font-weight: 700; color: #1e3c72;">Mis Postulaciones Realizadas</h2>
+
+          @for (post of dataPostulante(); track post.idPostulacion) {
+            <mat-card style="padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px; background: white;">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px;">
+                <div>
+                  <span style="font-size: 10.5px; font-weight: 700; background-color: #eff6ff; color: #2563eb; padding: 4px 8px; border-radius: 4px;">
+                    EXP: #{{ post.codigoPostulacionUnid }}
+                  </span>
+                  <h3 style="margin: 8px 0 4px 0; font-size: 15px; font-weight: 700; color: #1e293b;">{{ post.nombrePuesto }}</h3>
+                  <div style="font-size: 12px; color: #64748b; font-weight: 600;">Convocatoria: {{ post.codigoConvocatoria }}</div>
+                </div>
+                
+                <span style="font-size: 11.5px; font-weight: bold; padding: 4px 10px; border-radius: 4px;"
+                      [style.background-color]="post.idEstadoPostulacionCat === 1205 ? '#e6f4ea' : '#fef7e0'"
+                      [style.color]="post.idEstadoPostulacionCat === 1205 ? '#137333' : '#b06000'">
+                  {{ post.estadoPostulacionDescripcion }}
+                </span>
+              </div>
+
+              <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 16px; background: #f8fafc; padding: 12px; border-radius: 6px;">
+                <span style="font-size: 11px; color: #475569; font-weight: 600;">📅 Postulado: {{ post.fechaPostulacion | date:'dd/MM/yyyy' }}</span>
+                <span style="font-size: 11px; color: #2563eb; font-weight: 700; cursor: pointer;" (click)="irADetalleExpediente(post.codigoPostulacionUnid)">Ver detalles del proceso →</span>
+              </div>
+            </mat-card>
+          } @empty {
+            <div style="text-align: center; padding: 48px; background: white; border: 1px dashed #cbd5e1; border-radius: 8px;">
+              <mat-icon style="font-size: 40px; width:40px; height:40px; color: #94a3b8;">assignment</mat-icon>
+              <p style="margin: 8px 0 0 0; font-size: 13.5px; color: #64748b;">Usted aún no registra ninguna postulación activa en este periodo.</p>
+            </div>
+          }
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+          <mat-card style="padding: 20px; background: white; border-radius: 8px;">
+            <h3 style="margin: 0 0 12px 0; font-size: 14px; font-weight: 700; color: #1e3c72;">¿Desea aplicar a otra plaza?</h3>
+            <p style="font-size: 12.5px; color: #64748b; line-height: 1.4; margin-bottom: 16px;">
+              Revise las bases, perfiles y cronogramas de los nuevos concursos CAS publicados en el portal institucional.
+            </p>
+            <button mat-flat-button color="primary" style="width: 100%; font-weight: 600; background-color: #1e3c72;" (click)="irAConvocatoriasVigentes()">
+              <mat-icon>search</mat-icon> Ver Plazas Vigentes
+            </button>
+          </mat-card>
+        </div>
+
+      </div>
+    </div>
+  }
+</div>

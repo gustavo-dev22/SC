@@ -33,5 +33,12 @@ namespace WebApi.Controllers
             var data = await _mediator.Send(new GetLogsAuditoriaQuery(tabla, operacion, fechaInicio, fechaFin));
             return Ok(new { success = true, data });
         }
+
+        [HttpGet("dashboard-summary")]
+        public async Task<IActionResult> GetDashboardSummary()
+        {
+            var data = await _mediator.Send(new GetDashboardSummaryQuery());
+            return Ok(new { success = true, data });
+        }
     }
 }

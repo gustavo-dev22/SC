@@ -14,5 +14,6 @@ namespace Application.Common.Interfaces
         Task<TicketResolucionResultadoDto?> RecepcionarTicketAsync(int idTicket);
         Task<TicketResolucionResultadoDto?> CambiarEstadoTicketAsync(int idTicket, string? respuesta, int idEstado);
         Task<List<AuditoriaLogDto>> ObtenerLogsAuditoriaAsync(string? tabla, string? operacion, DateTime? fechaInicio, DateTime? fechaFin);
+        Task<DashboardSummaryDto> ObtenerResumenDashboardAsync();
     }
 }

@@ -93,5 +93,24 @@ namespace Infrastructure.Services
 
             return result.ToList();
         }
+
+        public async Task<DashboardSummaryDto> ObtenerResumenDashboardAsync()
+        {
+            using IDbConnection connection = _dbConnectionFactory.CreateConnection();
+            var resumen = new DashboardSummaryDto();
+
+            using var multi = await connection.QueryMultipleAsync(
+                "sp_Admin_Dashboard_ObtenerMetricas",
+                commandType: CommandType.StoredProcedure
+            );
+
+            // Primer SELECT: Lee las métricas planas superiores
+            resumen.Metricas = await multi.ReadFirstOrDefaultAsync<DashboardMetricasDto>() ?? new DashboardMetricasDto();
+
+            // Segundo SELECT: Lee la lista de distribución por estados
+            resumen.DistribucionEstados = (await multi.ReadAsync<DashboardEstadoDistribucionDto>()).ToList();
+
+            return resumen;
+        }
     }
 }

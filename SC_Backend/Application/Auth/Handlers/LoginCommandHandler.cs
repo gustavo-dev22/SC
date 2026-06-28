@@ -96,6 +96,9 @@ namespace Application.Auth.Handlers
             // Estructura Plana Oficial Optimizada y Expandida para el Postulante
             var menusOficialesPostulante = new List<MenuObjetoDto>
             {
+                new MenuObjetoDto { IdObjeto = 98, IdPadre = null, Nombre = "Inicio", Tipo = "M", Url = "", Icono = "dashboard" },
+                new MenuObjetoDto { IdObjeto = 99, IdPadre = 98, Nombre = "Dashboard", Tipo = "S", Url = "/dashboard", Icono = "dashboard" },
+
                 new MenuObjetoDto { IdObjeto = 100, IdPadre = null, Nombre = "Mi Panel", Tipo = "M", Url = "", Icono = "dashboard" },
                 new MenuObjetoDto { IdObjeto = 101, IdPadre = 100, Nombre = "Resumen de Postulaciones", Tipo = "S", Url = "/postulante/resumen", Icono = "assignment_late" },
                 new MenuObjetoDto { IdObjeto = 102, IdPadre = 100, Nombre = "Alertas y Notificaciones", Tipo = "S", Url = "/postulante/notificaciones", Icono = "notifications_active" },

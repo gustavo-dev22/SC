@@ -19,5 +19,12 @@ namespace WebApi.Controllers
             var result = await _mediator.Send(new GetAvanceCurriculumQuery(idPostulante));
             return Ok(BaseResponse<AvanceCurriculumDto>.Ok(result));
         }
+
+        [HttpGet("dashboard-summary")]
+        public async Task<IActionResult> GetDashboardSummary([FromQuery] int idPostulante)
+        {
+            var data = await _mediator.Send(new GetPostulanteDashboardQuery(idPostulante));
+            return Ok(new { success = true, data });
+        }
     }
 }

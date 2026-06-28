@@ -708,5 +708,18 @@ namespace Infrastructure.Services
 
             return tickets;
         }
+
+        public async Task<List<PostulanteDashboardDto>> ObtenerDashboardPostulanteAsync(int idPostulante)
+        {
+            using IDbConnection connection = _dbConnectionFactory.CreateConnection();
+
+            var result = await connection.QueryAsync<PostulanteDashboardDto>(
+                "sp_Postulante_Dashboard_ObtenerResumen",
+                new { IdPostulante = idPostulante },
+                commandType: CommandType.StoredProcedure
+            );
+
+            return result.ToList();
+        }
     }
 }
