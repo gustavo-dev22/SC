@@ -6,17 +6,15 @@ using System.Threading.Tasks;
 
 namespace Application.Comite.Dtos
 {
-    public class ExpedienteInscritoDto
+    public class EvaluacionConocimientosDto
     {
         public int IdPostulacion { get; set; }
-        public int IdPostulante { get; set; }
-        public int IdPlaza { get; set; }
-        public string CodigoConvocatoria { get; set; } = "N/A"; // De Java
-        public string NombrePuesto { get; set; } = string.Empty;  // De Java
+        public string CodigoConvocatoria { get; set; } = string.Empty;
+        public string NombrePuesto { get; set; } = string.Empty;
         public string CodigoPostulacionUnid { get; set; } = string.Empty;
-        public DateTime FechaPostulacion { get; set; }
+        public string PostulanteNombre { get; set; } = string.Empty;
         public int IdEstadoPostulacionCat { get; set; }
         public string EstadoDescripcion { get; set; } = string.Empty;
-        public string PostulanteNombre { get; set; } = string.Empty;
+        public decimal NotaConocimientos { get; set; }
     }
 }

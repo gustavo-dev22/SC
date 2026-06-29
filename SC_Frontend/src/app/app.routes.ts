@@ -120,6 +120,14 @@ export const routes: Routes = [
             {
                 path: 'admin/logs-auditoria',
                 loadComponent: () => import('./pages/admin/logs-auditoria/logs-auditoria').then(m => m.LogsAuditoria)
+            },
+            {
+                path: 'comite/evaluacion-expedientes',
+                loadComponent: () => import('./pages/comite/bandeja-expedientes/bandeja-expedientes').then(m => m.BandejaExpedientes)
+            },
+            {
+                path: 'comite/conocimientos',
+                loadComponent: () => import('./pages/comite/evaluacion-conocimientos/evaluacion-conocimientos').then(m => m.EvaluacionConocimientos)
             }
         ]
     },

@@ -35,5 +35,6 @@ namespace Application.Common.Interfaces
         Task<bool> MarcarNotificacionLeidaAsync(int idNotificacion);
         Task<List<SoporteTicketDto>> ObtenerTicketsPorPostulanteAsync(int idPostulante);
         Task<List<PostulanteDashboardDto>> ObtenerDashboardPostulanteAsync(int idPostulante);
+        Task<int?> ObtenerEstadoVigentePorUsuarioAsync(int idUsuario);
     }
 }

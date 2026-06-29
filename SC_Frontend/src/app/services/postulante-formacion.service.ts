@@ -15,4 +15,12 @@ export class PostulanteFormacionService {
   mantenimiento(payload: any): Observable<any> {
     return this.crudHttp.post<any>('postulanteformacion/mantenimiento', payload);
   }
+
+  SubirPdfSustento(formData: FormData): Observable<any> {
+    return this.crudHttp.post<any>('postulanteformacion/subir-sustento', formData);
+  }
+
+  EliminarPdfSustento(idFormacion: number): Observable<any> {
+    return this.crudHttp.delete<any>(`postulanteformacion/eliminar-sustento/${idFormacion}`);
+  }
 }

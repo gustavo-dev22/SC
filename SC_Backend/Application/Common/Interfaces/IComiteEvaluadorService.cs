@@ -11,5 +11,9 @@ namespace Application.Common.Interfaces
     {
         Task<List<ExpedienteInscritoDto>> ListarExpedientesInscritosAsync(int? idPlaza);
         Task<bool> EvaluarExpedienteInicialAsync(int idPostulacion, bool aprobado, string observacion);
+        Task<byte[]> ObtenerActaInicialPdfAsync(List<ExpedienteInscritoDto> expedientes, string codigoConvocatoria, string nombrePuesto);
+        Task<List<EvaluacionConocimientosDto>> ListarEvaluacionConocimientosAsync(int idPlaza);
+        Task<bool> RegistrarNotaConocimientosAsync(int idPostulacion, decimal nota);
+        Task<byte[]> ObtenerActaConocimientosPdfAsync(List<EvaluacionConocimientosDto> candidatos, string codigoConvocatoria, string nombrePuesto);
     }
 }

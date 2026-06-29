@@ -189,3 +189,91 @@
   height: 54px !important;
   color: #94a3b8;
 }
+
+.academic-card {
+  display: flex;
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 12px;
+  gap: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+
+  &:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.academic-body {
+  flex: 1;
+  min-width: 200px;
+}
+
+.academic-document-section {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-left: 8px;
+  min-width: 320px;
+
+  .divider-vertical {
+    width: 1px;
+    height: 50px;
+    background-color: #cbd5e1;
+  }
+}
+
+.document-status-box {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+}
+
+.status-success {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #15803d;
+  font-size: 12px;
+  font-weight: 600;
+
+  .icon-success {
+    color: #16a34a;
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.status-pending {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #b45309;
+  font-size: 12px;
+  font-weight: 600;
+
+  .icon-pending {
+    color: #d97706;
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.doc-actions-inline {
+  display: flex;
+  gap: 4px;
+}
+
+.btn-upload {
+  font-size: 11px !important;
+  height: 32px !important;
+  line-height: 32px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.2px;
+}

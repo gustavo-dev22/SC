@@ -721,5 +721,19 @@ namespace Infrastructure.Services
 
             return result.ToList();
         }
+
+        public async Task<int?> ObtenerEstadoVigentePorUsuarioAsync(int idUsuario)
+        {
+            using IDbConnection connection = _dbConnectionFactory.CreateConnection();
+
+            // Ejecutamos el SP y esperamos un valor escalar o nulo si no tiene postulaciones
+            var idEstado = await connection.ExecuteScalarAsync<int?>(
+                "sp_Postulacion_ObtenerEstadoActual",
+                new { IdUsuario = idUsuario },
+                commandType: CommandType.StoredProcedure
+            );
+
+            return idEstado;
+        }
     }
 }

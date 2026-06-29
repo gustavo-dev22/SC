@@ -9,6 +9,7 @@ import { PostulanteDashboardService } from '../../services/dashboard-postulante.
 import { Router } from '@angular/router';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { TrazabilidadPostulaciones } from '../admin/trazabilidad-postulaciones/trazabilidad-postulaciones';
+import { PostulanteResumenService } from '../../services/postulante-resumen.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -19,6 +20,7 @@ import { TrazabilidadPostulaciones } from '../admin/trazabilidad-postulaciones/t
 export class Dashboard implements OnInit {
   private dashboardService = inject(DashboardAdminService);
   private postulanteService = inject(PostulanteDashboardService);
+  private _postulacionService = inject(PostulanteResumenService);
   private router = inject(Router);
   private dialog = inject(MatDialog);
 
@@ -39,6 +41,7 @@ export class Dashboard implements OnInit {
     if (this.userRol() === 'Administrador') {
       this.cargarDatosDashboard();
     } else if (this.userRol() === 'POSTULANTE') {
+      this._postulacionService.consultarEstadoPostulacion().subscribe();
       const tokenParts = atob(profile.token).split('-');
       const idPostulante = Number(tokenParts[1]);
       this.cargarDashboardPostulante(idPostulante);

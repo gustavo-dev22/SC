@@ -1,6 +1,10 @@
-using Application;
+﻿using Application;
+using Application.Common.Interfaces;
 using Infrastructure;
+using Infrastructure.Services;
+using QuestPDF.Infrastructure;
 using Scalar.AspNetCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,10 +30,18 @@ builder.Services.AddCors(options =>
     });
 });
 
+QuestPDF.Settings.License = LicenseType.Community;
+
+var webRootPath = builder.Environment.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+
+builder.Services.AddScoped<IFileStorageService>(provider =>
+    new FileStorageService(webRootPath)
+);
+
 var app = builder.Build();
 
 // =========================================================================
-// CONFIGURACI�N DEL PIPELINE DE PETICIONES (Middlewares)
+// CONFIGURACIÓN DEL PIPELINE DE PETICIONES (Middlewares)
 // =========================================================================
 
 if (app.Environment.IsDevelopment())
@@ -48,5 +60,6 @@ app.UseHttpsRedirection();
 app.UseCors("CorsAngularPolicy");
 app.UseAuthorization();
 app.MapControllers();
+app.UseStaticFiles();
 
 app.Run();

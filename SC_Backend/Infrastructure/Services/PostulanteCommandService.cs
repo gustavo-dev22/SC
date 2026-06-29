@@ -338,5 +338,34 @@ namespace Infrastructure.Services
 
             return filasAfectadas > 0;
         }
+
+        public async Task<bool> ActualizarRutaSustentoAsync(int idFormacion, string urlSustentoPdf)
+        {
+            using IDbConnection connection = _dbConnectionFactory.CreateConnection();
+
+            var filasAfectadas = await connection.ExecuteScalarAsync<int>(
+                "sp_Postulante_ActualizarSustentoFormacion",
+                new
+                {
+                    IdFormacion = idFormacion,
+                    UrlSustentoPdf = urlSustentoPdf
+                },
+                commandType: CommandType.StoredProcedure
+            );
+
+            return filasAfectadas > 0;
+        }
+
+        public async Task<string> EliminarRutaSustentoAsync(int idFormacion)
+        {
+            using IDbConnection connection = _dbConnectionFactory.CreateConnection();
+            var parameters = new DynamicParameters();
+            parameters.Add("@IdFormacion", idFormacion);
+            parameters.Add("@RutaAntigua", dbType: DbType.String, direction: ParameterDirection.Output, size: 500);
+
+            await connection.ExecuteAsync("sp_Postulante_EliminarSustentoFormacion", parameters, commandType: CommandType.StoredProcedure);
+
+            return parameters.Get<string>("@RutaAntigua");
+        }
     }
 }

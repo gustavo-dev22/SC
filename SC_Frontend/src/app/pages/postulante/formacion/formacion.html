@@ -52,6 +52,49 @@
         <p class="status">Estado: <strong>{{ item.estadoActual }}</strong></p>
         <p class="period">Periodo: {{ item.anioInicio }} - {{ item.anioFin || 'Actualidad' }}</p>
       </div>
+
+      @if (idEstadoPostulacionActual === 1108 || idEstadoPostulacionActual === 19 || idEstadoPostulacionActual === 1109) {
+        <div class="academic-document-section">
+          <div class="divider-vertical"></div>
+          
+          <div class="document-status-box">
+            @if (item.rutaSustento) {
+              <div class="status-success">
+                <mat-icon class="icon-success">verified</mat-icon>
+                <span class="text-doc">Sustento cargado correctamente</span>
+              </div>
+              <div class="doc-actions-inline">
+                <button mat-icon-button color="primary" (click)="verPdf(item.rutaSustento)" matTooltip="Ver PDF Cargado">
+                  <mat-icon>visibility</mat-icon>
+                </button>
+                @if (!modoLectura) {
+                  <button mat-icon-button color="accent" (click)="reemplazarInput.click()" matTooltip="Reemplazar archivo por uno nuevo">
+                    <mat-icon>autorenew</mat-icon>
+                  </button>
+                  <input #reemplazarInput type="file" accept="application/pdf" style="display: none;" (change)="onFileSelected($event, item.idFormacion)">
+
+                  <button mat-icon-button color="warn" (click)="eliminarPdf(item.idFormacion)" matTooltip="Eliminar permanentemente">
+                    <mat-icon>delete_forever</mat-icon>
+                  </button>
+                }
+              </div>
+            } @else {
+                <div class="status-pending">
+                  <mat-icon class="icon-pending">error_outline</mat-icon>
+                  <span class="text-doc text-warn">Falta cargar archivo sustentatorio (.pdf)</span>
+                </div>
+                @if (!modoLectura) {
+                  <div class="upload-btn-wrapper">
+                    <button mat-stroked-button color="accent" class="btn-upload" (click)="fileInput.click()">
+                      <mat-icon>cloud_upload</mat-icon> Subir Sustento
+                    </button>
+                    <input #fileInput type="file" accept="application/pdf" style="display: none;" (change)="onFileSelected($event, item.idFormacion)">
+                  </div>
+                }
+              }
+          </div>
+        </div>
+      }
       
       @if (!modoLectura) {
         <div class="academic-actions">
