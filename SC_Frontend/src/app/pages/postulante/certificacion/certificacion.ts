@@ -5,10 +5,10 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { PostulanteCertificacionService } from '../../../services/postulante-certificacion.service';
-import Swal from 'sweetalert2';
 import { ModalCertificacion } from './modal-certificacion/modal-certificacion';
 import { AlertService } from '../../../shared/services/alert.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { PostulacionService } from '../../../services/postulacion.service';
 
 @Component({
   selector: 'app-certificacion',
@@ -20,11 +20,16 @@ export class Certificacion implements OnInit {
   @Input() modoLectura = false;
   private dialog = inject(MatDialog);
   private certService = inject(PostulanteCertificacionService);
+  private _postulacionService = inject(PostulacionService);
   private alertService = inject(AlertService);
 
   public listaCertificaciones = signal<any[]>([]);
   private idPostulante!: number;
   public cargando = signal<boolean>(false);
+
+  public get idEstadoPostulacionActual(): number {
+    return this._postulacionService.estadoPostulacion() ?? 0;
+  }
 
   ngOnInit(): void {
     const profile = JSON.parse(sessionStorage.getItem('user_profile') || '{}');
