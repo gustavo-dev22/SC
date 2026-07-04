@@ -722,14 +722,18 @@ namespace Infrastructure.Services
             return result.ToList();
         }
 
-        public async Task<int?> ObtenerEstadoVigentePorUsuarioAsync(int idUsuario)
+        public async Task<int?> ObtenerEstadoVigentePorUsuarioAsync(int idUsuario, int? idPlaza)
         {
             using IDbConnection connection = _dbConnectionFactory.CreateConnection();
 
-            // Ejecutamos el SP y esperamos un valor escalar o nulo si no tiene postulaciones
+            // 🚀 Mapeamos tanto el IdUsuario como el IdPlaza hacia el SP
             var idEstado = await connection.ExecuteScalarAsync<int?>(
                 "sp_Postulacion_ObtenerEstadoActual",
-                new { IdUsuario = idUsuario },
+                new
+                {
+                    IdUsuario = idUsuario,
+                    IdPlaza = idPlaza // 🎯 Viaja como int o null de forma transparente
+                },
                 commandType: CommandType.StoredProcedure
             );
 

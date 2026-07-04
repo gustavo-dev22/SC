@@ -15,7 +15,6 @@ export class PostulanteResumenService {
     return this.crudHttp.get<any>('postulanteresumen/estado-actual').pipe(
       tap(res => {
         if (res.success) {
-          console.log('%c🔍 DEBUG POSTULACIÓN:', 'color: #2a5298; font-weight: bold;', res.data);
           // Guardamos el estado globalmente en la Signal
           this.estadoPostulacion.set(res.data);
         }

@@ -69,6 +69,20 @@
     </mat-toolbar>
 
     <div class="page-container">
+      @if (mostrarSelectorCV() && misConvocatorias().length > 0) {
+        <div class="cv-standalone-selector">
+          <mat-form-field appearance="outline">
+            <mat-label>Convocatoria en Evaluación</mat-label>
+            <mat-select [value]="plazaSeleccionada()" (selectionChange)="onCambioGlobalPlaza($event.value)">
+              @for (p of misConvocatorias(); track p.idPlaza) {
+                <mat-option [value]="p.idPlaza">
+                  <strong>{{ p.codigoConvocatoria }}</strong> - {{ p.nombrePuesto }}
+                </mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+      }
       <router-outlet></router-outlet>
     </div>
 

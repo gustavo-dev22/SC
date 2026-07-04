@@ -78,7 +78,6 @@ export class ConsultasReclamos implements OnInit {
     this.cargando.set(true);
     this.ss.listarTickets(this.idPostulante).subscribe({
       next: (res) => {
-        console.log(res);
         if (res.success) this.listaTickets.set(res.data);
         this.cargando.set(false);
       },

@@ -6,27 +6,110 @@ import { MatListModule } from '@angular/material/list';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
-import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive, RouterOutlet, NavigationEnd } from '@angular/router';
 import Swal from 'sweetalert2';
 import { AuthService } from '../../services/auth.service';
+import { PostulacionService } from '../../services/postulacion.service';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatSelectModule } from '@angular/material/select';
+import { filter } from 'rxjs';
 
 @Component({
   selector: 'app-layout',
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive, MatSidenavModule, MatToolbarModule, MatListModule, MatButtonModule, MatIconModule, MatMenuModule],
+  imports: [CommonModule, 
+            RouterOutlet, 
+            RouterLink, 
+            RouterLinkActive, 
+            MatSidenavModule, 
+            MatToolbarModule, 
+            MatListModule, 
+            MatButtonModule, 
+            MatIconModule, 
+            MatMenuModule,
+            MatFormFieldModule,
+            MatSelectModule],
   templateUrl: './layout.html',
   styleUrl: './layout.css',
 })
 export class Layout implements OnInit {
   private router = inject(Router);
+  private _postulacionService = inject(PostulacionService);
   private authService = inject(AuthService);
 
-  // Signals reactivos para la UI
   public nombreUsuario = signal<string>('Usuario');
   public rolUsuario = signal<string>('Postulante');
-  public menuItems = signal<any[]>([]); // Almacena el árbol estructurado final
+  public menuItems = signal<any[]>([]);
+
+  public misConvocatorias = this._postulacionService.misPostulacionesActive;
+  public plazaSeleccionada = this._postulacionService.plazaContextoSeleccionada;
+
+  mostrarSelectorCV = signal<boolean>(false);
+
+  constructor() {
+    // Escuchar los cambios de ruta en el sistema
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe((event: any) => {
+      const urlActual = event.urlAfterRedirects || event.url;
+      
+      // Lista de las rutas exactas donde SÍ debe aparecer el selector
+      const rutasCurriculum = [
+        '/postulante/formacion',
+        '/postulante/colegiatura',
+        '/postulante/idiomas',
+        '/postulante/ofimatica',
+        '/postulante/certificaciones',
+        '/postulante/experiencia',
+        '/postulante/otros-requisitos'
+      ];
+
+      // Si la URL actual empieza con alguna de tus rutas, se vuelve true
+      const esRutaCV = rutasCurriculum.some(ruta => urlActual.includes(ruta));
+      this.mostrarSelectorCV.set(esRutaCV);
+    });
+  }
 
   ngOnInit(): void {
     this.cargarPerfilYMenus();
+
+    const profileStr = sessionStorage.getItem('user_profile');
+    if (profileStr) {
+      try {
+        const profile = JSON.parse(profileStr);
+        
+        if (profile && profile.token) {
+          // DETECCIÓN: Si el token contiene puntos ".", es un JWT de Admin/Comité.
+          // No es un token simple de Postulante, por lo que NO debemos usar tu lógica de guiones.
+          if (profile.token.includes('.')) {
+            // Es un rol administrativo. Si en el futuro necesitas el id del Admin, 
+            // podrías decodificar el payload del JWT aquí. Por ahora, lo ignoramos limpiamente.
+            return; 
+          }
+
+          // Si no tiene puntos, asumimos que es el token codificado del Postulante
+          try {
+            const tokenDecodificado = atob(profile.token);
+            const tokenParts = tokenDecodificado.split('-');
+            
+            if (tokenParts.length > 1) {
+              const idPostulante = Number(tokenParts[1]);
+              if (idPostulante && !isNaN(idPostulante)) {
+                this._postulacionService.cargarContextoPostulaciones(idPostulante).subscribe();
+              }
+            }
+          } catch (atobError) {
+            // Este catch solo saltará si un token de postulante real viniera corrupto
+            console.error('Error al decodificar un token de postulante:', atobError);
+          }
+        }
+      } catch (jsonError) {
+        console.error('Error al parsear el "user_profile":', jsonError);
+      }
+    }
+  }
+
+  public onCambioGlobalPlaza(idPlaza: number): void {
+    this._postulacionService.cambiarContextoPlaza(idPlaza);
   }
 
   cargarPerfilYMenus(): void {

@@ -20,7 +20,7 @@ namespace Application.Postulantes.Handlers
 
         public async Task<int?> Handle(GetEstadoPostulacionActualQuery request, CancellationToken cancellationToken)
         {
-            return await _queryService.ObtenerEstadoVigentePorUsuarioAsync(request.IdUsuario);
+            return await _queryService.ObtenerEstadoVigentePorUsuarioAsync(request.IdUsuario, request.IdPlaza);
         }
     }
 }

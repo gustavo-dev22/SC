@@ -30,7 +30,8 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("estado-actual")]
-        public async Task<IActionResult> ObtenerEstadoPostulacionActual()
+        // 🚀 NUEVO: Añadimos [FromQuery] int? idPlaza para capturar el parámetro opcional desde Angular
+        public async Task<IActionResult> ObtenerEstadoPostulacionActual([FromQuery] int? idPlaza)
         {
             string userIdClaim = string.Empty;
 
@@ -45,8 +46,6 @@ namespace WebApi.Controllers
                 try
                 {
                     // 3. 🎯 AQUÍ APLICAS TU LÓGICA DE NEGOCIO PARA EXTRAER EL ID:
-                    // Si tus tokens tienen el formato "POSTULANTE-{ID_POSTULANTE}-{TIMESTAMP}", 
-                    // podemos partir el string por los guiones para aislar el ID numérico del usuario.
                     var partes = tokenCrudo.Split('-');
                     if (partes.Length >= 2 && partes[0] == "POSTULANTE")
                     {
@@ -77,12 +76,13 @@ namespace WebApi.Controllers
                 return BadRequest(new { success = false, message = "No se pudo identificar una sesión de postulante válida." });
             }
 
-            // 5. Despachamos el Query a MediatR con el entero limpio rescatado del token 🎯
-            var idEstado = await _mediator.Send(new GetEstadoPostulacionActualQuery(int.Parse(userIdClaim)));
+            // 5. Despachamos el Query a MediatR enviando TANTO el userId como el idPlaza 🎯
+            var idEstado = await _mediator.Send(new GetEstadoPostulacionActualQuery(int.Parse(userIdClaim), idPlaza));
 
-            // 🚀 IMPRIMIR EN CONSOLA DEL BACKEND (Ahora sí se ejecutará garantizado)
+            // 🚀 IMPRIMIR EN CONSOLA DEL BACKEND (Ahora con soporte de plazas)
             System.Console.WriteLine($"====================================================");
             System.Console.WriteLine($"🔍 DEBUG MANUAL: El ID extraído del Token es: {userIdClaim}");
+            System.Console.WriteLine($"🏢 DEBUG MANUAL: El ID de Plaza evaluado es: {idPlaza?.ToString() ?? "NULL (Última)"}");
             System.Console.WriteLine($"🎯 DEBUG MANUAL: El ID del Estado es: {idEstado ?? 0}");
             System.Console.WriteLine($"====================================================");
 

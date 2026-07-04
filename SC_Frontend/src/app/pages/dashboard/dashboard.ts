@@ -36,7 +36,6 @@ export class Dashboard implements OnInit {
     const profile = JSON.parse(sessionStorage.getItem('user_profile') || '{}');
     this.nombreUsuario.set(profile.nombreCompleto || 'Usuario');
     this.userRol.set(profile.rol || 'POSTULANTE');
-    console.log(this.userRol());
     
     if (this.userRol() === 'Administrador') {
       this.cargarDatosDashboard();

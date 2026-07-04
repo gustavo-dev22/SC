@@ -7,5 +7,5 @@ using MediatR;
 
 namespace Application.Postulantes.Queries
 {
-    public record GetEstadoPostulacionActualQuery(int IdUsuario) : IRequest<int?>;
+    public record GetEstadoPostulacionActualQuery(int IdUsuario, int? IdPlaza) : IRequest<int?>;
 }
