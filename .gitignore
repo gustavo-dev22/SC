@@ -15,3 +15,6 @@ npm-debug.log
 # --- Otros ---
 .DS_Store
 Thumbs.db
+
+# Configuración local que no se comparte entre PCs
+**/appsettings.Local.json

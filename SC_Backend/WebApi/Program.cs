@@ -4,9 +4,10 @@ using Infrastructure;
 using Infrastructure.Services;
 using QuestPDF.Infrastructure;
 using Scalar.AspNetCore;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true);
 
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
