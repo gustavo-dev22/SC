@@ -9,6 +9,7 @@ import { ModalCertificacion } from './modal-certificacion/modal-certificacion';
 import { AlertService } from '../../../shared/services/alert.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { PostulacionService } from '../../../services/postulacion.service';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-certificacion',
@@ -46,6 +47,95 @@ export class Certificacion implements OnInit {
         this.cargando.set(false); 
       },
       error: () => this.cargando.set(false)
+    });
+  }
+
+  public onFileSelected(event: Event, idCertificacion: number): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+
+      if (file.type !== 'application/pdf') {
+        this.alertService.error('Error', 'Solo se admiten documentos en formato PDF.');
+        return;
+      }
+
+      if (file.size > 4 * 1024 * 1024) {
+        this.alertService.error('Error', 'El archivo excede el límite permitido de 4MB.');
+        return;
+      }
+
+      this.subirArchivoSustentatorio(file, idCertificacion);
+    }
+  }
+
+  private subirArchivoSustentatorio(file: File, idCertificacion: number): void {
+    this.cargando.set(true);
+    
+    const formData = new FormData();
+    formData.append('archivo', file);
+    formData.append('idCertificacion', idCertificacion.toString());
+
+    // 🎯 Nota: Asegúrate de que tu Backend/Servicio exponga el método SubirPdfSustento
+    this.certService.SubirPdfSustento(formData).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.alertService.exito('Éxito', 'Documento de certificación guardado con éxito.');
+          this.cargarCertificaciones(); 
+
+          // 🚀 Sincronizar estado utilizando la Plaza Activa de la Signal Global
+          const plazaActualId = this._postulacionService.plazaContextoSeleccionada();
+          this._postulacionService.consultarEstadoPostulacion(plazaActualId).subscribe({
+            next: () => this.cargando.set(false),
+            error: () => this.cargando.set(false)
+          });
+        } else {
+          this.cargando.set(false);
+        }
+      },
+      error: () => {
+        this.cargando.set(false);
+        this.alertService.error('Error', 'Ocurrió un error al subir el archivo.');
+      }
+    });
+  }
+
+  public verPdf(url: string): void {
+    if (!url) return;
+    const urlBackend = environment.apiUrl.replace('/api', '');
+    const urlCompleta = `${urlBackend}${url}`;
+    window.open(urlCompleta, '_blank');
+  }
+
+  public eliminarPdf(idCertificacion: number): void {
+    this.alertService.confirmacion(
+      'Mensaje de Confirmación', 
+      '¿Está seguro de eliminar el documento sustentatorio cargado? Deberá subir uno nuevo para la fase curricular.', 
+      'SI', 
+      'NO'
+    ).subscribe((confirmado: boolean) => {
+      if (confirmado) {
+        this.cargando.set(true);
+        
+        // 🎯 Nota: Asegúrate de que tu Backend/Servicio exponga el método EliminarPdfSustento
+        this.certService.EliminarPdfSustento(idCertificacion).subscribe({
+          next: (res) => {
+            this.alertService.exito('Éxito', 'El archivo sustentatorio fue removido con éxito.');
+            this.cargarCertificaciones(); 
+            
+            // 🚀 Sincronizar estado tras eliminar manteniendo el ID de plaza global
+            const plazaActualId = this._postulacionService.plazaContextoSeleccionada();
+            this._postulacionService.consultarEstadoPostulacion(plazaActualId).subscribe({
+              next: () => this.cargando.set(false),
+              error: () => this.cargando.set(false)
+            });
+          },
+          error: () => {
+            this.cargando.set(false);
+            this.alertService.error('Error', 'No se pudo procesar la eliminación del archivo.');
+          }
+        });
+      }
     });
   }
 

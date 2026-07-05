@@ -76,7 +76,7 @@
             <mat-select [value]="plazaSeleccionada()" (selectionChange)="onCambioGlobalPlaza($event.value)">
               @for (p of misConvocatorias(); track p.idPlaza) {
                 <mat-option [value]="p.idPlaza">
-                  <strong>{{ p.codigoConvocatoria }}</strong> - {{ p.nombrePuesto }}
+                  <strong>{{ p.codigoConvocatoria.toUpperCase() }}</strong> - {{ p.nombrePuesto.toUpperCase() }}
                 </mat-option>
               }
             </mat-select>

@@ -27,5 +27,27 @@ namespace WebApi.Controllers
             var result = await _mediator.Send(command);
             return Ok(BaseResponse<bool>.Ok(result, "Certificación procesada con éxito."));
         }
+
+        [HttpPost("subir-sustento")]
+        public async Task<IActionResult> SubirSustento([FromForm] int idFormacion, [FromForm] IFormFile archivo)
+        {
+            var command = new SubirSustentoFormacionCommand(idFormacion, archivo);
+            var resultado = await _mediator.Send(command);
+
+            if (resultado)
+            {
+                return Ok(new { success = true, message = "Archivo sustentatorio guardado correctamente." });
+            }
+
+            return BadRequest(new { success = false, message = "No se pudo procesar el archivo cargado." });
+        }
+
+        [HttpDelete("eliminar-sustento/{idFormacion}")]
+        public async Task<IActionResult> EliminarSustento(int idFormacion)
+        {
+            var resultado = await _mediator.Send(new EliminarSustentoFormacionCommand(idFormacion));
+            if (resultado) return Ok(new { success = true, message = "Sustento eliminado correctamente." });
+            return BadRequest(new { success = false, message = "No se pudo eliminar el sustento." });
+        }
     }
 }
