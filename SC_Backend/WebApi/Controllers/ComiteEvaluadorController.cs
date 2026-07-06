@@ -35,7 +35,6 @@ namespace WebApi.Controllers
             string nombrePuesto = expedientes.FirstOrDefault()?.NombrePuesto ?? "Plaza_Seleccionada";
 
             string nombrePuestoLimpio = nombrePuesto.Replace(" ", "_");
-
             string nombreArchivo = $"Acta_Filtro_Inicial_Plaza_{nombrePuestoLimpio}.pdf";
 
             return File(pdfBytes, "application/pdf", nombreArchivo);
@@ -59,11 +58,30 @@ namespace WebApi.Controllers
         public async Task<IActionResult> ExportarActaConocimientos(int idPlaza)
         {
             var pdfBytes = await _mediator.Send(new GetActaConocimientosPdfQuery(idPlaza));
-            // Recuperamos el listado rápido para nombrar el archivo
             var candidatos = await _mediator.Send(new GetEvaluacionConocimientosQuery(idPlaza));
             string nombrePuesto = candidatos.FirstOrDefault()?.PostulanteNombre != null ? "EVALUACION_CONOCIMIENTOS" : "ACTA";
-            // Puedes inyectarle el nombre real mapeado de Java
             return File(pdfBytes, "application/pdf", $"Acta_Conocimientos_Plaza_{idPlaza}.pdf");
+        }
+
+        [HttpGet("listar-inscritos/{idPlaza}")]
+        public async Task<IActionResult> GetCalificacionCurricular(int idPlaza)
+        {
+            var data = await _mediator.Send(new GetCalificacionCurricularQuery(idPlaza));
+            return Ok(new { success = true, data });
+        }
+
+        [HttpPost("guardar-calificacion")]
+        public async Task<IActionResult> GuardarCalificacionCurricular([FromBody] GuardarCalificacionCurricularCommand command)
+        {
+            var res = await _mediator.Send(command);
+            return Ok(new { success = res });
+        }
+
+        [HttpGet("exportar-acta-curricular/{idPlaza}")]
+        public async Task<IActionResult> ExportarActaCurricular(int idPlaza)
+        {
+            var pdfBytes = await _mediator.Send(new GetActaCurricularPdfQuery(idPlaza));
+            return File(pdfBytes, "application/pdf", $"Acta_Evaluacion_Curricular_Plaza_{idPlaza}.pdf");
         }
     }
 }

@@ -34,4 +34,16 @@ export class ComiteEvaluacionService {
   descargarActaConocimientosPdf(idPlaza: number): Observable<Blob> {
     return this.crudHttp.get(`ComiteEvaluador/exportar-acta-conocimientos/${idPlaza}`, { responseType: 'blob' });
   }
+
+  listarCandidatosCurricular(idPlaza: number): Observable<any> {
+    return this.crudHttp.get<any>(`ComiteEvaluador/listar-inscritos/${idPlaza}`);
+  }
+
+  guardarCalificacionCurricular(payload: any): Observable<any> {
+    return this.crudHttp.post<any>('ComiteEvaluador/guardar-calificacion', payload);
+  }
+
+  descargarActaCurricularPdf(idPlaza: number): Observable<Blob> {
+    return this.crudHttp.get(`ComiteEvaluador/exportar-acta-curricular/${idPlaza}`, { responseType: 'blob' });
+  }
 }

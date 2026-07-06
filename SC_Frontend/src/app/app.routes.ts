@@ -128,6 +128,10 @@ export const routes: Routes = [
             {
                 path: 'comite/conocimientos',
                 loadComponent: () => import('./pages/comite/evaluacion-conocimientos/evaluacion-conocimientos').then(m => m.EvaluacionConocimientos)
+            },
+            {
+                path: 'comite/calificar-cv',
+                loadComponent: () => import('./pages/comite/calificacion-curricular/calificacion-curricular').then(m => m.CalificacionCurricular)
             }
         ]
     },
