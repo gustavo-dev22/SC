@@ -10,6 +10,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { DocumentoSustentoService } from '../../../services/documento-sustento.service';
 
 @Component({
   selector: 'app-formacion',
@@ -22,14 +23,16 @@ export class Formacion implements OnInit {
   @Input() modoLectura = false;
   private dialog = inject(MatDialog);
   private formacionService = inject(PostulanteFormacionService);
-  private _postulacionService = inject(PostulacionService); // 🎯 Único servicio centralizado
+  private _postulacionService = inject(PostulacionService);
   private alertService = inject(AlertService);
-  
+  private documentoSustentoService = inject(DocumentoSustentoService);
+
   public cargando = signal(false);
   public listaFormacion = signal<any[]>([]);
   private idPostulante!: number;
 
-  // 🚀 El Getter del HTML lee reactivamente la Signal global gobernada por el Layout
+  private readonly CONTROLADOR = 'postulanteformacion';
+
   public get idEstadoPostulacionActual(): number {
     return this._postulacionService.estadoPostulacion() ?? 0;
   }
@@ -67,20 +70,14 @@ export class Formacion implements OnInit {
   private subirArchivoSustentatorio(file: File, idFormacion: number): void {
     this.cargando.set(true);
     
-    const formData = new FormData();
-    formData.append('archivo', file);
-    formData.append('idFormacion', idFormacion.toString());
-
-    this.formacionService.SubirPdfSustento(formData).subscribe({
+    // 🚀 Consumimos el servicio universal pasándole las credenciales de la sección
+    this.documentoSustentoService.subirPdf(this.CONTROLADOR, idFormacion, 'idFormacion', file).subscribe({
       next: (res) => {
         if (res.success) {
-          this.alertService.exito('Éxito', 'Documento sustentatorio guardado con éxito.');
-          
+          this.alertService.exito('Éxito', 'Documento de formación académica guardado con éxito.');
           this.cargarFormacion(); 
 
-          // 🚀 CORREGIDO: Leemos la plaza activa desde la Signal del servicio global compartido
           const plazaActualId = this._postulacionService.plazaContextoSeleccionada();
-          
           this._postulacionService.consultarEstadoPostulacion(plazaActualId).subscribe({
             next: () => this.cargando.set(false),
             error: () => this.cargando.set(false)
@@ -113,12 +110,12 @@ export class Formacion implements OnInit {
       if (confirmado) {
         this.cargando.set(true);
         
-        this.formacionService.EliminarPdfSustento(idFormacion).subscribe({
+        // 🚀 Consumimos la eliminación universal
+        this.documentoSustentoService.eliminarPdf(this.CONTROLADOR, idFormacion).subscribe({
           next: (res) => {
             this.alertService.exito('Éxito', 'El archivo sustentatorio fue removido con éxito.');
             this.cargarFormacion(); 
             
-            // 🚀 Sincronizamos de igual forma tras eliminar manteniendo el ID de plaza global
             const plazaActualId = this._postulacionService.plazaContextoSeleccionada();
             this._postulacionService.consultarEstadoPostulacion(plazaActualId).subscribe({
               next: () => this.cargando.set(false),

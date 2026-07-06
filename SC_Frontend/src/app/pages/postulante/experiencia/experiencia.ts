@@ -8,6 +8,9 @@ import { PostulanteExperienciaService } from '../../../services/postulante-exper
 import { ModalExperiencia } from './modal-experiencia/modal-experiencia';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AlertService } from '../../../shared/services/alert.service';
+import { DocumentoSustentoService } from '../../../services/documento-sustento.service';
+import { PostulacionService } from '../../../services/postulacion.service';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-experiencia',
@@ -19,12 +22,16 @@ export class Experiencia implements OnInit {
   @Input() modoLectura = false;
   private dialog = inject(MatDialog);
   private expService = inject(PostulanteExperienciaService);
+  private _postulacionService = inject(PostulacionService);
   private viewContainerRef = inject(ViewContainerRef);
   private alertService = inject(AlertService);
+  private documentService = inject(DocumentoSustentoService);
 
   public listaExperiencias = signal<any[]>([]);
   public cargando = signal<boolean>(false);
   private idPostulante!: number;
+
+  private readonly CONTROLADOR = 'postulanteexperiencia';
 
   public resumenGeneral = computed(() => this.convertirDiasALegible(
     this.listaExperiencias().reduce((acc, item) => acc + item.totalDiasAcumulados, 0)
@@ -33,6 +40,10 @@ export class Experiencia implements OnInit {
   public resumenEspecifico = computed(() => this.convertirDiasALegible(
     this.listaExperiencias().filter(x => x.esExperienciaEspecifica).reduce((acc, item) => acc + item.totalDiasAcumulados, 0)
   ));
+
+  public get idEstadoPostulacionActual(): number {
+    return this._postulacionService.estadoPostulacion() ?? 0;
+  }
 
   ngOnInit(): void {
     const profile = JSON.parse(sessionStorage.getItem('user_profile') || '{}');
@@ -45,10 +56,89 @@ export class Experiencia implements OnInit {
     this.cargando.set(true);
     this.expService.getExperiencias(this.idPostulante).subscribe({
       next: (res) => {
+        console.log(res);
         if (res.success) this.listaExperiencias.set(res.data);
         this.cargando.set(false); 
       },
       error: () => this.cargando.set(false)
+    });
+  }
+
+  public onFileSelected(event: Event, idExperiencia: number): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+      if (file.type !== 'application/pdf') {
+        this.alertService.error('Error', 'Solo se admiten documentos en formato PDF.');
+        return;
+      }
+      if (file.size > 4 * 1024 * 1024) {
+        this.alertService.error('Error', 'El archivo excede el límite permitido de 4MB.');
+        return;
+      }
+      this.subirArchivoSustentatorio(file, idExperiencia);
+    }
+  }
+
+  private subirArchivoSustentatorio(file: File, idExperiencia: number): void {
+    this.cargando.set(true);
+    
+    // 🚀 Invocación universal limpia pasándole el ID parámetro 'idExperiencia'
+    this.documentService.subirPdf(this.CONTROLADOR, idExperiencia, 'idExperiencia', file).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.alertService.exito('Éxito', 'Constancia de trabajo guardada con éxito.');
+          this.cargarExperiencias(); 
+
+          const plazaActualId = this._postulacionService.plazaContextoSeleccionada();
+          this._postulacionService.consultarEstadoPostulacion(plazaActualId).subscribe({
+            next: () => this.cargando.set(false),
+            error: () => this.cargando.set(false)
+          });
+        } else {
+          this.cargando.set(false);
+        }
+      },
+      error: () => {
+        this.cargando.set(false);
+        this.alertService.error('Error', 'Ocurrió un error al subir el archivo.');
+      }
+    });
+  }
+
+  public verPdf(url: string): void {
+    if (!url) return;
+    const urlBackend = environment.apiUrl.replace('/api', '');
+    const urlCompleta = `${urlBackend}${url}`;
+    window.open(urlCompleta, '_blank');
+  }
+
+  public eliminarPdf(idExperiencia: number): void {
+    this.alertService.confirmacion(
+      'Mensaje de Confirmación', 
+      '¿Está seguro de eliminar el sustento de experiencia laboral? Deberá subir uno nuevo para la fase curricular.', 
+      'SI', 
+      'NO'
+    ).subscribe((confirmado: boolean) => {
+      if (confirmado) {
+        this.cargando.set(true);
+        this.documentService.eliminarPdf(this.CONTROLADOR, idExperiencia).subscribe({
+          next: (res) => {
+            this.alertService.exito('Éxito', 'El archivo fue removido con éxito.');
+            this.cargarExperiencias(); 
+            
+            const plazaActualId = this._postulacionService.plazaContextoSeleccionada();
+            this._postulacionService.consultarEstadoPostulacion(plazaActualId).subscribe({
+              next: () => this.cargando.set(false),
+              error: () => this.cargando.set(false)
+            });
+          },
+          error: () => {
+            this.cargando.set(false);
+            this.alertService.error('Error', 'No se pudo procesar la eliminación del archivo.');
+          }
+        });
+      }
     });
   }
 

@@ -19,14 +19,12 @@ namespace Application.Postulantes.Dtos
         public string FuncionesPrincipales { get; set; } = string.Empty;
         public int IdSectorCat { get; set; }
         public string SectorClasificacion { get; set; } = string.Empty;
-
         public int IdRegimenCat { get; set; }
         public string RegimenClasificacion { get; set; } = string.Empty;
-
         public int IdMotivoCambioCat { get; set; }
         public string MotivoCambioClasificacion { get; set; } = string.Empty;
-
         public decimal RemuneracionMensual { get; set; }
+        public string? RutaSustento { get; set; }
 
         // 🚀 Lógica de Cómputo de Tiempo en el Modelo de Presentación de Aplicación
         public int TotalDiasAcumulados

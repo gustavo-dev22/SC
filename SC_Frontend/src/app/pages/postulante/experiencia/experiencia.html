@@ -76,6 +76,49 @@
           <span style="color:#2563eb; font-weight:600; margin-left:8px;">({{ convertirDiasALegible(item.totalDiasAcumulados) }})</span>
         </p>
       </div>
+
+      @if (idEstadoPostulacionActual === 19) {
+        <div class="academic-document-section">
+          <div class="divider-vertical"></div>
+          
+          <div class="document-status-box">
+            @if (item.rutaSustento) {
+              <div class="status-success">
+                <mat-icon class="icon-success">verified</mat-icon>
+                <span class="text-doc">Certificado laboral cargado</span>
+              </div>
+              <div class="doc-actions-inline">
+                <button mat-icon-button color="primary" (click)="verPdf(item.rutaSustento)" matTooltip="Ver Certificado">
+                  <mat-icon>visibility</mat-icon>
+                </button>
+                @if (!modoLectura) {
+                  <button mat-icon-button color="accent" (click)="reemplazarInput.click()" matTooltip="Reemplazar archivo">
+                    <mat-icon>autorenew</mat-icon>
+                  </button>
+                  <input #reemplazarInput type="file" accept="application/pdf" style="display: none;" (change)="onFileSelected($event, item.idExperiencia)">
+
+                  <button mat-icon-button color="warn" (click)="eliminarPdf(item.idExperiencia)" matTooltip="Eliminar permanentemente">
+                    <mat-icon>delete_forever</mat-icon>
+                  </button>
+                }
+              </div>
+            } @else {
+              <div class="status-pending">
+                <mat-icon class="icon-pending">error_outline</mat-icon>
+                <span class="text-doc text-warn">Falta cargar constancia de trabajo (.pdf)</span>
+              </div>
+              @if (!modoLectura) {
+                <div class="upload-btn-wrapper">
+                  <button mat-stroked-button color="accent" class="btn-upload" (click)="fileInput.click()">
+                    <mat-icon>cloud_upload</mat-icon> Subir Constancia
+                  </button>
+                  <input #fileInput type="file" accept="application/pdf" style="display: none;" (change)="onFileSelected($event, item.idExperiencia)">
+                </div>
+              }
+            }
+          </div>
+        </div>
+      }
       
       @if (!modoLectura) {
         <div class="academic-actions">

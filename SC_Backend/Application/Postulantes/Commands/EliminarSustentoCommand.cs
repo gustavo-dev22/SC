@@ -7,5 +7,5 @@ using MediatR;
 
 namespace Application.Postulantes.Commands
 {
-    public record EliminarSustentoFormacionCommand(int IdFormacion) : IRequest<bool>;
+    public record EliminarSustentoCommand(int IdRegistro, string Seccion) : IRequest<bool>;
 }

@@ -9,31 +9,31 @@ using MediatR;
 
 namespace Application.Postulantes.Handlers
 {
-    public class SubirSustentoFormacionCommandHandler : IRequestHandler<SubirSustentoFormacionCommand, bool>
+    public class SubirSustentoCommandHandler : IRequestHandler<SubirSustentoCommand, bool>
     {
         private readonly IPostulanteCommandService _postulanteService;
         private readonly IFileStorageService _fileStorageService;
 
-        public SubirSustentoFormacionCommandHandler(IPostulanteCommandService postulanteService, IFileStorageService fileStorageService)
+        public SubirSustentoCommandHandler(IPostulanteCommandService postulanteService, IFileStorageService fileStorageService)
         {
             _postulanteService = postulanteService;
             _fileStorageService = fileStorageService;
         }
 
-        public async Task<bool> Handle(SubirSustentoFormacionCommand request, CancellationToken cancellationToken)
+        public async Task<bool> Handle(SubirSustentoCommand request, CancellationToken cancellationToken)
         {
             if (request.Archivo == null || request.Archivo.Length == 0) return false;
 
-            // 1. Abrimos el stream binario del archivo de forma segura
             using var stream = request.Archivo.OpenReadStream();
 
-            string rutaAntiguaParaLimpiar = await _postulanteService.EliminarRutaSustentoAsync(request.IdFormacion);
+            // 1. Limpiamos la base de datos y recuperamos ruta vieja usando la sección del comando
+            string rutaAntiguaParaLimpiar = await _postulanteService.EliminarRutaSustentoAsync(request.IdRegistro, request.Seccion);
             if (!string.IsNullOrEmpty(rutaAntiguaParaLimpiar))
             {
-                _fileStorageService.EliminarArchivoFisico(rutaAntiguaParaLimpiar); // Adios archivo viejo
+                _fileStorageService.EliminarArchivoFisico(rutaAntiguaParaLimpiar);
             }
 
-            // 2. Delegamos a la infraestructura el guardado físico en disco
+            // 2. Guardamos físicamente en disco el nuevo archivo
             string urlRelativaCompleta = await _fileStorageService.GuardarArchivoAsync(
                 stream,
                 request.Archivo.FileName,
@@ -43,8 +43,8 @@ namespace Application.Postulantes.Handlers
 
             if (string.IsNullOrEmpty(urlRelativaCompleta)) return false;
 
-            // 3. Guardamos la ruta en SQL Server mediante tu servicio de comandos convencional
-            return await _postulanteService.ActualizarRutaSustentoAsync(request.IdFormacion, urlRelativaCompleta);
+            // 3. Persistimos la nueva URL pasando la sección dinámica
+            return await _postulanteService.ActualizarRutaSustentoAsync(request.IdRegistro, urlRelativaCompleta, request.Seccion);
         }
     }
 }

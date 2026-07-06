@@ -339,16 +339,17 @@ namespace Infrastructure.Services
             return filasAfectadas > 0;
         }
 
-        public async Task<bool> ActualizarRutaSustentoAsync(int idFormacion, string urlSustentoPdf)
+        public async Task<bool> ActualizarRutaSustentoAsync(int idRegistro, string urlSustentoPdf, string seccion)
         {
             using IDbConnection connection = _dbConnectionFactory.CreateConnection();
 
             var filasAfectadas = await connection.ExecuteScalarAsync<int>(
-                "sp_Postulante_ActualizarSustentoFormacion",
+                "sp_Postulante_ActualizarSustento",
                 new
                 {
-                    IdFormacion = idFormacion,
-                    UrlSustentoPdf = urlSustentoPdf
+                    IdRegistro = idRegistro,
+                    UrlSustentoPdf = urlSustentoPdf,
+                    Seccion = seccion.ToUpper()
                 },
                 commandType: CommandType.StoredProcedure
             );
@@ -356,14 +357,15 @@ namespace Infrastructure.Services
             return filasAfectadas > 0;
         }
 
-        public async Task<string> EliminarRutaSustentoAsync(int idFormacion)
+        public async Task<string> EliminarRutaSustentoAsync(int idRegistro, string seccion)
         {
             using IDbConnection connection = _dbConnectionFactory.CreateConnection();
             var parameters = new DynamicParameters();
-            parameters.Add("@IdFormacion", idFormacion);
+            parameters.Add("@IdRegistro", idRegistro);
+            parameters.Add("@Seccion", seccion.ToUpper());
             parameters.Add("@RutaAntigua", dbType: DbType.String, direction: ParameterDirection.Output, size: 500);
 
-            await connection.ExecuteAsync("sp_Postulante_EliminarSustentoFormacion", parameters, commandType: CommandType.StoredProcedure);
+            await connection.ExecuteAsync("sp_Postulante_EliminarSustento", parameters, commandType: CommandType.StoredProcedure);
 
             return parameters.Get<string>("@RutaAntigua");
         }

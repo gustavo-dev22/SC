@@ -8,5 +8,5 @@ using Microsoft.AspNetCore.Http;
 
 namespace Application.Postulantes.Commands
 {
-    public record SubirSustentoFormacionCommand(int IdFormacion, IFormFile Archivo) : IRequest<bool>;
+    public record SubirSustentoCommand(int IdRegistro, IFormFile Archivo, string Seccion) : IRequest<bool>;
 }

@@ -80,14 +80,18 @@ export class EvaluacionConocimientos implements OnInit {
     this.comiteService.listarCandidatosExamen(idPlaza).subscribe({
       next: (res) => {
         if (res.success) {
-          // Seteamos el signal
+          // 🚀 SOLUCIÓN: Reinstanciamos por completo el objeto para asegurar reactividad pura
           this.candidatosSignal.set(res.data);
-          
-          // Asignamos el arreglo directo al dataSource existente (sin romper la referencia del objeto)
-          this.dataSource.data = res.data;
+          this.dataSource = new MatTableDataSource<any>(res.data);
 
+          // Amarre seguro del paginador
           if (this.paginator()) {
             this.dataSource.paginator = this.paginator()!;
+          }
+
+          // Si el usuario tenía algo escrito en el buscador, re-aplicamos el filtro activo
+          if (this.filtroTexto()) {
+            this.dataSource.filter = this.filtroTexto().trim().toLowerCase();
           }
         }
         this.cargando.set(false);

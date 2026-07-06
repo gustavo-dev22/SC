@@ -18,7 +18,7 @@
     <div style="display: flex; gap: 16px; flex-wrap: wrap; align-items: center;">
       
       <mat-form-field appearance="outline" style="flex: 2; min-width: 300px; margin-bottom: -1.25em;">
-        <mat-label>Seleccione la Convocatoria / Plaza CAS</mat-label>
+        <mat-label>Seleccione la Convocatoria</mat-label>
         <mat-select (selectionChange)="onPlazaChange($event.value)">
           @for (plaza of plazas(); track plaza.idPlaza) {
             <mat-option [value]="plaza.idPlaza">

@@ -29,24 +29,21 @@ namespace WebApi.Controllers
         }
 
         [HttpPost("subir-sustento")]
-        public async Task<IActionResult> SubirSustento([FromForm] int idFormacion, [FromForm] IFormFile archivo)
+        public async Task<IActionResult> SubirSustento([FromForm] int idCertificacion, [FromForm] IFormFile archivo)
         {
-            var command = new SubirSustentoFormacionCommand(idFormacion, archivo);
+            // Reutilizamos el mismo comando universal pero cambiando a "CERTIFICACION"
+            var command = new SubirSustentoCommand(idCertificacion, archivo, "CERTIFICACION");
             var resultado = await _mediator.Send(command);
 
-            if (resultado)
-            {
-                return Ok(new { success = true, message = "Archivo sustentatorio guardado correctamente." });
-            }
-
+            if (resultado) return Ok(new { success = true, message = "Archivo sustentatorio de certificación guardado correctamente." });
             return BadRequest(new { success = false, message = "No se pudo procesar el archivo cargado." });
         }
 
-        [HttpDelete("eliminar-sustento/{idFormacion}")]
-        public async Task<IActionResult> EliminarSustento(int idFormacion)
+        [HttpDelete("eliminar-sustento/{idCertificacion}")]
+        public async Task<IActionResult> EliminarSustento(int idCertificacion)
         {
-            var resultado = await _mediator.Send(new EliminarSustentoFormacionCommand(idFormacion));
-            if (resultado) return Ok(new { success = true, message = "Sustento eliminado correctamente." });
+            var resultado = await _mediator.Send(new EliminarSustentoCommand(idCertificacion, "CERTIFICACION"));
+            if (resultado) return Ok(new { success = true, message = "Sustento de certificación eliminado correctamente." });
             return BadRequest(new { success = false, message = "No se pudo eliminar el sustento." });
         }
     }

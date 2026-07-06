@@ -29,7 +29,7 @@ namespace Application.Common.Interfaces
         Task<bool> InsertarPostulacionLocalAsync(int idPostulante, int idPlaza, int idEstadoCat, string codigoPostulacion);
         Task<bool> CrearNotificacionAsync(int idPostulante, string titulo, string mensaje, int idTipoAlertaCat);
         Task<bool> InsertarTicketAsync(int idPostulante, int? idPlaza, int idTipoTicketCat, string asunto, string descripcion);
-        Task<bool> ActualizarRutaSustentoAsync(int idFormacion, string rutaSustento);
-        Task<string> EliminarRutaSustentoAsync(int idFormacion);
+        Task<bool> ActualizarRutaSustentoAsync(int idRegistro, string urlSustentoPdf, string seccion);
+        Task<string> EliminarRutaSustentoAsync(int idRegistro, string seccion);
     }
 }

@@ -19,7 +19,7 @@
     <div style="display: flex; gap: 16px; flex-wrap: wrap; align-items: center;">
       
       <mat-form-field appearance="outline" style="flex: 2; min-width: 300px; margin-bottom: -1.25em;">
-        <mat-label>Seleccione la Convocatoria CAS</mat-label>
+        <mat-label>Seleccione la Convocatoria</mat-label>
         <mat-select (selectionChange)="onPlazaChange($event.value)">
           @for (plaza of plazas(); track plaza.idPlaza) {
             <mat-option [value]="plaza.idPlaza">{{ plaza.codigoConvocatoria }} - {{ plaza.nombrePuesto }}</mat-option>
@@ -53,7 +53,6 @@
     </div>
   }
 
-  @if (plazaSeleccionada() !== null) {
     <div class="mat-elevation-z2" style="border-radius: 8px; overflow: hidden; background: white;">
       <table mat-table [dataSource]="dataSource" style="width: 100%;">
 
@@ -104,9 +103,26 @@
         <tr mat-row *matRowDef="let row; columns: columnas;"></tr>
       </table>
 
+      @if (plazaSeleccionada() === null) {
+        <div style="text-align: center; padding: 48px; background: white; color: #64748b;">
+          <mat-icon style="font-size: 44px; width:44px; height:44px; color: #94a3b8; margin-bottom: 8px;">layers</mat-icon>
+          <p style="margin: 0; font-weight: 700; color: #475569; font-size: 14px;">Esperando Selección de Convocatoria</p>
+          <p style="margin: 4px 0 0 0; font-size: 12.5px; color: #94a3b8;">Por favor, elija una plaza del menú desplegable superior para auditar las postulaciones.</p>
+        </div>
+      }
+
+      @if (plazaSeleccionada() !== null && dataSource.filteredData.length === 0) {
+        <div style="text-align: center; padding: 48px; background: white; color: #64748b;">
+          <mat-icon style="font-size: 44px; width:44px; height:44px; color: #f43f5e; margin-bottom: 8px;">find_in_page</mat-icon>
+          <p style="margin: 0; font-weight: 700; color: #475569; font-size: 14px;">No se encontraron registros coincidentes</p>
+          <p style="margin: 4px 0 0 0; font-size: 12.5px; color: #94a3b8;">
+            {{ filtroTexto() ? 'Ningún expediente cumple con los términos de búsqueda: "' + filtroTexto() + '"' : 'Esta plaza aún no registra postulantes en esta etapa.' }}
+          </p>
+        </div>
+      }
+
       @if (mostrarPaginador()) {
         <mat-paginator [length]="dataSource.data.length" [pageSize]="10" [pageSizeOptions]="[10, 20, 50]" showFirstLastButtons></mat-paginator>
       }
     </div>
-  }
 </div>

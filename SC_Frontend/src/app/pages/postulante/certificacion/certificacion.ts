@@ -10,6 +10,7 @@ import { AlertService } from '../../../shared/services/alert.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { PostulacionService } from '../../../services/postulacion.service';
 import { environment } from '../../../../environments/environment';
+import { DocumentoSustentoService } from '../../../services/documento-sustento.service';
 
 @Component({
   selector: 'app-certificacion',
@@ -22,11 +23,14 @@ export class Certificacion implements OnInit {
   private dialog = inject(MatDialog);
   private certService = inject(PostulanteCertificacionService);
   private _postulacionService = inject(PostulacionService);
+  private documentoSustentoService = inject(DocumentoSustentoService);
   private alertService = inject(AlertService);
 
   public listaCertificaciones = signal<any[]>([]);
   private idPostulante!: number;
   public cargando = signal<boolean>(false);
+
+  private readonly CONTROLADOR = 'postulantecertificacion';
 
   public get idEstadoPostulacionActual(): number {
     return this._postulacionService.estadoPostulacion() ?? 0;
@@ -72,18 +76,13 @@ export class Certificacion implements OnInit {
   private subirArchivoSustentatorio(file: File, idCertificacion: number): void {
     this.cargando.set(true);
     
-    const formData = new FormData();
-    formData.append('archivo', file);
-    formData.append('idCertificacion', idCertificacion.toString());
-
-    // 🎯 Nota: Asegúrate de que tu Backend/Servicio exponga el método SubirPdfSustento
-    this.certService.SubirPdfSustento(formData).subscribe({
+    // 🚀 Consumimos el servicio universal pasándole las credenciales de la sección
+    this.documentoSustentoService.subirPdf(this.CONTROLADOR, idCertificacion, 'idCertificacion', file).subscribe({
       next: (res) => {
         if (res.success) {
           this.alertService.exito('Éxito', 'Documento de certificación guardado con éxito.');
           this.cargarCertificaciones(); 
 
-          // 🚀 Sincronizar estado utilizando la Plaza Activa de la Signal Global
           const plazaActualId = this._postulacionService.plazaContextoSeleccionada();
           this._postulacionService.consultarEstadoPostulacion(plazaActualId).subscribe({
             next: () => this.cargando.set(false),
@@ -117,13 +116,12 @@ export class Certificacion implements OnInit {
       if (confirmado) {
         this.cargando.set(true);
         
-        // 🎯 Nota: Asegúrate de que tu Backend/Servicio exponga el método EliminarPdfSustento
-        this.certService.EliminarPdfSustento(idCertificacion).subscribe({
+        // 🚀 Consumimos la eliminación universal
+        this.documentoSustentoService.eliminarPdf(this.CONTROLADOR, idCertificacion).subscribe({
           next: (res) => {
             this.alertService.exito('Éxito', 'El archivo sustentatorio fue removido con éxito.');
             this.cargarCertificaciones(); 
             
-            // 🚀 Sincronizar estado tras eliminar manteniendo el ID de plaza global
             const plazaActualId = this._postulacionService.plazaContextoSeleccionada();
             this._postulacionService.consultarEstadoPostulacion(plazaActualId).subscribe({
               next: () => this.cargando.set(false),
