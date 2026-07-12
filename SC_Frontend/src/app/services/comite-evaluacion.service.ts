@@ -46,4 +46,24 @@ export class ComiteEvaluacionService {
   descargarActaCurricularPdf(idPlaza: number): Observable<Blob> {
     return this.crudHttp.get(`ComiteEvaluador/exportar-acta-curricular/${idPlaza}`, { responseType: 'blob' });
   }
+
+  listarCandidatosEntrevista(idPlaza: number): Observable<any> {
+    return this.crudHttp.get<any>(`ComiteEvaluador/entrevista-personal?idPlaza=${idPlaza}`);
+  }
+
+  registrarNotaEntrevista(payload: any): Observable<any> {
+    return this.crudHttp.post<any>('ComiteEvaluador/registrar-nota-entrevista', payload);
+  }
+
+  descargarActaEntrevistaPdf(idPlaza: number): Observable<Blob> {
+    return this.crudHttp.get(`ComiteEvaluador/exportar-acta-entrevista/${idPlaza}`, { responseType: 'blob' });
+  }
+
+  obtenerCuadroMeritoFinal(idPlaza: number): Observable<any> {
+    return this.crudHttp.get<any>(`ComiteEvaluador/cuadro-merito-final?idPlaza=${idPlaza}`);
+  }
+
+  descargarActaFinalPdf(idPlaza: number): Observable<Blob> {
+    return this.crudHttp.get(`ComiteEvaluador/exportar-acta-final/${idPlaza}`, { responseType: 'blob' });
+  }
 }

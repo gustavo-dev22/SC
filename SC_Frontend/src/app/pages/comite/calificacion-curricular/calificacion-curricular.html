@@ -68,40 +68,40 @@
       <ng-container matColumnDef="formacion">
         <th mat-header-cell *matHeaderCellDef style="font-weight: 700; text-align: center; background: #f1f5f9;"> Puntaje Formación Académica </th>
         <td mat-cell *matCellDef="let element" style="text-align: center;">
-          @if (element.idEstadoPostulacionCat === 19) {
+          @if (element.faseCurricularAprobado === null) {
             <mat-form-field appearance="outline" style="width: 80px; margin: 6px 0 -1.25em 0;">
               <input matInput type="number" [(ngModel)]="element.notaFormacion" min="0">
             </mat-form-field>
-          } @else { <span>{{ element.notaFormacion }}</span> }
+          } @else { <span>{{ element.notaFormacion | number:'1.2-2' }}</span> }
         </td>
       </ng-container>
 
       <ng-container matColumnDef="capacitacion">
         <th mat-header-cell *matHeaderCellDef style="font-weight: 700; text-align: center; background: #f1f5f9;"> Puntaje Cursos </th>
         <td mat-cell *matCellDef="let element" style="text-align: center;">
-          @if (element.idEstadoPostulacionCat === 19) {
+          @if (element.faseCurricularAprobado === null) {
             <mat-form-field appearance="outline" style="width: 80px; margin: 6px 0 -1.25em 0;">
               <input matInput type="number" [(ngModel)]="element.notaCapacitacion" min="0">
             </mat-form-field>
-          } @else { <span>{{ element.notaCapacitacion }}</span> }
+          } @else { <span>{{ element.notaCapacitacion | number:'1.2-2' }}</span> }
         </td>
       </ng-container>
 
       <ng-container matColumnDef="experiencia">
         <th mat-header-cell *matHeaderCellDef style="font-weight: 700; text-align: center; background: #f1f5f9;"> Puntaje Experiencia Laboral </th>
         <td mat-cell *matCellDef="let element" style="text-align: center;">
-          @if (element.idEstadoPostulacionCat === 19) {
+          @if (element.faseCurricularAprobado === null) {
             <mat-form-field appearance="outline" style="width: 80px; margin: 6px 0 -1.25em 0;">
               <input matInput type="number" [(ngModel)]="element.notaExperiencia" min="0">
             </mat-form-field>
-          } @else { <span>{{ element.notaExperiencia }}</span> }
+          } @else { <span>{{ element.notaExperiencia | number:'1.2-2' }}</span> }
         </td>
       </ng-container>
 
       <ng-container matColumnDef="total">
         <th mat-header-cell *matHeaderCellDef style="font-weight: 700; text-align: center; background: #f1f5f9;"> Nota Final </th>
         <td mat-cell *matCellDef="let element" style="text-align: center; font-weight: 800; font-size: 14px; color: #1e293b;">
-          @if (element.idEstadoPostulacionCat === 19) {
+          @if (element.faseCurricularAprobado === null) {
             {{ (element.notaFormacion || 0) + (element.notaCapacitacion || 0) + (element.notaExperiencia || 0) | number:'1.2-2' }}
           } @else {
             {{ element.notaCurricularFinal | number:'1.2-2' }}
@@ -112,15 +112,15 @@
       <ng-container matColumnDef="acciones">
         <th mat-header-cell *matHeaderCellDef style="font-weight: 700; text-align: center; background: #f1f5f9; width: 150px;"> Estado / Acción </th>
         <td mat-cell *matCellDef="let element" style="text-align: center;">
-          @if (element.idEstadoPostulacionCat === 19) {
+          @if (element.faseCurricularAprobado === null) {
             <button mat-flat-button color="primary" style="font-size: 11.5px; height: 32px;" (click)="guardarEvaluacion(element)">
               <mat-icon style="font-size: 16px; width:16px; height:16px;">save</mat-icon> Evaluar
             </button>
           }
-          @if (element.idEstadoPostulacionCat === 21) {
+          @if (element.faseCurricularAprobado === true) {
             <span style="color: #137333; background: #e6f4ea; padding: 4px 10px; border-radius: 4px; font-weight: 700; font-size: 11.5px;">APTO</span>
           }
-          @if (element.idEstadoPostulacionCat === 1109) {
+          @if (element.faseCurricularAprobado === false) {
             <span style="color: #c5221f; background: #fce8e6; padding: 4px 10px; border-radius: 4px; font-weight: 700; font-size: 11.5px;">NO APTO</span>
           }
         </td>

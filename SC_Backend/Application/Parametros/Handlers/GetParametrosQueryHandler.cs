@@ -17,7 +17,7 @@ namespace Application.Parametros.Handlers
 
         public async Task<List<ParametroGlobalDto>> Handle(GetParametrosQuery request, CancellationToken token)
         {
-            return await _queryService.ObtenerParametrosAsync();
+            return await _queryService.ObtenerParametrosAsync(request.Codigo);
         }
     }
 }

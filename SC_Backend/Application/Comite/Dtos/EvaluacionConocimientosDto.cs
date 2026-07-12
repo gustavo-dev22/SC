@@ -16,5 +16,6 @@ namespace Application.Comite.Dtos
         public int IdEstadoPostulacionCat { get; set; }
         public string EstadoDescripcion { get; set; } = string.Empty;
         public decimal NotaConocimientos { get; set; }
+        public bool? FaseConocimientosAprobado { get; set; }
     }
 }

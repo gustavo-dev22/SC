@@ -132,6 +132,14 @@ export const routes: Routes = [
             {
                 path: 'comite/calificar-cv',
                 loadComponent: () => import('./pages/comite/calificacion-curricular/calificacion-curricular').then(m => m.CalificacionCurricular)
+            },
+            {
+                path: 'comite/entrevistas',
+                loadComponent: () => import('./pages/comite/evaluacion-entrevista/evaluacion-entrevista').then(m => m.EvaluacionEntrevista)
+            },
+            {
+                path: 'comite/actas-etapa',
+                loadComponent: () => import('./pages/comite/cuadro-merito/cuadro-merito').then(m => m.CuadroMerito)
             }
         ]
     },

@@ -8,5 +8,5 @@ using MediatR;
 
 namespace Application.Parametros.Queries
 {
-    public record GetParametrosQuery() : IRequest<List<ParametroGlobalDto>>;
+    public record GetParametrosQuery(string? Codigo = null) : IRequest<List<ParametroGlobalDto>>;
 }

@@ -83,5 +83,40 @@ namespace WebApi.Controllers
             var pdfBytes = await _mediator.Send(new GetActaCurricularPdfQuery(idPlaza));
             return File(pdfBytes, "application/pdf", $"Acta_Evaluacion_Curricular_Plaza_{idPlaza}.pdf");
         }
+
+        [HttpGet("entrevista-personal")]
+        public async Task<IActionResult> GetEntrevistaPersonal([FromQuery] int idPlaza)
+        {
+            var data = await _mediator.Send(new GetEvaluacionEntrevistaQuery(idPlaza));
+            return Ok(new { success = true, data });
+        }
+
+        [HttpPost("registrar-nota-entrevista")]
+        public async Task<IActionResult> RegistrarNotaEntrevista([FromBody] RegistrarNotaEntrevistaCommand command)
+        {
+            var res = await _mediator.Send(command);
+            return Ok(new { success = res });
+        }
+
+        [HttpGet("exportar-acta-entrevista/{idPlaza}")]
+        public async Task<IActionResult> ExportarActaEntrevista(int idPlaza)
+        {
+            var pdfBytes = await _mediator.Send(new GetActaEntrevistaPdfQuery(idPlaza));
+            return File(pdfBytes, "application/pdf", $"Acta_Resultados_Finales_Plaza_{idPlaza}.pdf");
+        }
+
+        [HttpGet("cuadro-merito-final")]
+        public async Task<IActionResult> GetCuadroMeritoFinal([FromQuery] int idPlaza)
+        {
+            var data = await _mediator.Send(new GetCuadroMeritoFinalQuery(idPlaza));
+            return Ok(new { success = true, data });
+        }
+
+        [HttpGet("exportar-acta-final/{idPlaza}")]
+        public async Task<IActionResult> ExportarActaFinal(int idPlaza)
+        {
+            var pdfBytes = await _mediator.Send(new GetActaFinalPdfQuery(idPlaza));
+            return File(pdfBytes, "application/pdf", $"Acta_Resultados_Finales_Plaza_{idPlaza}.pdf");
+        }
     }
 }

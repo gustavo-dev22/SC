@@ -20,5 +20,6 @@ namespace Application.Comite.Dtos
         public decimal NotaCapacitacion { get; set; }
         public decimal NotaExperiencia { get; set; }
         public decimal NotaCurricularFinal { get; set; }
+        public bool? FaseCurricularAprobado { get; set; }
     }
 }

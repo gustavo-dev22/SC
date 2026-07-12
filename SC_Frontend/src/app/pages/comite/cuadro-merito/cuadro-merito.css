@@ -1,0 +1,30 @@
+.custom-matrix-table th, .custom-matrix-table td {
+  border: 1px solid #e2e8f0;
+}
+.matrix-row:hover {
+  background-color: #f8fafc;
+}
+.badge-apto {
+  color: #137333; background: #e6f4ea; padding: 2px 8px; border-radius: 4px; font-weight: 700;
+}
+.badge-noapto {
+  color: #c5221f; background: #fce8e6; padding: 2px 8px; border-radius: 4px; font-weight: 700;
+}
+.badge-winner {
+  color: #15803d; background: #dcfce7; padding: 4px 10px; border-radius: 20px; box-shadow: inset 0 0 0 1px #bbf7d0;
+}
+.badge-accesitario {
+  color: #b45309; background: #fef3c7; padding: 4px 10px; border-radius: 20px;
+}
+.badge-failed {
+  color: #94a3b8; background: #f1f5f9; padding: 4px 10px; border-radius: 4px; font-size: 11px;
+}
+
+.mini-badge-apto {
+  font-size: 10px; font-weight: 800; color: #15803d; background: #dcfce7;
+  padding: 1px 4px; border-radius: 3px; border: 1px solid #bbf7d0;
+}
+.mini-badge-noapto {
+  font-size: 10px; font-weight: 800; color: #b91c1c; background: #fee2e2;
+  padding: 1px 4px; border-radius: 3px; border: 1px solid #fca5a5;
+}

@@ -4,26 +4,27 @@ import { AlertService } from '../../../shared/services/alert.service';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { CommonModule } from '@angular/common';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
+import { FormsModule } from '@angular/forms';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatCardModule } from '@angular/material/card';
 import { MatSelectModule } from '@angular/material/select';
+import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { FormsModule } from '@angular/forms';
+import { ParametroService } from '../../../services/parametro.service';
 
 @Component({
-  selector: 'app-calificacion-curricular',
-  imports: [CommonModule, MatProgressSpinnerModule, MatTableModule, MatPaginatorModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatCardModule, MatSelectModule, MatIconModule, FormsModule],
-  templateUrl: './calificacion-curricular.html',
-  styleUrl: './calificacion-curricular.css',
+  selector: 'app-evaluacion-entrevista',
+  imports: [CommonModule, MatTableModule, MatPaginatorModule, MatFormFieldModule, MatInputModule, FormsModule, MatProgressSpinnerModule, MatCardModule, MatSelectModule, MatButtonModule, MatIconModule],
+  templateUrl: './evaluacion-entrevista.html',
+  styleUrl: './evaluacion-entrevista.css',
 })
-export class CalificacionCurricular implements OnInit{
+export class EvaluacionEntrevista implements OnInit {
   private comiteService = inject(ComiteEvaluacionService);
   private alertService = inject(AlertService);
-
   private paginator = viewChild(MatPaginator);
+  private parametroService = inject(ParametroService);
 
   public plazas = signal<any[]>([]);
   public plazaSeleccionada = signal<number | null>(null);
@@ -32,7 +33,10 @@ export class CalificacionCurricular implements OnInit{
   public cargando = signal<boolean>(false);
   
   public dataSource = new MatTableDataSource<any>([]);
-  public columnas = ['expediente', 'postulante', 'formacion', 'capacitacion', 'experiencia', 'total', 'acciones'];
+  public columnas = ['expediente', 'postulante', 'nota', 'acciones'];
+
+  public notaMinimaEntrevista = signal<number>(30);
+  public notaMaximaEntrevista = signal<number>(50);
 
   public mostrarPaginador = computed(() => {
     return this.plazaSeleccionada() !== null && this.dataSource.filteredData.length > 0;
@@ -40,6 +44,29 @@ export class CalificacionCurricular implements OnInit{
 
   ngOnInit(): void {
     this.cargarPlazasVigentes();
+    this.cargarLimitesConfiguracion();
+  }
+
+  cargarLimitesConfiguracion(): void {
+    // Solicitamos dinámicamente el valor máximo configurado para la entrevista
+    this.parametroService.getParametros('NOTA_MAXIMA_ENT').subscribe({
+      next: (res) => {
+        if (res && res.success && res.data && res.data.length > 0) {
+          this.notaMaximaEntrevista.set(Number(res.data[0].valor));
+        }
+      },
+      error: () => this.notaMaximaEntrevista.set(50) // Fail-safe histórico de resguardo
+    });
+
+    // Solicitamos dinámicamente el valor mínimo configurado para la entrevista
+    this.parametroService.getParametros('NOTA_MINIMA_ENT').subscribe({
+      next: (res) => {
+        if (res && res.success && res.data && res.data.length > 0) {
+          this.notaMinimaEntrevista.set(Number(res.data[0].valor));
+        }
+      },
+      error: () => this.notaMinimaEntrevista.set(30) // Fail-safe histórico de resguardo
+    });
   }
 
   cargarPlazasVigentes(): void {
@@ -61,19 +88,12 @@ export class CalificacionCurricular implements OnInit{
 
   cargarCandidatos(idPlaza: number): void {
     this.cargando.set(true);
-    this.comiteService.listarCandidatosCurricular(idPlaza).subscribe({
+    this.comiteService.listarCandidatosEntrevista(idPlaza).subscribe({
       next: (res) => {
         if (res.success) {
-          // Re-instanciación reactiva zoneless segura
           this.dataSource = new MatTableDataSource<any>(res.data);
-
-          if (this.paginator()) {
-            this.dataSource.paginator = this.paginator()!;
-          }
-
-          if (this.filtroTexto()) {
-            this.dataSource.filter = this.filtroTexto().trim().toLowerCase();
-          }
+          if (this.paginator()) this.dataSource.paginator = this.paginator()!;
+          if (this.filtroTexto()) this.dataSource.filter = this.filtroTexto().trim().toLowerCase();
         }
         this.cargando.set(false);
       },
@@ -81,42 +101,40 @@ export class CalificacionCurricular implements OnInit{
     });
   }
 
-  guardarEvaluacion(element: any): void {
-    if (element.notaFormacion < 0 || element.notaCapacitacion < 0 || element.notaExperiencia < 0) {
-      this.alertService.error('Error', 'Los puntajes asignados no pueden ser negativos.');
+  guardarCalificacion(element: any): void {
+    const nota = element.notaEntrevista;
+    const min = this.notaMinimaEntrevista();
+    const max = this.notaMaximaEntrevista();
+
+    if (nota === null || nota === undefined) { // Ajustado al estándar de 0 a 20 de tus parciales
+      this.alertService.error('Error', 'Ingrese una calificación válida.');
       return;
     }
 
-    this.alertService.confirmacion('¿Registrar Evaluación Curricular?', 'Una vez guardado, el estado final del postulante se actualizará de forma permanente.').subscribe(confirmado => {
+    this.alertService.confirmacion('¿Registrar Nota de Entrevista?', 'Esta calificación determinará el estado de GANADOR o NO APTO del postulante.').subscribe(confirmado => {
       if (confirmado) {
         this.cargando.set(true);
+        const payload = { idPostulacion: element.idPostulacion, notaEntrevista: element.notaEntrevista };
         
-        const payload = {
-          idPostulacion: element.idPostulacion,
-          notaFormacion: element.notaFormacion || 0,
-          notaCapacitacion: element.notaCapacitacion || 0,
-          notaExperiencia: element.notaExperiencia || 0
-        };
-
-        this.comiteService.guardarCalificacionCurricular(payload).subscribe({
+        this.comiteService.registrarNotaEntrevista(payload).subscribe({
           next: (res) => {
             this.cargando.set(false);
             
-            // 🚀 Lectura adaptada al objeto JSON centralizado de respuesta
+            // 🚀 Interceptamos de forma segura la respuesta exitosa unificada del backend
             const operacionExitosa = (res && typeof res === 'object') ? res.success : res;
 
             if (operacionExitosa) {
-              this.alertService.exito('Éxito', 'Calificación registrada correctamente.');
+              this.alertService.exito('¡Éxito!', 'Nota de entrevista guardada con éxito.');
               if (this.plazaSeleccionada()) {
-                this.cargarCandidatos(this.plazaSeleccionada()!); // Refrescamos grilla reactivamente
+                this.cargarCandidatos(this.plazaSeleccionada()!); // Refrescar grilla
               }
             } else {
-              this.alertService.error('Error', 'No se pudo guardar la calificación.');
+              this.alertService.error('Error', 'No se pudo procesar el guardado de la nota.');
             }
           },
           error: () => {
             this.cargando.set(false);
-            this.alertService.error('Error', 'Error de comunicación con el servidor.');
+            this.alertService.error('Error', 'Fallo de red al registrar la calificación.');
           }
         });
       }
@@ -127,10 +145,7 @@ export class CalificacionCurricular implements OnInit{
     const filterValue = (event.target as HTMLInputElement).value;
     this.filtroTexto.set(filterValue);
     this.dataSource.filter = filterValue.trim().toLowerCase();
-
-    if (this.dataSource.paginator) {
-      this.dataSource.paginator.firstPage();
-    }
+    if (this.dataSource.paginator) this.dataSource.paginator.firstPage();
   }
 
   exportarReportePdf(): void {
@@ -143,12 +158,12 @@ export class CalificacionCurricular implements OnInit{
 
     this.cargando.set(true);
     
-    this.comiteService.descargarActaCurricularPdf(idPlaza).subscribe({
+    this.comiteService.descargarActaEntrevistaPdf(idPlaza).subscribe({
       next: (blobData: Blob) => {
         const urlTemporal = window.URL.createObjectURL(blobData);
         const enlaceDescarga = document.createElement('a');
         enlaceDescarga.href = urlTemporal;
-        enlaceDescarga.download = `Acta_Evaluacion_Curricular_${nombrePuestoFormateado}.pdf`;
+        enlaceDescarga.download = `Acta_Resultados_Finales_${nombrePuestoFormateado}.pdf`;
         
         document.body.appendChild(enlaceDescarga);
         enlaceDescarga.click();
@@ -159,7 +174,7 @@ export class CalificacionCurricular implements OnInit{
       },
       error: () => {
         this.cargando.set(false);
-        this.alertService.error('Error', 'No se pudo generar el acta de evaluación curricular.');
+        this.alertService.error('Error', 'No se pudo generar el acta de resultados finales.');
       }
     });
   }

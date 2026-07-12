@@ -107,14 +107,20 @@ namespace Infrastructure.Services
                             int contador = 1;
                             foreach (var p in expedientes)
                             {
-                                // 🚀 SOLUCIÓN HISTÓRICA: Si el estado actual es 1108, 19 o 1109, significa que en esta fase de papeles SÍ FUE APTO.
-                                string condicionText = p.IdEstadoPostulacionCat == 18 ? "PENDIENTE" :
-                                                       (p.IdEstadoPostulacionCat == 1108 || p.IdEstadoPostulacionCat == 19 || p.IdEstadoPostulacionCat == 1109) ? "APTO" : "NO APTO";
+                                // 💡 NUEVA LÓGICA BASADA EN COLUMNAS DE AUDITORÍA FLUIDAS
+                                string condicionText = "PENDIENTE";
+                                var colorCondicion = Colors.Orange.Darken2;
 
-                                // De igual manera, asignamos el color verde a todos los que pasaron legítimamente esta primera etapa
-                                var colorCondicion = (p.IdEstadoPostulacionCat == 1108 || p.IdEstadoPostulacionCat == 19 || p.IdEstadoPostulacionCat == 1109)
-                                                     ? Colors.Green.Darken2
-                                                     : (p.IdEstadoPostulacionCat == 20 ? Colors.Red.Darken2 : Colors.Orange.Darken2);
+                                if (p.FaseExpedientesAprobado == true)
+                                {
+                                    condicionText = "APTO";
+                                    colorCondicion = Colors.Green.Darken2;
+                                }
+                                else if (p.FaseExpedientesAprobado == false)
+                                {
+                                    condicionText = "NO APTO";
+                                    colorCondicion = Colors.Red.Darken2;
+                                }
 
                                 table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).PaddingVertical(5).PaddingHorizontal(4).Text(contador.ToString());
                                 table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).PaddingVertical(5).PaddingHorizontal(4).Text(p.CodigoPostulacionUnid);
@@ -221,11 +227,20 @@ namespace Infrastructure.Services
                         int contador = 1;
                         foreach (var p in candidatos)
                         {
-                            string condicionText = p.IdEstadoPostulacionCat == 1108 ? "PENDIENTE" :
-                                                   p.IdEstadoPostulacionCat == 19 ? "APTO" : "NO APTO";
+                            string condicionText = "PENDIENTE";
+                            var colorCondicion = Colors.Orange.Darken2;
 
-                            var colorCondicion = p.IdEstadoPostulacionCat == 19 ? Colors.Green.Darken2 :
-                                                 p.IdEstadoPostulacionCat == 1109 ? Colors.Red.Darken2 : Colors.Orange.Darken2;
+                            // Evaluamos la bandera estable
+                            if (p.FaseConocimientosAprobado == true)
+                            {
+                                condicionText = "APTO";
+                                colorCondicion = Colors.Green.Darken2;
+                            }
+                            else if (p.FaseConocimientosAprobado == false)
+                            {
+                                condicionText = "NO APTO";
+                                colorCondicion = Colors.Red.Darken2;
+                            }
 
                             table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(contador.ToString());
                             table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(p.CodigoPostulacionUnid);
@@ -336,11 +351,19 @@ namespace Infrastructure.Services
                         int contador = 1;
                         foreach (var p in candidatos)
                         {
-                            string condicionText = p.IdEstadoPostulacionCat == 19 ? "PENDIENTE" :
-                                                   p.IdEstadoPostulacionCat == 21 ? "APTO" : "NO APTO";
+                            string condicionText = "PENDIENTE";
+                            var colorCondicion = Colors.Orange.Darken2;
 
-                            var colorCondicion = p.IdEstadoPostulacionCat == 21 ? Colors.Green.Darken2 :
-                                                 p.IdEstadoPostulacionCat == 1109 ? Colors.Red.Darken2 : Colors.Orange.Darken2;
+                            if (p.FaseCurricularAprobado == true)
+                            {
+                                condicionText = "APTO";
+                                colorCondicion = Colors.Green.Darken2;
+                            }
+                            else if (p.FaseCurricularAprobado == false)
+                            {
+                                condicionText = "NO APTO";
+                                colorCondicion = Colors.Red.Darken2;
+                            }
 
                             table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).Text(contador.ToString());
                             table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).Text(p.CodigoPostulacionUnid);
@@ -361,6 +384,215 @@ namespace Infrastructure.Services
                         x.CurrentPageNumber().FontSize(8).FontColor(Colors.Grey.Medium);
                         x.Span(" de ").FontSize(8).FontColor(Colors.Grey.Medium);
                         x.TotalPages().FontSize(8).FontColor(Colors.Grey.Medium);
+                    });
+                });
+            }).GeneratePdf();
+
+            return pdfBytes;
+        }
+
+        public async Task<List<EvaluacionEntrevistaDto>> ListarCandidatosEntrevistaAsync(int idPlaza)
+        {
+            using IDbConnection connection = _dbConnectionFactory.CreateConnection();
+            var resultado = await connection.QueryAsync<EvaluacionEntrevistaDto>(
+                "sp_Comite_ListarCandidatosEntrevista",
+                new { IdPlaza = idPlaza },
+                commandType: CommandType.StoredProcedure
+            );
+            return resultado.ToList();
+        }
+
+        public async Task<bool> RegistrarNotaEntrevistaAsync(int idPostulacion, decimal nota)
+        {
+            using IDbConnection connection = _dbConnectionFactory.CreateConnection();
+            var filasAfectadas = await connection.ExecuteScalarAsync<int>(
+                "sp_Comite_RegistrarNotaEntrevista",
+                new { IdPostulacion = idPostulacion, NotaEntrevista = nota },
+                commandType: CommandType.StoredProcedure
+            );
+            return filasAfectadas > 0;
+        }
+
+        public async Task<byte[]> ObtenerActaEntrevistaPdfAsync(List<EvaluacionEntrevistaDto> candidatos, string codigoConvocatoria, string nombrePuesto)
+        {
+            var pdfBytes = Document.Create(container =>
+            {
+                container.Page(page =>
+                {
+                    page.Size(PageSizes.A4);
+                    page.Margin(1.5f, Unit.Centimetre);
+                    page.PageColor(Colors.White);
+                    page.DefaultTextStyle(x => x.FontSize(9.5f).FontFamily("Arial"));
+
+                    // ENCABEZADO DEL ACTA FINAL
+                    page.Header().Column(column =>
+                    {
+                        column.Item().Text("SISTEMA DE CONVOCATORIAS DE PERSONAL (SCP)").FontSize(12).Bold().FontColor(Colors.Blue.Darken3);
+                        column.Item().Text("ACTA DE RESULTADOS FINALES - EVALUACIÓN DE ENTREVISTA PERSONAL").FontSize(10).Bold().FontColor(Colors.Grey.Darken2);
+                        column.Item().PaddingTop(4).LineHorizontal(0.8f).LineColor(Colors.Grey.Lighten1);
+                        column.Item().PaddingTop(8).Table(table =>
+                        {
+                            table.ColumnsDefinition(cd => { cd.ConstantColumn(90); cd.RelativeColumn(); });
+                            table.Cell().PaddingVertical(2).Text("Convocatoria:").Bold();
+                            table.Cell().PaddingVertical(2).Text(codigoConvocatoria);
+                            table.Cell().PaddingVertical(2).Text("Puesto CAS:").Bold();
+                            table.Cell().PaddingVertical(2).Text(nombrePuesto);
+                        });
+                        column.Item().PaddingTop(12);
+                    });
+
+                    // TABLA DE POSTULANTES CON NOTA DE ENTREVISTA
+                    page.Content().Table(table =>
+                    {
+                        table.ColumnsDefinition(cd =>
+                        {
+                            cd.ConstantColumn(30);  // N°
+                            cd.ConstantColumn(120); // Expediente
+                            cd.RelativeColumn();    // Postulante
+                            cd.ConstantColumn(80);  // Nota Entrevista
+                            cd.ConstantColumn(110); // Condición Final
+                        });
+
+                        table.Header(h =>
+                        {
+                            h.Cell().Background(Colors.Grey.Lighten3).Padding(5).Text("N°").Bold();
+                            h.Cell().Background(Colors.Grey.Lighten3).Padding(5).Text("N° Expediente").Bold();
+                            h.Cell().Background(Colors.Grey.Lighten3).Padding(5).Text("Apellidos y Nombres").Bold();
+                            h.Cell().Background(Colors.Grey.Lighten3).Padding(5).Text("Nota").Bold().AlignCenter();
+                            h.Cell().Background(Colors.Grey.Lighten3).Padding(5).Text("Resultado Final").Bold();
+                        });
+
+                        int contador = 1;
+                        foreach (var p in candidatos)
+                        {
+                            string condicionText = "PENDIENTE";
+                            var colorCondicion = Colors.Orange.Darken2;
+
+                            if (p.FaseEntrevistaAprobado == true)
+                            {
+                                condicionText = "APTO";
+                                colorCondicion = Colors.Green.Darken2;
+                            }
+                            else if (p.FaseEntrevistaAprobado == false)
+                            {
+                                condicionText = "NO APTO";
+                                colorCondicion = Colors.Red.Darken2;
+                            }
+
+                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(contador.ToString());
+                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(p.CodigoPostulacionUnid);
+                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(p.PostulanteNombre);
+                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(p.NotaEntrevista.ToString("F2")).AlignCenter();
+                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(5).Text(condicionText).Bold().FontColor(colorCondicion);
+
+                            contador++;
+                        }
+                    });
+
+                    // PIE DE PÁGINA
+                    page.Footer().AlignCenter().Text(x =>
+                    {
+                        x.Span("Página ").FontSize(8).FontColor(Colors.Grey.Medium);
+                        x.CurrentPageNumber().FontSize(8).FontColor(Colors.Grey.Medium);
+                        x.Span(" de ").FontSize(8).FontColor(Colors.Grey.Medium);
+                        x.TotalPages().FontSize(8).FontColor(Colors.Grey.Medium);
+                    });
+                });
+            }).GeneratePdf();
+
+            return pdfBytes;
+        }
+
+        public async Task<List<CuadroMeritoFinalDto>> ObtenerCuadroMeritoFinalAsync(int idPlaza)
+        {
+            using IDbConnection connection = _dbConnectionFactory.CreateConnection();
+            var resultado = await connection.QueryAsync<CuadroMeritoFinalDto>(
+                "sp_Comite_ListarCuadroMeritoFinal",
+                new { IdPlaza = idPlaza },
+                commandType: CommandType.StoredProcedure
+            );
+            return resultado.ToList();
+        }
+
+        public async Task<byte[]> ObtenerActaFinalConsolidadaPdfAsync(List<CuadroMeritoFinalDto> candidatos, string codigoConvocatoria, string nombrePuesto)
+        {
+            var pdfBytes = Document.Create(container =>
+            {
+                container.Page(page =>
+                {
+                    page.Size(PageSizes.A4.Landscape());
+                    page.Margin(1f, Unit.Centimetre);
+                    page.PageColor(Colors.White);
+                    page.DefaultTextStyle(x => x.FontSize(8.5f).FontFamily("Arial"));
+
+                    page.Header().Column(column =>
+                    {
+                        column.Item().Text("SISTEMA DE CONVOCATORIAS DE PERSONAL (SCP)").FontSize(12).Bold().FontColor(Colors.Blue.Darken3);
+                        column.Item().Text("CUADRO CONSOLIDADO DE MÉRITOS - RESULTADOS FINALES").FontSize(10).Bold().FontColor(Colors.Grey.Darken2);
+                        column.Item().PaddingTop(4).LineHorizontal(0.8f).LineColor(Colors.Grey.Lighten1);
+                        column.Item().PaddingTop(6).Table(table =>
+                        {
+                            table.ColumnsDefinition(cd => { cd.ConstantColumn(90); cd.RelativeColumn(); });
+                            table.Cell().Text("Convocatoria:").Bold(); table.Cell().Text(codigoConvocatoria);
+                            table.Cell().Text("Puesto CAS:").Bold(); table.Cell().Text(nombrePuesto);
+                        });
+                        column.Item().PaddingTop(10);
+                    });
+
+                    page.Content().Table(table =>
+                    {
+                        table.ColumnsDefinition(cd =>
+                        {
+                            cd.ConstantColumn(25);  // N°
+                            cd.ConstantColumn(80);  // Expediente
+                            cd.RelativeColumn();    // Postulante
+                            cd.ConstantColumn(40);  // F1
+                            cd.ConstantColumn(40);  // F2 Nota
+                            cd.ConstantColumn(40);  // F2 Pond (40%)
+                            cd.ConstantColumn(40);  // F3 Total
+                            cd.ConstantColumn(40);  // F3 Pond (30%)
+                            cd.ConstantColumn(40);  // F4 Nota
+                            cd.ConstantColumn(40);  // F4 Pond (30%)
+                            cd.ConstantColumn(45);  // Final (100)
+                            cd.ConstantColumn(80);  // Situación
+                        });
+
+                        table.Header(h =>
+                        {
+                            h.Cell().Background(Colors.Grey.Lighten3).Padding(4).Text("N°").Bold();
+                            h.Cell().Background(Colors.Grey.Lighten3).Padding(4).Text("Expediente").Bold();
+                            h.Cell().Background(Colors.Grey.Lighten3).Padding(4).Text("Apellidos y Nombres").Bold();
+                            h.Cell().Background(Colors.Grey.Lighten3).Padding(4).Text("F1").Bold().AlignCenter();
+                            h.Cell().Background(Colors.Grey.Lighten3).Padding(4).Text("EC").Bold().AlignCenter();
+                            h.Cell().Background(Colors.Grey.Lighten3).Padding(4).Text("EC (40%)").Bold().AlignCenter();
+                            h.Cell().Background(Colors.Grey.Lighten3).Padding(4).Text("CV").Bold().AlignCenter();
+                            h.Cell().Background(Colors.Grey.Lighten3).Padding(4).Text("CV (30%)").Bold().AlignCenter();
+                            h.Cell().Background(Colors.Grey.Lighten3).Padding(4).Text("ET").Bold().AlignCenter();
+                            h.Cell().Background(Colors.Grey.Lighten3).Padding(4).Text("ET (30%)").Bold().AlignCenter();
+                            h.Cell().Background(Colors.Grey.Lighten3).Padding(4).Text("Total").Bold().AlignCenter();
+                            h.Cell().Background(Colors.Grey.Lighten3).Padding(4).Text("Situación").Bold();
+                        });
+
+                        int contador = 1;
+                        foreach (var p in candidatos)
+                        {
+                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).Text(contador.ToString());
+                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).Text(p.CodigoPostulacionUnid);
+                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).Text(p.PostulanteNombre).Bold();
+
+                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).AlignCenter().Text(p.FaseExpedientesAprobado == true ? "APTO" : "NO APTO");
+                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).AlignCenter().Text(p.NotaConocimientos?.ToString("F2") ?? "---");
+                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).AlignCenter().Text(p.PtjePonderadoConocimientos?.ToString("F2") ?? "---");
+                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).AlignCenter().Text(p.NotaCurricularFinal?.ToString("F2") ?? "---");
+                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).AlignCenter().Text(p.PtjePonderadoCurricular?.ToString("F2") ?? "---");
+                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).AlignCenter().Text(p.NotaEntrevista?.ToString("F2") ?? "---");
+                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).AlignCenter().Text(p.PtjePonderadoEntrevista?.ToString("F2") ?? "---");
+
+                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).AlignCenter().Text(p.NotaFinalAcumulada?.ToString("F2") ?? "---").Bold();
+                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).Text(p.SituacionFinalDesc).Bold();
+
+                            contador++;
+                        }
                     });
                 });
             }).GeneratePdf();

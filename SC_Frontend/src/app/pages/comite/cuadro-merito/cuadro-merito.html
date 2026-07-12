@@ -1,0 +1,143 @@
+@if (cargando() || cargandoPlazas()) {
+  <div class="overlay-spinner">
+    <div class="spinner-center-box">
+      <mat-spinner diameter="50" color="primary"></mat-spinner>
+      <p class="spinner-text">Compilando cuadro de méritos consolidado...</p>
+    </div>
+  </div>
+}
+
+<div style="padding: 24px; background-color: #f8fafc; min-height: 85vh;">
+  
+  <div style="margin-bottom: 24px; border-bottom: 1px solid #e2e8f0; padding-bottom: 16px;">
+    <h1 style="font-size: 24px; font-weight: 800; color: #1e3c72; margin: 0 0 6px 0;">📊 Actas y Resultados Finales</h1>
+    <p style="margin: 0; font-size: 13.5px; color: #64748b;">Consolidado General: Matriz de rendimiento histórico y asignación de plazas ganadoras.</p>
+  </div>
+
+  <mat-card style="padding: 16px; margin-bottom: 24px; border-radius: 8px; border: 1px solid #e2e8f0; background: white;">
+    <div style="display: flex; gap: 16px; align-items: center;">
+      <mat-form-field appearance="outline" style="flex: 1; margin-bottom: -1.25em;">
+        <mat-label>Seleccione la Convocatoria</mat-label>
+        <mat-select (selectionChange)="onPlazaChange($event.value)">
+          @for (plaza of plazas(); track plaza.idPlaza) {
+            <mat-option [value]="plaza.idPlaza">{{ plaza.codigoConvocatoria }} - {{ plaza.nombrePuesto }}</mat-option>
+          }
+        </mat-select>
+        <mat-icon matSuffix style="color: #64748b;">work_outline</mat-icon>
+      </mat-form-field>
+
+      <button mat-flat-button 
+            [disabled]="plazaSeleccionada() === null || listaPostulantes().length === 0"
+            style="background-color: #b91c1c; color: white; height: 48px; font-weight: 700; border-radius: 6px; padding: 0 16px;"
+            (click)="exportarReportePdf()">
+        <mat-icon>picture_as_pdf</mat-icon> Exportar Acta
+      </button>
+    </div>
+  </mat-card>
+
+  <div class="matrix-container" style="background: white; border-radius: 8px; border: 1px solid #e2e8f0; overflow-x: auto; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+    
+    @if (plazaSeleccionada() !== null && listaPostulantes().length > 0) {
+      <table class="custom-matrix-table" style="width: 100%; border-collapse: collapse; font-size: 13px; min-width: 1550px;">
+  <thead>
+    <tr style="background: #1e3c72; color: white; text-align: center;">
+      <th rowspan="2" style="padding: 12px; border: 1px solid #1e40af;">Expediente</th>
+      <th rowspan="2" style="padding: 12px; border: 1px solid #1e40af; text-align: left;">Postulante</th>
+      <th colspan="1" style="padding: 8px; border: 1px solid #1e40af; font-weight: 700;">EXPEDIENTE INICIAL</th>
+      <th colspan="3" style="padding: 8px; border: 1px solid #1e40af; font-weight: 700;">ETAPA CONOCIMIENTOS</th>
+      <th colspan="6" style="padding: 8px; border: 1px solid #1e40af; font-weight: 700;">EVALUACIÓN CURRICULAR</th>
+      <th colspan="3" style="padding: 8px; border: 1px solid #1e40af; font-weight: 700;">ENTREVISTA PERSONAL</th>
+      <th rowspan="2" style="padding: 12px; border: 1px solid #1e40af; background: #0f172a; font-weight: 800;">PROMEDIO FINAL</th>
+      <th rowspan="2" style="padding: 12px; border: 1px solid #1e40af; background: #0f172a; font-weight: 800;">SITUACIÓN FINAL</th>
+    </tr>
+    <tr style="background: #f1f5f9; color: #334155; font-size: 11.5px; text-align: center;">
+      <th style="padding: 8px; border: 1px solid #cbd5e1;">Condición</th>
+      
+      <th style="padding: 8px; border: 1px solid #cbd5e1;">Nota Examen</th>
+      <th style="padding: 8px; border: 1px solid #cbd5e1; background: #e0f2fe; color: #0369a1; font-weight: 700;">Peso (40%)</th>
+      <th style="padding: 8px; border: 1px solid #cbd5e1;">Condición</th> <th style="padding: 8px; border: 1px solid #cbd5e1;">Formación</th>
+      <th style="padding: 8px; border: 1px solid #cbd5e1;">Cursos</th>
+      <th style="padding: 8px; border: 1px solid #cbd5e1;">Experiencia</th>
+      <th style="padding: 8px; border: 1px solid #cbd5e1; font-weight: 700;">Nota CV</th>
+      <th style="padding: 8px; border: 1px solid #cbd5e1; background: #e0f2fe; color: #0369a1; font-weight: 700;">Peso (30%)</th>
+      <th style="padding: 8px; border: 1px solid #cbd5e1;">Condición</th> <th style="padding: 8px; border: 1px solid #cbd5e1;">Nota Entrevista</th>
+      <th style="padding: 8px; border: 1px solid #cbd5e1; background: #e0f2fe; color: #0369a1; font-weight: 700;">Peso (30%)</th>
+      <th style="padding: 8px; border: 1px solid #cbd5e1;">Condición</th> </tr>
+  </thead>
+  <tbody>
+    @for (item of listaPostulantes(); track item.idPostulacion) {
+      <tr class="matrix-row" style="border-bottom: 1px solid #e2e8f0; text-align: center;">
+        <td style="padding: 12px; font-weight: 700; color: #1e3c72;">#{{ item.codigoPostulacionUnid }}</td>
+        <td style="padding: 12px; font-weight: 600; text-align: left; color: #334155;">{{ item.postulanteNombre }}</td>
+        
+        <td style="padding: 12px;">
+          <span [class.badge-apto]="item.faseExpedientesAprobado" [class.badge-noapto]="item.faseExpedientesAprobado === false">
+            {{ item.faseExpedientesAprobado ? 'APTO' : 'NO APTO' }}
+          </span>
+        </td>
+
+        <td style="padding: 12px;">{{ item.faseConocimientosAprobado !== null ? (item.notaConocimientos | number:'1.2-2') : '---' }}</td>
+        <td style="padding: 12px; font-weight: 700; color: #0369a1; background: #f8fafc;">{{ item.ptjePonderadoConocimientos !== null ? (item.ptjePonderadoConocimientos | number:'1.2-2') : '---' }}</td>
+        <td style="padding: 12px;">
+          @if (item.faseConocimientosAprobado !== null) {
+            <span [class.badge-apto]="item.faseConocimientosAprobado" [class.badge-noapto]="!item.faseConocimientosAprobado">
+              {{ item.faseConocimientosAprobado ? 'APTO' : 'NO APTO' }}
+            </span>
+          } @else { --- }
+        </td>
+
+        <td style="padding: 12px; color: #64748b;">{{ item.faseCurricularAprobado !== null ? (item.notaFormacion | number:'1.2-2') : '---' }}</td>
+        <td style="padding: 12px; color: #64748b;">{{ item.faseCurricularAprobado !== null ? (item.notaCapacitacion | number:'1.2-2') : '---' }}</td>
+        <td style="padding: 12px; color: #64748b;">{{ item.faseCurricularAprobado !== null ? (item.notaExperiencia | number:'1.2-2') : '---' }}</td>
+        <td style="padding: 12px;">{{ item.faseCurricularAprobado !== null ? (item.notaCurricularFinal | number:'1.2-2') : '---' }}</td>
+        <td style="padding: 12px; font-weight: 700; color: #0369a1; background: #f8fafc;">{{ item.ptjePonderadoCurricular !== null ? (item.ptjePonderadoCurricular | number:'1.2-2') : '---' }}</td>
+        <td style="padding: 12px;">
+          @if (item.faseCurricularAprobado !== null) {
+            <span [class.badge-apto]="item.faseCurricularAprobado" [class.badge-noapto]="!item.faseCurricularAprobado">
+              {{ item.faseCurricularAprobado ? 'APTO' : 'NO APTO' }}
+            </span>
+          } @else { --- }
+        </td>
+
+        <td style="padding: 12px;">{{ item.faseEntrevistaAprobado !== null ? (item.notaEntrevista | number:'1.2-2') : '---' }}</td>
+        <td style="padding: 12px; font-weight: 700; color: #0369a1; background: #f8fafc;">{{ item.ptjePonderadoEntrevista !== null ? (item.ptjePonderadoEntrevista | number:'1.2-2') : '---' }}</td>
+        <td style="padding: 12px;">
+          @if (item.faseEntrevistaAprobado !== null) {
+            <span [class.badge-apto]="item.faseEntrevistaAprobado" [class.badge-noapto]="!item.faseEntrevistaAprobado">
+              {{ item.faseEntrevistaAprobado ? 'APTO' : 'NO APTO' }}
+            </span>
+          } @else { --- }
+        </td>
+
+        <td style="padding: 12px; font-weight: 800; background: #f0fdf4; color: #166534; font-size: 14px;">
+          {{ item.notaFinalAcumulada !== null ? (item.notaFinalAcumulada | number:'1.2-2') : '---' }}
+        </td>
+        <td style="padding: 12px; font-weight: 700;">
+          <span [class.badge-winner]="item.situacionFinalDesc === 'GANADOR'"
+                [class.badge-accesitario]="item.situacionFinalDesc === 'ACCESITARIO'"
+                [class.badge-failed]="item.situacionFinalDesc.startsWith('NO APTO')">
+            {{ item.situacionFinalDesc }}
+          </span>
+        </td>
+      </tr>
+    }
+  </tbody>
+</table>
+    }
+
+    @if (plazaSeleccionada() === null) {
+      <div style="text-align: center; padding: 48px; color: #64748b;">
+        <mat-icon style="font-size: 44px; width:44px; height:44px; color: #94a3b8; margin-bottom: 8px;">assessment</mat-icon>
+        <p style="margin: 0; font-weight: 700; color: #475569;">Cuadro de Méritos Final Plenario</p>
+        <p style="margin: 4px 0 0 0; font-size: 12.5px; color: #94a3b8;">Seleccione una plaza para auditar la sábana completa de notas consolidadas.</p>
+      </div>
+    }
+
+    @if (plazaSeleccionada() !== null && listaPostulantes().length === 0) {
+      <div style="text-align: center; padding: 48px; color: #64748b;">
+        <mat-icon style="font-size: 44px; width:44px; height:44px; color: #f43f5e; margin-bottom: 8px;">find_in_page</mat-icon>
+        <p style="margin: 0; font-weight: 700; color: #475569;">Sin registros</p>
+      </div>
+    }
+  </div>
+</div>

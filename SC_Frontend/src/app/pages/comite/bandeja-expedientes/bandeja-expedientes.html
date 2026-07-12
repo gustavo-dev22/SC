@@ -83,25 +83,23 @@
         <th mat-header-cell *matHeaderCellDef style="font-weight: 700; text-align: center; background: #f1f5f9; color: #1e293b;"> Estado / Acción </th>
         <td mat-cell *matCellDef="let element" style="text-align: center;">
           
-          <!-- 1. Estado 18: Recién Inscrito (Botones de acción de la fase) -->
-          @if (element.idEstadoPostulacionCat === 18) {
+          <!-- 1. Si está en NULL significa que nunca ha sido evaluado en esta fase -->
+          @if (element.faseExpedientesAprobado === null) {
             <div style="display: flex; gap: 8px; justify-content: center;">
               <button mat-flat-button style="background-color: #10b981; color: white; font-size: 11.5px; height: 30px;" (click)="procesarExpediente(element.idPostulacion, true)">Admitir</button>
               <button mat-flat-button style="background-color: #ef4444; color: white; font-size: 11.5px; height: 30px;" (click)="procesarExpediente(element.idPostulacion, false)">Rechazar</button>
             </div>
           }
           
-          <!-- 2. Condición de APTO para la Fase Inicial -->
-          <!-- 🚀 SOLUCIÓN: Si es 1108 (apto inicial), 19 (apto curricular) o incluso 1109 (jalado en examen), -->
-          <!-- significa que en ESTA primera etapa de papeles SÍ FUE APTO. Debe lucir en verde. -->
-          @if (element.idEstadoPostulacionCat === 1108 || element.idEstadoPostulacionCat === 19 || element.idEstadoPostulacionCat === 1109) {
+          <!-- 2. Si la bandera es verdadera (true), de forma indiscutible fue APTO en esta bandeja -->
+          @if (element.faseExpedientesAprobado === true) {
             <span style="color: #137333; background: #e6f4ea; padding: 4px 12px; border-radius: 4px; font-weight: 700; font-size: 12px;">
               APTO
             </span>
           }
 
-          <!-- 3. Estado 20: ÚNICO "No Apto" real de la evaluación de expedientes (papeles insuficientes) -->
-          @if (element.idEstadoPostulacionCat === 20) {
+          <!-- 3. Si la bandera es falsa (false), de forma fija fue NO APTO en esta bandeja -->
+          @if (element.faseExpedientesAprobado === false) {
             <span style="color: #c5221f; background: #fce8e6; padding: 4px 12px; border-radius: 4px; font-weight: 700; font-size: 12px;" matTooltip="Requisitos mínimos obligatorios no cumplidos">
               NO APTO
             </span>

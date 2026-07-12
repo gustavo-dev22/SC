@@ -10,8 +10,9 @@ import { CrudHttpService } from '../core/services/crud-http.service';
 export class ParametroService {
   private crudHttp = inject(CrudHttpService);
 
-  getParametros(): Observable<any> {
-    return this.crudHttp.get<any>('parametro');
+  getParametros(codigo?: string): Observable<any> {
+    const url = codigo ? `parametro?codigo=${codigo}` : 'parametro';
+    return this.crudHttp.get<any>(url);
   }
 
   updateParametro(payload: { 

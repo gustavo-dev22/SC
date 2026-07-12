@@ -18,5 +18,10 @@ namespace Application.Common.Interfaces
         Task<List<CalificacionCurricularDto>> ListarCandidatosCurricularAsync(int idPlaza);
         Task<bool> RegistrarCalificacionCurricularAsync(int idPostulacion, decimal notaFormacion, decimal notaCapacitacion, decimal notaExperiencia);
         Task<byte[]> ObtenerActaCurricularPdfAsync(List<CalificacionCurricularDto> candidatos, string codigoConvocatoria, string nombrePuesto);
+        Task<List<EvaluacionEntrevistaDto>> ListarCandidatosEntrevistaAsync(int idPlaza);
+        Task<bool> RegistrarNotaEntrevistaAsync(int idPostulacion, decimal nota);
+        Task<byte[]> ObtenerActaEntrevistaPdfAsync(List<EvaluacionEntrevistaDto> candidatos, string codigoConvocatoria, string nombrePuesto);
+        Task<List<CuadroMeritoFinalDto>> ObtenerCuadroMeritoFinalAsync(int idPlaza);
+        Task<byte[]> ObtenerActaFinalConsolidadaPdfAsync(List<CuadroMeritoFinalDto> candidatos, string codigoConvocatoria, string nombrePuesto);
     }
 }

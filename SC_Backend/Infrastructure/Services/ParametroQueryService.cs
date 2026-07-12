@@ -15,11 +15,12 @@ namespace Infrastructure.Services
         private readonly IDbConnectionFactory _dbConnectionFactory;
         public ParametroQueryService(IDbConnectionFactory dbFactory) => _dbConnectionFactory = dbFactory;
 
-        public async Task<List<ParametroGlobalDto>> ObtenerParametrosAsync()
+        public async Task<List<ParametroGlobalDto>> ObtenerParametrosAsync(string? codigo)
         {
             using IDbConnection connection = _dbConnectionFactory.CreateConnection();
             return (await connection.QueryAsync<ParametroGlobalDto>(
                 "sp_ParametroGlobal_Listar",
+                new { Codigo = codigo },
                 commandType: CommandType.StoredProcedure
             )).ToList();
         }

@@ -16,10 +16,10 @@ namespace WebApi.Controllers
         public ParametroController(IMediator mediator) => _mediator = mediator;
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] string? codigo)
         {
-            var result = await _mediator.Send(new GetParametrosQuery());
-            return Ok(BaseResponse<List<ParametroGlobalDto>>.Ok(result, "Parámetros globales cargados."));
+            var result = await _mediator.Send(new GetParametrosQuery(codigo));
+            return Ok(BaseResponse<List<ParametroGlobalDto>>.Ok(result, "Operación procesada de manera conforme."));
         }
 
         [HttpPost("mantenimiento")]

@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, signal, viewChild, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MatTable, MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -12,6 +12,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatCardModule } from '@angular/material/card';
 import { ComiteEvaluacionService } from '../../../services/comite-evaluacion.service';
 import { AlertService } from '../../../shared/services/alert.service';
+import { ParametroService } from '../../../services/parametro.service';
 
 @Component({
   selector: 'app-evaluacion-conocimientos',
@@ -35,6 +36,7 @@ import { AlertService } from '../../../shared/services/alert.service';
 export class EvaluacionConocimientos implements OnInit {
   private comiteService = inject(ComiteEvaluacionService);
   private alertService = inject(AlertService);
+  private parametroService = inject(ParametroService);
 
   private paginator = viewChild(MatPaginator);
 
@@ -48,12 +50,38 @@ export class EvaluacionConocimientos implements OnInit {
   public dataSource = new MatTableDataSource<any>([]);
   public columnas = ['expediente', 'postulante', 'nota', 'acciones'];
 
+  public notaMinimaExamen = signal<number>(28);
+  public notaMaximaExamen = signal<number>(40);
+
   public mostrarPaginador = computed(() => {
     return this.plazaSeleccionada() !== null && this.dataSource.filteredData.length > 0;
   });
 
   ngOnInit(): void {
     this.cargarPlazasVigentes();
+    this.cargarLimitesConfiguracion();
+  }
+
+  cargarLimitesConfiguracion(): void {
+    // Solicitamos dinámicamente el valor máximo
+    this.parametroService.getParametros('NOTA_MAXIMA_EC').subscribe({
+      next: (res) => {
+        if (res && res.success && res.data && res.data.length > 0) {
+          this.notaMaximaExamen.set(Number(res.data[0].valor));
+        }
+      },
+      error: () => this.notaMaximaExamen.set(40) // Resguardo fail-safe
+    });
+
+    // Solicitamos dinámicamente el valor mínimo
+    this.parametroService.getParametros('NOTA_MINIMA_EC').subscribe({
+      next: (res) => {
+        if (res && res.success && res.data && res.data.length > 0) {
+          this.notaMinimaExamen.set(Number(res.data[0].valor));
+        }
+      },
+      error: () => this.notaMinimaExamen.set(28) // Resguardo fail-safe
+    });
   }
 
   cargarPlazasVigentes(): void {
@@ -111,11 +139,12 @@ export class EvaluacionConocimientos implements OnInit {
   }
 
   guardarCalificacion(element: any): void {
-    // Leemos la propiedad nativa que viene del HTML (camelCase)
     const nota = element.notaConocimientos;
+    const min = this.notaMinimaExamen();
+    const max = this.notaMaximaExamen();
 
-    if (nota === null || nota === undefined || nota < 0 || nota > 20) {
-      this.alertService.advertencia('Nota Inválida', 'Debe ingresar un puntaje válido entre 0 y 20.');
+    if (nota === null || nota === undefined) {
+      this.alertService.advertencia('Nota Inválida', `Debe ingresar un puntaje válido.`);
       return;
     }
 
@@ -128,7 +157,6 @@ export class EvaluacionConocimientos implements OnInit {
       if (confirmado) {
         this.cargando.set(true);
 
-        // Creamos el objeto exacto con tipos numéricos legítimos
         const payload = {
           idPostulacion: Number(element.idPostulacion),
           notaConocimientos: Number(nota)
@@ -137,15 +165,25 @@ export class EvaluacionConocimientos implements OnInit {
         this.comiteService.registrarNotaExamen(payload).subscribe({
           next: (res) => {
             this.cargando.set(false);
-            if (res.success) {
+            
+            // 🚀 CORREGIDO: Evaluamos de forma segura si la respuesta contiene '.success' o viene como boolean directo
+            const operacionExitosa = (res && typeof res === 'object') ? res.success : res;
+
+            if (operacionExitosa) {
               this.alertService.exito('Éxito', 'Calificación oficial procesada de manera conforme.');
+              
               if (this.plazaSeleccionada()) {
+                // Forzamos la recarga. El Stored Procedure actualizado devolverá el registro 
+                // con 'FaseConocimientosAprobado' cargado en 1 o 0, bloqueando el input automáticamente
                 this.cargarCandidatos(this.plazaSeleccionada()!);
               }
+            } else {
+              this.alertService.error('Error', 'El servidor no pudo procesar el cambio de estado del expediente.');
             }
           },
           error: (err) => {
             this.cargando.set(false);
+            this.alertService.error('Error', 'Ocurrió un fallo de red al comunicar la calificación.');
             console.error("❌ ERROR AL REGISTRAR:", err);
           }
         });
