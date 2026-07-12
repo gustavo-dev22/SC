@@ -1,9 +1,10 @@
-﻿using System;
+﻿using Application.Admin.Dtos;
+using Application.Comite.Dtos;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Application.Comite.Dtos;
 
 namespace Application.Common.Interfaces
 {
@@ -23,5 +24,6 @@ namespace Application.Common.Interfaces
         Task<byte[]> ObtenerActaEntrevistaPdfAsync(List<EvaluacionEntrevistaDto> candidatos, string codigoConvocatoria, string nombrePuesto);
         Task<List<CuadroMeritoFinalDto>> ObtenerCuadroMeritoFinalAsync(int idPlaza);
         Task<byte[]> ObtenerActaFinalConsolidadaPdfAsync(List<CuadroMeritoFinalDto> candidatos, string codigoConvocatoria, string nombrePuesto);
+        Task<List<AdminTicketBandejaDto>> ObtenerConsultasTecnicasAsync(int? idEstado, string? busqueda);
     }
 }

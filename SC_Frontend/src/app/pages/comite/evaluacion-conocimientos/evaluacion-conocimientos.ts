@@ -38,15 +38,16 @@ export class EvaluacionConocimientos implements OnInit {
   private alertService = inject(AlertService);
   private parametroService = inject(ParametroService);
 
-  private paginator = viewChild(MatPaginator);
+  private paginator = viewChild<MatPaginator>(MatPaginator);
 
   public plazas = signal<any[]>([]);
   public plazaSeleccionada = signal<number | null>(null);
   public filtroTexto = signal<string>('');
   public cargandoPlazas = signal<boolean>(false);
   public cargando = signal<boolean>(false);
+  public totalRegistros = signal<number>(0);
   
-  public candidatosSignal = signal<any[]>([]);
+  // 🚀 INSTANCIA ESTABLE ÚNICA: Evita que el paginador pierda su referencia en el DOM
   public dataSource = new MatTableDataSource<any>([]);
   public columnas = ['expediente', 'postulante', 'nota', 'acciones'];
 
@@ -54,33 +55,40 @@ export class EvaluacionConocimientos implements OnInit {
   public notaMaximaExamen = signal<number>(40);
 
   public mostrarPaginador = computed(() => {
-    return this.plazaSeleccionada() !== null && this.dataSource.filteredData.length > 0;
+    return this.plazaSeleccionada() !== null && this.totalRegistros() > 0;
   });
 
   ngOnInit(): void {
     this.cargarPlazasVigentes();
     this.cargarLimitesConfiguracion();
+
+    // Amarre primario seguro
+    this.comiteService.listarPlazasAsignadasComite().subscribe(() => {
+      setTimeout(() => {
+        if (this.paginator()) {
+          this.dataSource.paginator = this.paginator()!;
+        }
+      }, 0);
+    });
   }
 
   cargarLimitesConfiguracion(): void {
-    // Solicitamos dinámicamente el valor máximo
     this.parametroService.getParametros('NOTA_MAXIMA_EC').subscribe({
       next: (res) => {
         if (res && res.success && res.data && res.data.length > 0) {
           this.notaMaximaExamen.set(Number(res.data[0].valor));
         }
       },
-      error: () => this.notaMaximaExamen.set(40) // Resguardo fail-safe
+      error: () => this.notaMaximaExamen.set(40)
     });
 
-    // Solicitamos dinámicamente el valor mínimo
     this.parametroService.getParametros('NOTA_MINIMA_EC').subscribe({
       next: (res) => {
         if (res && res.success && res.data && res.data.length > 0) {
           this.notaMinimaExamen.set(Number(res.data[0].valor));
         }
       },
-      error: () => this.notaMinimaExamen.set(28) // Resguardo fail-safe
+      error: () => this.notaMinimaExamen.set(28)
     });
   }
 
@@ -88,9 +96,7 @@ export class EvaluacionConocimientos implements OnInit {
     this.cargandoPlazas.set(true);
     this.comiteService.listarPlazasAsignadasComite().subscribe({
       next: (res) => {
-        if (res && res.content) {
-          this.plazas.set(res.content);
-        }
+        if (res && res.content) this.plazas.set(res.content);
         this.cargandoPlazas.set(false);
       },
       error: () => this.cargandoPlazas.set(false)
@@ -100,6 +106,11 @@ export class EvaluacionConocimientos implements OnInit {
   onPlazaChange(idPlaza: number): void {
     this.plazaSeleccionada.set(idPlaza);
     this.filtroTexto.set('');
+    
+    // 🚀 Limpieza instantánea para forzar la desaparición inmediata del paginador
+    this.dataSource.data = [];
+    this.totalRegistros.set(0);
+    
     this.cargarCandidatos(idPlaza);
   }
 
@@ -107,24 +118,33 @@ export class EvaluacionConocimientos implements OnInit {
     this.cargando.set(true);
     this.comiteService.listarCandidatosExamen(idPlaza).subscribe({
       next: (res) => {
-        if (res.success) {
-          // 🚀 SOLUCIÓN: Reinstanciamos por completo el objeto para asegurar reactividad pura
-          this.candidatosSignal.set(res.data);
-          this.dataSource = new MatTableDataSource<any>(res.data);
+        if (res.success && res.data) {
+          // 🚀 Cargamos la data sobre la instancia ya compartida
+          this.dataSource.data = res.data;
+          this.totalRegistros.set(res.data.length);
 
-          // Amarre seguro del paginador
-          if (this.paginator()) {
-            this.dataSource.paginator = this.paginator()!;
-          }
-
-          // Si el usuario tenía algo escrito en el buscador, re-aplicamos el filtro activo
           if (this.filtroTexto()) {
             this.dataSource.filter = this.filtroTexto().trim().toLowerCase();
+            this.totalRegistros.set(this.dataSource.filteredData.length);
           }
+
+          if (this.paginator()) {
+            this.dataSource.paginator = this.paginator()!;
+            if (this.dataSource.paginator) {
+              this.dataSource.paginator.firstPage();
+            }
+          }
+        } else {
+          this.dataSource.data = [];
+          this.totalRegistros.set(0);
         }
         this.cargando.set(false);
       },
-      error: () => this.cargando.set(false)
+      error: () => {
+        this.dataSource.data = [];
+        this.totalRegistros.set(0);
+        this.cargando.set(false);
+      }
     });
   }
 
@@ -132,6 +152,7 @@ export class EvaluacionConocimientos implements OnInit {
     const filterValue = (event.target as HTMLInputElement).value;
     this.filtroTexto.set(filterValue);
     this.dataSource.filter = filterValue.trim().toLowerCase();
+    this.totalRegistros.set(this.dataSource.filteredData.length);
 
     if (this.dataSource.paginator) {
       this.dataSource.paginator.firstPage();
@@ -143,8 +164,8 @@ export class EvaluacionConocimientos implements OnInit {
     const min = this.notaMinimaExamen();
     const max = this.notaMaximaExamen();
 
-    if (nota === null || nota === undefined) {
-      this.alertService.advertencia('Nota Inválida', `Debe ingresar un puntaje válido.`);
+    if (nota === null || nota === undefined || nota < min || nota > max) {
+      this.alertService.advertencia('Nota Inválida', `Debe ingresar un puntaje válido entre ${min} y ${max}.`);
       return;
     }
 
@@ -156,7 +177,6 @@ export class EvaluacionConocimientos implements OnInit {
     ).subscribe((confirmado: boolean) => {
       if (confirmado) {
         this.cargando.set(true);
-
         const payload = {
           idPostulacion: Number(element.idPostulacion),
           notaConocimientos: Number(nota)
@@ -165,16 +185,11 @@ export class EvaluacionConocimientos implements OnInit {
         this.comiteService.registrarNotaExamen(payload).subscribe({
           next: (res) => {
             this.cargando.set(false);
-            
-            // 🚀 CORREGIDO: Evaluamos de forma segura si la respuesta contiene '.success' o viene como boolean directo
             const operacionExitosa = (res && typeof res === 'object') ? res.success : res;
 
             if (operacionExitosa) {
               this.alertService.exito('Éxito', 'Calificación oficial procesada de manera conforme.');
-              
               if (this.plazaSeleccionada()) {
-                // Forzamos la recarga. El Stored Procedure actualizado devolverá el registro 
-                // con 'FaseConocimientosAprobado' cargado en 1 o 0, bloqueando el input automáticamente
                 this.cargarCandidatos(this.plazaSeleccionada()!);
               }
             } else {
@@ -200,8 +215,6 @@ export class EvaluacionConocimientos implements OnInit {
     const nombrePuestoFormateado = nombrePuesto.toUpperCase().replace(/ /g, '_');
 
     this.cargando.set(true);
-    
-    // Llama a tu endpoint en el servicio (debes añadirlo a tu comite-evaluacion.service.ts apuntando al nuevo endpoint BLOB)
     this.comiteService.descargarActaConocimientosPdf(idPlaza).subscribe({
       next: (blobData: Blob) => {
         const urlTemporal = window.URL.createObjectURL(blobData);

@@ -21,7 +21,10 @@
         <mat-label>Seleccione la Convocatoria</mat-label>
         <mat-select (selectionChange)="onPlazaChange($event.value)">
           @for (plaza of plazas(); track plaza.idPlaza) {
-            <mat-option [value]="plaza.idPlaza">{{ plaza.codigoConvocatoria }} - {{ plaza.nombrePuesto }}</mat-option>
+            <!-- 🚀 CORREGIDO: Pipe Uppercase agregado para normalizar el combo -->
+            <mat-option [value]="plaza.idPlaza">
+              {{ (plaza.codigoConvocatoria + ' - ' + plaza.nombrePuesto) | uppercase }}
+            </mat-option>
           }
         </mat-select>
         <mat-icon matSuffix style="color: #64748b;">work_outline</mat-icon>
@@ -34,7 +37,7 @@
       </mat-form-field>
 
       <button mat-flat-button 
-              [disabled]="plazaSeleccionada() === null || dataSource.data.length === 0"
+              [disabled]="plazaSeleccionada() === null || totalRegistros() === 0"
               style="background-color: #b91c1c; color: white; height: 48px; font-weight: 700; border-radius: 6px; padding: 0 16px;"
               (click)="exportarReportePdf()">
         <mat-icon>picture_as_pdf</mat-icon> Exportar Acta
@@ -42,16 +45,16 @@
     </div>
   </mat-card>
 
-  @if (plazaSeleccionada() !== null && dataSource.data.length > 0) {
-    <div style="background: #eff6ff; border: 1px solid #bfdbfe; padding: 10px 16px; border-radius: 6px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
-      <mat-icon style="color: #1e40af;">groups</mat-icon>
-      <span style="font-size: 13px; font-weight: 700; color: #1e40af;">
-        Total de Candidatos en Fase de Entrevista: {{ dataSource.data.length }}
-      </span>
-    </div>
-  }
-
   <div class="mat-elevation-z2" style="border-radius: 8px; overflow: hidden; background: white;">
+    @if (plazaSeleccionada() !== null && totalRegistros() > 0) {
+      <div style="background: #eff6ff; border: 1px solid #bfdbfe; padding: 10px 16px; border-radius: 6px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+        <mat-icon style="color: #1e40af;">groups</mat-icon>
+        <span style="font-size: 13px; font-weight: 700; color: #1e40af;">
+          Total de Candidatos en Fase de Entrevista: {{ totalRegistros() }}
+        </span>
+      </div>
+    }
+
     <table mat-table [dataSource]="dataSource" style="width: 100%;">
 
       <ng-container matColumnDef="expediente">
@@ -67,7 +70,6 @@
       <ng-container matColumnDef="nota">
         <th mat-header-cell *matHeaderCellDef style="font-weight: 700; text-align: center; width: 150px; background: #f1f5f9;"> Nota Entrevista </th>
         <td mat-cell *matCellDef="let element" style="text-align: center;">
-          <!-- Si la bandera es null, la calificación está pendiente -->
           @if (element.faseEntrevistaAprobado === null) {
             <mat-form-field appearance="outline" style="width: 90px; margin: 6px 0 -1.25em 0; text-align: center;">
               <input matInput type="number" [(ngModel)]="element.notaEntrevista" min="0" [max]="notaMaximaEntrevista()" step="0.1">
@@ -81,15 +83,11 @@
       <ng-container matColumnDef="acciones">
         <th mat-header-cell *matHeaderCellDef style="font-weight: 700; text-align: center; width: 180px; background: #f1f5f9;"> Estado / Acción </th>
         <td mat-cell *matCellDef="let element" style="text-align: center;">
-          
-          <!-- Habilitar botón de guardado únicamente si está pendiente -->
           @if (element.faseEntrevistaAprobado === null) {
             <button mat-flat-button color="primary" style="font-size: 11.5px; height: 32px;" (click)="guardarCalificacion(element)">
               <mat-icon style="font-size: 16px; width:16px; height:16px;">save</mat-icon> Calificar
             </button>
           }
-          
-          <!-- Renderizado de Badges Estables -->
           @if (element.faseEntrevistaAprobado === true) {
             <span style="color: #137333; background: #e6f4ea; padding: 4px 10px; border-radius: 4px; font-weight: 700; font-size: 11.5px;">APTO</span>
           }
@@ -100,10 +98,9 @@
       </ng-container>
 
       <tr mat-header-row *matHeaderRowDef="columnas"></tr>
-      <tr mat-row *matRowDef="let row; columns: columnas;" [hidden]="plazaSeleccionada() === null || dataSource.filteredData.length === 0"></tr>
+      <tr mat-row *matRowDef="let row; columns: columnas;" [hidden]="plazaSeleccionada() === null || totalRegistros() === 0"></tr>
     </table>
 
-    <!-- Mensajes de control de estados vacíos idénticos a los anteriores -->
     @if (plazaSeleccionada() === null) {
       <div style="text-align: center; padding: 48px; background: white; color: #64748b;">
         <mat-icon style="font-size: 44px; color: #94a3b8; margin-bottom: 8px;">layers</mat-icon>
@@ -112,15 +109,20 @@
       </div>
     }
 
-    @if (plazaSeleccionada() !== null && dataSource.filteredData.length === 0) {
+    @if (plazaSeleccionada() !== null && totalRegistros() === 0) {
       <div style="text-align: center; padding: 48px; background: white; color: #64748b;">
         <mat-icon style="font-size: 44px; color: #f43f5e; margin-bottom: 8px;">find_in_page</mat-icon>
         <p style="margin: 0; font-weight: 700; color: #475569;">No se encontraron registros coincidentes</p>
       </div>
     }
 
-    @if (mostrarPaginador()) {
-      <mat-paginator [length]="dataSource.data.length" [pageSize]="10" [pageSizeOptions]="[10, 20, 50]" showFirstLastButtons style="border-top: 1px solid #e2e8f0;"></mat-paginator>
-    }
+    <!-- 🚀 CORREGIDO: Estilo display inline inyectado de manera definitiva para dominar el CSS de Material -->
+    <mat-paginator [style.display]="mostrarPaginador() ? 'block' : 'none'" 
+                   [length]="totalRegistros()" 
+                   [pageSize]="10" 
+                   [pageSizeOptions]="[10, 20, 50]" 
+                   showFirstLastButtons 
+                   style="border-top: 1px solid #e2e8f0;">
+    </mat-paginator>
   </div>
 </div>

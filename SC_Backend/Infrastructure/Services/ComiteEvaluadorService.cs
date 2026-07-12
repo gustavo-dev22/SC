@@ -1,15 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Application.Admin.Dtos;
 using Application.Comite.Dtos;
 using Application.Common.Interfaces;
 using Dapper;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace Infrastructure.Services
 {
@@ -598,6 +599,17 @@ namespace Infrastructure.Services
             }).GeneratePdf();
 
             return pdfBytes;
+        }
+
+        public async Task<List<AdminTicketBandejaDto>> ObtenerConsultasTecnicasAsync(int? idEstado, string? busqueda)
+        {
+            using IDbConnection connection = _dbConnectionFactory.CreateConnection();
+            var result = await connection.QueryAsync<AdminTicketBandejaDto>(
+                "sp_Comite_SoporteTicket_ListarConsultasTecnicas",
+                new { IdEstadoTicketCat = idEstado, Busqueda = busqueda },
+                commandType: CommandType.StoredProcedure
+            );
+            return result.ToList();
         }
     }
 }

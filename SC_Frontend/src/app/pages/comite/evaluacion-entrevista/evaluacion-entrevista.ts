@@ -22,16 +22,18 @@ import { ParametroService } from '../../../services/parametro.service';
 })
 export class EvaluacionEntrevista implements OnInit {
   private comiteService = inject(ComiteEvaluacionService);
+  private parametroService = inject(ParametroService); 
   private alertService = inject(AlertService);
-  private paginator = viewChild(MatPaginator);
-  private parametroService = inject(ParametroService);
+  private paginator = viewChild<MatPaginator>(MatPaginator);
 
   public plazas = signal<any[]>([]);
   public plazaSeleccionada = signal<number | null>(null);
   public filtroTexto = signal<string>('');
   public cargandoPlazas = signal<boolean>(false);
   public cargando = signal<boolean>(false);
+  public totalRegistros = signal<number>(0);
   
+  // 🚀 INSTANCIA FIJA ÚNICA: Evita romper la sincronía con las directivas del paginador
   public dataSource = new MatTableDataSource<any>([]);
   public columnas = ['expediente', 'postulante', 'nota', 'acciones'];
 
@@ -39,33 +41,40 @@ export class EvaluacionEntrevista implements OnInit {
   public notaMaximaEntrevista = signal<number>(50);
 
   public mostrarPaginador = computed(() => {
-    return this.plazaSeleccionada() !== null && this.dataSource.filteredData.length > 0;
+    return this.plazaSeleccionada() !== null && this.totalRegistros() > 0;
   });
 
   ngOnInit(): void {
     this.cargarPlazasVigentes();
     this.cargarLimitesConfiguracion();
+
+    // Vinculación estable inicial
+    this.comiteService.listarPlazasAsignadasComite().subscribe(() => {
+      setTimeout(() => {
+        if (this.paginator()) {
+          this.dataSource.paginator = this.paginator()!;
+        }
+      }, 0);
+    });
   }
 
   cargarLimitesConfiguracion(): void {
-    // Solicitamos dinámicamente el valor máximo configurado para la entrevista
     this.parametroService.getParametros('NOTA_MAXIMA_ENT').subscribe({
       next: (res) => {
         if (res && res.success && res.data && res.data.length > 0) {
           this.notaMaximaEntrevista.set(Number(res.data[0].valor));
         }
       },
-      error: () => this.notaMaximaEntrevista.set(50) // Fail-safe histórico de resguardo
+      error: () => this.notaMaximaEntrevista.set(50)
     });
 
-    // Solicitamos dinámicamente el valor mínimo configurado para la entrevista
     this.parametroService.getParametros('NOTA_MINIMA_ENT').subscribe({
       next: (res) => {
         if (res && res.success && res.data && res.data.length > 0) {
           this.notaMinimaEntrevista.set(Number(res.data[0].valor));
         }
       },
-      error: () => this.notaMinimaEntrevista.set(30) // Fail-safe histórico de resguardo
+      error: () => this.notaMinimaEntrevista.set(30)
     });
   }
 
@@ -83,6 +92,11 @@ export class EvaluacionEntrevista implements OnInit {
   onPlazaChange(idPlaza: number): void {
     this.plazaSeleccionada.set(idPlaza);
     this.filtroTexto.set('');
+    
+    // 🚀 Ocultamiento preventivo inmediato de los controles
+    this.dataSource.data = [];
+    this.totalRegistros.set(0);
+
     this.cargarCandidatos(idPlaza);
   }
 
@@ -90,24 +104,42 @@ export class EvaluacionEntrevista implements OnInit {
     this.cargando.set(true);
     this.comiteService.listarCandidatosEntrevista(idPlaza).subscribe({
       next: (res) => {
-        if (res.success) {
-          this.dataSource = new MatTableDataSource<any>(res.data);
-          if (this.paginator()) this.dataSource.paginator = this.paginator()!;
-          if (this.filtroTexto()) this.dataSource.filter = this.filtroTexto().trim().toLowerCase();
+        if (res.success && res.data) {
+          // 🚀 Poblamos sobre la instancia existente compartida
+          this.dataSource.data = res.data;
+          this.totalRegistros.set(res.data.length);
+
+          if (this.filtroTexto()) {
+            this.dataSource.filter = this.filtroTexto().trim().toLowerCase();
+            this.totalRegistros.set(this.dataSource.filteredData.length);
+          }
+
+          if (this.paginator()) {
+            this.dataSource.paginator = this.paginator()!;
+            if (this.dataSource.paginator) {
+              this.dataSource.paginator.firstPage();
+            }
+          }
+        } else {
+          this.dataSource.data = [];
+          this.totalRegistros.set(0);
         }
         this.cargando.set(false);
       },
-      error: () => this.cargando.set(false)
+      error: () => {
+        this.dataSource.data = [];
+        this.totalRegistros.set(0);
+        this.cargando.set(false);
+      }
     });
   }
 
   guardarCalificacion(element: any): void {
     const nota = element.notaEntrevista;
-    const min = this.notaMinimaEntrevista();
     const max = this.notaMaximaEntrevista();
 
-    if (nota === null || nota === undefined) { // Ajustado al estándar de 0 a 20 de tus parciales
-      this.alertService.error('Error', 'Ingrese una calificación válida.');
+    if (nota === null || nota === undefined || nota < 0 || nota > max) {
+      this.alertService.error('Error', `Ingrese una calificación válida entre 0 y ${max} puntos.`);
       return;
     }
 
@@ -119,14 +151,12 @@ export class EvaluacionEntrevista implements OnInit {
         this.comiteService.registrarNotaEntrevista(payload).subscribe({
           next: (res) => {
             this.cargando.set(false);
-            
-            // 🚀 Interceptamos de forma segura la respuesta exitosa unificada del backend
             const operacionExitosa = (res && typeof res === 'object') ? res.success : res;
 
             if (operacionExitosa) {
               this.alertService.exito('¡Éxito!', 'Nota de entrevista guardada con éxito.');
               if (this.plazaSeleccionada()) {
-                this.cargarCandidatos(this.plazaSeleccionada()!); // Refrescar grilla
+                this.cargarCandidatos(this.plazaSeleccionada()!); 
               }
             } else {
               this.alertService.error('Error', 'No se pudo procesar el guardado de la nota.');
@@ -145,7 +175,11 @@ export class EvaluacionEntrevista implements OnInit {
     const filterValue = (event.target as HTMLInputElement).value;
     this.filtroTexto.set(filterValue);
     this.dataSource.filter = filterValue.trim().toLowerCase();
-    if (this.dataSource.paginator) this.dataSource.paginator.firstPage();
+    this.totalRegistros.set(this.dataSource.filteredData.length);
+
+    if (this.dataSource.paginator) {
+      this.dataSource.paginator.firstPage();
+    }
   }
 
   exportarReportePdf(): void {
@@ -157,7 +191,6 @@ export class EvaluacionEntrevista implements OnInit {
     const nombrePuestoFormateado = nombrePuesto.toUpperCase().replace(/ /g, '_');
 
     this.cargando.set(true);
-    
     this.comiteService.descargarActaEntrevistaPdf(idPlaza).subscribe({
       next: (blobData: Blob) => {
         const urlTemporal = window.URL.createObjectURL(blobData);

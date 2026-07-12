@@ -1,5 +1,8 @@
-﻿using Application.Comite.Commands;
+﻿using Application.Admin.Commands;
+using Application.Admin.Dtos;
+using Application.Comite.Commands;
 using Application.Comite.Queries;
+using Application.Common.Dtos;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -117,6 +120,20 @@ namespace WebApi.Controllers
         {
             var pdfBytes = await _mediator.Send(new GetActaFinalPdfQuery(idPlaza));
             return File(pdfBytes, "application/pdf", $"Acta_Resultados_Finales_Plaza_{idPlaza}.pdf");
+        }
+
+        [HttpGet("consultas-tecnicas")]
+        public async Task<IActionResult> GetConsultasTecnicas([FromQuery] int? idEstado, [FromQuery] string? busqueda)
+        {
+            var result = await _mediator.Send(new GetConsultasTecnicasComiteQuery(idEstado, busqueda));
+            return Ok(BaseResponse<List<AdminTicketBandejaDto>>.Ok(result, "Consultas técnicas cargadas correctamente."));
+        }
+
+        [HttpPost("atender-consulta")]
+        public async Task<IActionResult> AtenderConsulta([FromBody] AtenderTicketCommand command)
+        {
+            var result = await _mediator.Send(command);
+            return Ok(BaseResponse<bool>.Ok(result, "Consulta técnica procesada de manera conforme."));
         }
     }
 }

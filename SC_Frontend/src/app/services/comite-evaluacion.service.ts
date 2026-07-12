@@ -66,4 +66,16 @@ export class ComiteEvaluacionService {
   descargarActaFinalPdf(idPlaza: number): Observable<Blob> {
     return this.crudHttp.get(`ComiteEvaluador/exportar-acta-final/${idPlaza}`, { responseType: 'blob' });
   }
+
+  obtenerConsultasTecnicas(idEstado?: number, busqueda?: string): Observable<any> {
+    let params = '';
+    if (idEstado !== undefined && idEstado !== null) params += `idEstado=${idEstado}&`;
+    if (busqueda) params += `busqueda=${encodeURIComponent(busqueda)}&`;
+    
+    return this.crudHttp.get<any>(`ComiteEvaluador/consultas-tecnicas?${params}`);
+  }
+
+  atenderConsultaTecnica(payload: any): Observable<any> {
+    return this.crudHttp.post<any>('ComiteEvaluador/atender-consulta', payload);
+  }
 }

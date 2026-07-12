@@ -140,6 +140,10 @@ export const routes: Routes = [
             {
                 path: 'comite/actas-etapa',
                 loadComponent: () => import('./pages/comite/cuadro-merito/cuadro-merito').then(m => m.CuadroMerito)
+            },
+            {
+                path: 'comite/bandeja-reclamos',
+                loadComponent: () => import('./pages/comite/gestion-reclamos/gestion-reclamos').then(m => m.GestionReclamos)
             }
         ]
     },

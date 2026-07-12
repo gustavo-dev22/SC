@@ -19,27 +19,38 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './calificacion-curricular.html',
   styleUrl: './calificacion-curricular.css',
 })
-export class CalificacionCurricular implements OnInit{
+export class CalificacionCurricular implements OnInit {
   private comiteService = inject(ComiteEvaluacionService);
   private alertService = inject(AlertService);
 
-  private paginator = viewChild(MatPaginator);
+  private paginator = viewChild<MatPaginator>(MatPaginator);
 
   public plazas = signal<any[]>([]);
   public plazaSeleccionada = signal<number | null>(null);
   public filtroTexto = signal<string>('');
   public cargandoPlazas = signal<boolean>(false);
   public cargando = signal<boolean>(false);
+  public totalRegistros = signal<number>(0);
   
+  // 🚀 INSTANCIA INMUTABLE ÚNICA: El puntero de memoria del DataSource queda congelado
   public dataSource = new MatTableDataSource<any>([]);
   public columnas = ['expediente', 'postulante', 'formacion', 'capacitacion', 'experiencia', 'total', 'acciones'];
 
   public mostrarPaginador = computed(() => {
-    return this.plazaSeleccionada() !== null && this.dataSource.filteredData.length > 0;
+    return this.plazaSeleccionada() !== null && this.totalRegistros() > 0;
   });
 
   ngOnInit(): void {
     this.cargarPlazasVigentes();
+
+    // Enlace asíncrono primario seguro
+    this.comiteService.listarPlazasAsignadasComite().subscribe(() => {
+      setTimeout(() => {
+        if (this.paginator()) {
+          this.dataSource.paginator = this.paginator()!;
+        }
+      }, 0);
+    });
   }
 
   cargarPlazasVigentes(): void {
@@ -56,6 +67,11 @@ export class CalificacionCurricular implements OnInit{
   onPlazaChange(idPlaza: number): void {
     this.plazaSeleccionada.set(idPlaza);
     this.filtroTexto.set('');
+    
+    // 🚀 Ocultamiento fulminante instantáneo al cambiar de convocatoria
+    this.dataSource.data = [];
+    this.totalRegistros.set(0);
+
     this.cargarCandidatos(idPlaza);
   }
 
@@ -63,21 +79,33 @@ export class CalificacionCurricular implements OnInit{
     this.cargando.set(true);
     this.comiteService.listarCandidatosCurricular(idPlaza).subscribe({
       next: (res) => {
-        if (res.success) {
-          // Re-instanciación reactiva zoneless segura
-          this.dataSource = new MatTableDataSource<any>(res.data);
-
-          if (this.paginator()) {
-            this.dataSource.paginator = this.paginator()!;
-          }
+        if (res.success && res.data) {
+          // 🚀 Insertamos los datos sobre la misma instancia compartida
+          this.dataSource.data = res.data;
+          this.totalRegistros.set(res.data.length);
 
           if (this.filtroTexto()) {
             this.dataSource.filter = this.filtroTexto().trim().toLowerCase();
+            this.totalRegistros.set(this.dataSource.filteredData.length);
           }
+
+          if (this.paginator()) {
+            this.dataSource.paginator = this.paginator()!;
+            if (this.dataSource.paginator) {
+              this.dataSource.paginator.firstPage();
+            }
+          }
+        } else {
+          this.dataSource.data = [];
+          this.totalRegistros.set(0);
         }
         this.cargando.set(false);
       },
-      error: () => this.cargando.set(false)
+      error: () => {
+        this.dataSource.data = [];
+        this.totalRegistros.set(0);
+        this.cargando.set(false);
+      }
     });
   }
 
@@ -101,14 +129,12 @@ export class CalificacionCurricular implements OnInit{
         this.comiteService.guardarCalificacionCurricular(payload).subscribe({
           next: (res) => {
             this.cargando.set(false);
-            
-            // 🚀 Lectura adaptada al objeto JSON centralizado de respuesta
             const operacionExitosa = (res && typeof res === 'object') ? res.success : res;
 
             if (operacionExitosa) {
               this.alertService.exito('Éxito', 'Calificación registrada correctamente.');
               if (this.plazaSeleccionada()) {
-                this.cargarCandidatos(this.plazaSeleccionada()!); // Refrescamos grilla reactivamente
+                this.cargarCandidatos(this.plazaSeleccionada()!);
               }
             } else {
               this.alertService.error('Error', 'No se pudo guardar la calificación.');
@@ -127,6 +153,7 @@ export class CalificacionCurricular implements OnInit{
     const filterValue = (event.target as HTMLInputElement).value;
     this.filtroTexto.set(filterValue);
     this.dataSource.filter = filterValue.trim().toLowerCase();
+    this.totalRegistros.set(this.dataSource.filteredData.length);
 
     if (this.dataSource.paginator) {
       this.dataSource.paginator.firstPage();
@@ -142,7 +169,6 @@ export class CalificacionCurricular implements OnInit{
     const nombrePuestoFormateado = nombrePuesto.toUpperCase().replace(/ /g, '_');
 
     this.cargando.set(true);
-    
     this.comiteService.descargarActaCurricularPdf(idPlaza).subscribe({
       next: (blobData: Blob) => {
         const urlTemporal = window.URL.createObjectURL(blobData);

@@ -24,33 +24,43 @@ export class BandejaExpedientes implements OnInit {
   private comiteService = inject(ComiteEvaluacionService);
   private alertService = inject(AlertService);
 
-  private paginator = viewChild(MatPaginator);
+  // 🚀 Usamos un Setter en el viewChild para que en cuanto el paginador aparezca en el DOM, se enlace automáticamente
+  private paginator = viewChild<MatPaginator>(MatPaginator);
 
   public plazas = signal<any[]>([]);
   public plazaSeleccionada = signal<number | null>(null);
   public filtroTexto = signal<string>('');
   public cargandoPlazas = signal<boolean>(false);
-  public dataSource = new MatTableDataSource<any>([]);
-
-  public expedientes = signal<any[]>([]);
-  public columnas = ['expediente', 'postulante', 'plaza', 'fecha', 'acciones'];
   public cargando = signal<boolean>(false);
+  public totalRegistros = signal<number>(0);
+
+  // 🚀 INSTANCIA ÚNICA: El dataSource se crea una sola vez en la vida del componente
+  public dataSource = new MatTableDataSource<any>([]);
+  public columnas = ['expediente', 'postulante', 'plaza', 'fecha', 'acciones'];
 
   public mostrarPaginador = computed(() => {
-    return this.plazaSeleccionada() !== null && this.dataSource.filteredData.length > 0;
+    return this.plazaSeleccionada() !== null && this.totalRegistros() > 0;
   });
 
   ngOnInit(): void {
     this.cargarPlazasVigentes();
+    
+    // 🚀 Vinculamos el paginador de forma reactiva al inicializar la pantalla
+    // Esto asegura que use la misma instancia del dataSource pase lo que pase
+    this.comiteService.listarPlazasAsignadasComite().subscribe(() => {
+      setTimeout(() => {
+        if (this.paginator()) {
+          this.dataSource.paginator = this.paginator()!;
+        }
+      }, 0);
+    });
   }
 
   cargarPlazasVigentes(): void {
     this.cargandoPlazas.set(true);
     this.comiteService.listarPlazasAsignadasComite().subscribe({
       next: (res) => {
-        if (res && res.content) {
-          this.plazas.set(res.content);
-        }
+        if (res && res.content) this.plazas.set(res.content);
         this.cargandoPlazas.set(false);
       },
       error: () => this.cargandoPlazas.set(false)
@@ -59,7 +69,12 @@ export class BandejaExpedientes implements OnInit {
 
   onPlazaChange(idPlaza: number): void {
     this.plazaSeleccionada.set(idPlaza);
-    this.filtroTexto.set(''); // Reseteamos el filtro de texto al cambiar de plaza
+    this.filtroTexto.set('');
+    
+    // 🚀 En lugar de crear un nuevo DataSource, LIMPIAMOS la data de la instancia existente
+    this.dataSource.data = [];
+    this.totalRegistros.set(0);
+    
     this.cargarExpedientes(idPlaza);
   }
 
@@ -67,23 +82,34 @@ export class BandejaExpedientes implements OnInit {
     this.cargando.set(true);
     this.comiteService.listarInscritos(idPlaza).subscribe({
       next: (res) => {
-        if (res.success) {
-          // 🚀 SOLUCIÓN ZONELESS: Reinstanciamos por completo el objeto dataSource
-          this.dataSource = new MatTableDataSource<any>(res.data);
+        if (res.success && res.data) {
+          // 🚀 CLAVE: Seteamos la data sobre la misma instancia compartida
+          this.dataSource.data = res.data;
+          this.totalRegistros.set(res.data.length);
           
-          // Volvemos a amarrar el paginador a la nueva instancia
-          if (this.paginator()) {
-            this.dataSource.paginator = this.paginator()!;
-          }
-
-          // Si el usuario tenía algo escrito en el buscador, re-aplicamos el filtro
           if (this.filtroTexto()) {
             this.dataSource.filter = this.filtroTexto().trim().toLowerCase();
+            this.totalRegistros.set(this.dataSource.filteredData.length);
           }
+
+          // Garantizamos el amarre y refrescamos la primera página
+          if (this.paginator()) {
+            this.dataSource.paginator = this.paginator()!;
+            if (this.dataSource.paginator) {
+              this.dataSource.paginator.firstPage();
+            }
+          }
+        } else {
+          this.dataSource.data = [];
+          this.totalRegistros.set(0);
         }
         this.cargando.set(false);
       },
-      error: () => this.cargando.set(false)
+      error: () => {
+        this.dataSource.data = [];
+        this.totalRegistros.set(0);
+        this.cargando.set(false);
+      }
     });
   }
 
@@ -91,6 +117,7 @@ export class BandejaExpedientes implements OnInit {
     const filterValue = (event.target as HTMLInputElement).value;
     this.filtroTexto.set(filterValue);
     this.dataSource.filter = filterValue.trim().toLowerCase();
+    this.totalRegistros.set(this.dataSource.filteredData.length);
 
     if (this.dataSource.paginator) {
       this.dataSource.paginator.firstPage();
@@ -108,16 +135,12 @@ export class BandejaExpedientes implements OnInit {
       'Cancelar'
     ).subscribe((confirmado: boolean) => {
       if (confirmado) {
-        
         this.cargando.set(true);
-        
         this.comiteService.evaluarExpediente(idPostulacion, aprobado, 'Validación inicial de requisitos obligatorios.').subscribe({
           next: (res) => {
             this.cargando.set(false);
-
             if (res && (res.success || res.idPostulacion || res.mensaje)) { 
               this.alertService.exito('Éxito', 'Expediente procesado correctamente.');
-              
               if (this.plazaSeleccionada()) {
                 this.cargarExpedientes(this.plazaSeleccionada()!);
               }
@@ -127,11 +150,7 @@ export class BandejaExpedientes implements OnInit {
           },
           error: (err) => {
             this.cargando.set(false);
-            
-            this.alertService.error(
-              'Error en Operación', 
-              err.error?.message || 'No se pudo comunicar el cambio al servidor central.'
-            );
+            this.alertService.error('Error en Operación', err.error?.message || 'No se pudo comunicar el cambio al servidor central.');
           }
         });
       }
@@ -142,31 +161,23 @@ export class BandejaExpedientes implements OnInit {
     const idPlaza = this.plazaSeleccionada();
     if (!idPlaza) return;
 
-    // 🚀 1. Buscamos el objeto de la plaza actual en nuestra Signal en memoria
     const plazaActual = this.plazas().find(p => p.idPlaza === idPlaza);
-    
-    // Si por algún motivo no lo encuentra, dejamos el idPlaza como fail-safe
     const nombrePuesto = plazaActual ? plazaActual.nombrePuesto : idPlaza.toString();
-    
-    // 🚀 2. Normalizamos el nombre del puesto: pasamos a Mayúsculas y cambiamos espacios por guiones bajos
     const nombrePuestoFormateado = nombrePuesto.toUpperCase().replace(/ /g, '_');
 
     this.cargando.set(true);
     this.comiteService.descargarActaInicialPdf(idPlaza).subscribe({
       next: (blobData: Blob) => {
         const urlTemporal = window.URL.createObjectURL(blobData);
-       
         const enlaceDescarga = document.createElement('a');
         enlaceDescarga.href = urlTemporal;
-        
-        // 🚀 3. Reemplazamos el ID de la plaza por el nombre formateado en mayúsculas
         enlaceDescarga.download = `Acta_Filtro_Inicial_Plaza_${nombrePuestoFormateado}.pdf`;
-       
+        
         document.body.appendChild(enlaceDescarga);
         enlaceDescarga.click();
         document.body.removeChild(enlaceDescarga);
         window.URL.revokeObjectURL(urlTemporal);
-       
+        
         this.cargando.set(false);
       },
       error: () => {
