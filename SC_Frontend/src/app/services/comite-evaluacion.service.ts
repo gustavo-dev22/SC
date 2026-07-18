@@ -78,4 +78,8 @@ export class ComiteEvaluacionService {
   atenderConsultaTecnica(payload: any): Observable<any> {
     return this.crudHttp.post<any>('ComiteEvaluador/atender-consulta', payload);
   }
+
+  obtenerResumenDashboard(nombreUsuario: string): Observable<any> {
+    return this.crudHttp.get<any>(`ComiteEvaluador/dashboard-resumen?nombreUsuario=${encodeURIComponent(nombreUsuario)}`);
+  }
 }

@@ -611,5 +611,21 @@ namespace Infrastructure.Services
             );
             return result.ToList();
         }
+
+        public async Task<ComiteDashboardDto> ObtenerDashboardComiteAsync(string nombreUsuario)
+        {
+            using IDbConnection connection = _dbConnectionFactory.CreateConnection();
+            using var multi = await connection.QueryMultipleAsync(
+                "sp_Comite_Dashboard_ObtenerResumen",
+                new { NombreUsuario = nombreUsuario },
+                commandType: CommandType.StoredProcedure
+            );
+
+            var dto = new ComiteDashboardDto();
+            dto.Metricas = await multi.ReadFirstAsync<ComiteMetricasDto>();
+            dto.DistribucionEstados = (await multi.ReadAsync<DistribucionEstadosDto>()).ToList();
+
+            return dto;
+        }
     }
 }

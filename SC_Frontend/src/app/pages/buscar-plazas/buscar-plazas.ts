@@ -82,6 +82,8 @@ export class BuscarPlazas implements OnInit, OnDestroy {
         if (resultado.avance.success) {
           this.porcentajeFicha.set(resultado.avance.data.porcentajeTotal);
         }
+
+        console.log(resultado);
         
         // 2. Procesamos el listado de plazas vacantes
         this.listaPlazas.set(resultado.plazas.content);

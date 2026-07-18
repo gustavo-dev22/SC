@@ -61,11 +61,6 @@
           </td>
         </ng-container>
 
-        <ng-container matColumnDef="convocatoria">
-          <th mat-header-cell *matHeaderCellDef style="font-weight: 700; background: #f5f7fa; color: #1e293b;"> Convocatoria </th>
-          <td mat-cell *matCellDef="let element" style="font-weight: 600; color: #334155;"> {{element.codigoConvocatoria || 'GENERAL'}} </td>
-        </ng-container>
-
         <ng-container matColumnDef="estado">
           <th mat-header-cell *matHeaderCellDef style="font-weight: 700; background: #f5f7fa; text-align: center; color: #1e293b;"> Estado </th>
           <td mat-cell *matCellDef="let element" style="text-align: center;">
@@ -140,8 +135,8 @@
           </td>
         </ng-container>
 
-        <tr mat-header-row *matHeaderRowDef="['ticket', 'postulante', 'incidencia', 'convocatoria', 'estado', 'fecha', 'acciones']"></tr>
-        <tr mat-row *matRowDef="let row; columns: ['ticket', 'postulante', 'incidencia', 'convocatoria', 'estado', 'fecha', 'acciones'];"></tr>
+        <tr mat-header-row *matHeaderRowDef="['ticket', 'postulante', 'incidencia', 'estado', 'fecha', 'acciones']"></tr>
+        <tr mat-row *matRowDef="let row; columns: ['ticket', 'postulante', 'incidencia', 'estado', 'fecha', 'acciones'];"></tr>
       </table>
 
       @if (ticketsBandeja().length === 0) {

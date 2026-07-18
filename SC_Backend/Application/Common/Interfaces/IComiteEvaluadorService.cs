@@ -25,5 +25,6 @@ namespace Application.Common.Interfaces
         Task<List<CuadroMeritoFinalDto>> ObtenerCuadroMeritoFinalAsync(int idPlaza);
         Task<byte[]> ObtenerActaFinalConsolidadaPdfAsync(List<CuadroMeritoFinalDto> candidatos, string codigoConvocatoria, string nombrePuesto);
         Task<List<AdminTicketBandejaDto>> ObtenerConsultasTecnicasAsync(int? idEstado, string? busqueda);
+        Task<ComiteDashboardDto> ObtenerDashboardComiteAsync(string nombreUsuario);
     }
 }

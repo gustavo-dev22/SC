@@ -10,6 +10,7 @@ import { Router } from '@angular/router';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { TrazabilidadPostulaciones } from '../admin/trazabilidad-postulaciones/trazabilidad-postulaciones';
 import { PostulanteResumenService } from '../../services/postulante-resumen.service';
+import { ComiteEvaluacionService } from '../../services/comite-evaluacion.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -21,12 +22,14 @@ export class Dashboard implements OnInit {
   private dashboardService = inject(DashboardAdminService);
   private postulanteService = inject(PostulanteDashboardService);
   private _postulacionService = inject(PostulanteResumenService);
+  private comiteService = inject(ComiteEvaluacionService);
   private router = inject(Router);
   private dialog = inject(MatDialog);
 
   // Signal para almacenar la estructura exacta que retorna el Backend
   public dataDashboard = signal<any>(null);
   public dataPostulante = signal<any[]>([]);
+  public dataDashboardComite = signal<any>(null);
 
   public userRol = signal<string>(''); // 'ADMIN', 'POSTULANTE', 'COMITE'
   public nombreUsuario = signal<string>('');
@@ -36,10 +39,14 @@ export class Dashboard implements OnInit {
     const profile = JSON.parse(sessionStorage.getItem('user_profile') || '{}');
     this.nombreUsuario.set(profile.nombreCompleto || 'Usuario');
     this.userRol.set(profile.rol || 'POSTULANTE');
+
+    console.log('Rol del usuario:', this.userRol());
     
     if (this.userRol() === 'Administrador') {
       this.cargarDatosDashboard();
-    } else if (this.userRol() === 'POSTULANTE') {
+    } else if (this.userRol() === 'Comité Evaluador') {
+      this.cargarDashboardComite(this.nombreUsuario());
+    }else if (this.userRol() === 'POSTULANTE') {
       this._postulacionService.consultarEstadoPostulacion().subscribe();
       const tokenParts = atob(profile.token).split('-');
       const idPostulante = Number(tokenParts[1]);
@@ -59,6 +66,19 @@ export class Dashboard implements OnInit {
       error: () => {
         this.cargando.set(false);
       }
+    });
+  }
+
+  cargarDashboardComite(nombreUsuario: string): void {
+    this.cargando.set(true);
+    this.comiteService.obtenerResumenDashboard(nombreUsuario).subscribe({
+      next: (res) => {
+        if (res.success) {
+          this.dataDashboardComite.set(res.data);
+        }
+        this.cargando.set(false);
+      },
+      error: () => this.cargando.set(false)
     });
   }
 

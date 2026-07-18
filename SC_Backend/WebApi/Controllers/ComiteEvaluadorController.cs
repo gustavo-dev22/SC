@@ -135,5 +135,12 @@ namespace WebApi.Controllers
             var result = await _mediator.Send(command);
             return Ok(BaseResponse<bool>.Ok(result, "Consulta técnica procesada de manera conforme."));
         }
+
+        [HttpGet("dashboard-resumen")]
+        public async Task<IActionResult> GetDashboardResumen([FromQuery] string nombreUsuario)
+        {
+            var data = await _mediator.Send(new GetDashboardComiteQuery(nombreUsuario));
+            return Ok(new { success = true, data });
+        }
     }
 }
