@@ -11,6 +11,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { PostulacionService } from '../../../services/postulacion.service';
 import { environment } from '../../../../environments/environment';
 import { DocumentoSustentoService } from '../../../services/documento-sustento.service';
+import { ParametroService } from '../../../services/parametro.service';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-certificacion',
@@ -25,10 +27,12 @@ export class Certificacion implements OnInit {
   private _postulacionService = inject(PostulacionService);
   private documentoSustentoService = inject(DocumentoSustentoService);
   private alertService = inject(AlertService);
+  private parametroService = inject(ParametroService);
 
   public listaCertificaciones = signal<any[]>([]);
   private idPostulante!: number;
   public cargando = signal<boolean>(false);
+  public limiteArchivoMb = signal<number>(5);
 
   private readonly CONTROLADOR = 'postulantecertificacion';
 
@@ -40,7 +44,36 @@ export class Certificacion implements OnInit {
     const profile = JSON.parse(sessionStorage.getItem('user_profile') || '{}');
     const tokenParts = atob(profile.token).split('-');
     this.idPostulante = Number(tokenParts[1]);
-    this.cargarCertificaciones();
+    this.inicializarModuloCertificaciones();
+  }
+
+  private inicializarModuloCertificaciones(): void {
+    this.cargando.set(true);
+
+    forkJoin({
+      certificaciones: this.certService.getCertificaciones(this.idPostulante),
+      parametroSize: this.parametroService.getParametros('MAX_FILE_SIZE_MB')
+    }).subscribe({
+      next: (resultado) => {
+        // 1. Poblamos el listado de capacitaciones
+        if (resultado.certificaciones.success) {
+          this.listaCertificaciones.set(resultado.certificaciones.data);
+        }
+
+        // 2. Poblamos el límite dinámico de megabytes
+        if (resultado.parametroSize.success && resultado.parametroSize.data.length > 0) {
+          const valorDb = Number(resultado.parametroSize.data[0].valor);
+          if (!isNaN(valorDb) && valorDb > 0) {
+            this.limiteArchivoMb.set(valorDb);
+          }
+        }
+        this.cargando.set(false);
+      },
+      error: () => {
+        this.cargando.set(false);
+        // Fail-safe activo: conserva los 4MB por defecto si el API de parámetros falla
+      }
+    });
   }
 
   cargarCertificaciones(): void {
@@ -64,8 +97,12 @@ export class Certificacion implements OnInit {
         return;
       }
 
-      if (file.size > 4 * 1024 * 1024) {
-        this.alertService.error('Error', 'El archivo excede el límite permitido de 4MB.');
+      const maxBytes = this.limiteArchivoMb() * 1024 * 1024;
+      if (file.size > maxBytes) {
+        this.alertService.error(
+          'Archivo Excede el Límite', 
+          `El archivo pesa más de lo permitido. El tamaño máximo configurado para cargar sus sustentos es de ${this.limiteArchivoMb()}MB.`
+        );
         return;
       }
 

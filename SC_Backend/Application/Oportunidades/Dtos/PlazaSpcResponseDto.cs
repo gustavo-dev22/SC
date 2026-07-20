@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 
 namespace Application.Oportunidades.Dtos
 {
-    // 🚀 Envoltorio de paginación estándar de Spring Boot
     public class PaginatedSpcResponseDto<T>
     {
         [JsonPropertyName("content")]
@@ -26,10 +25,9 @@ namespace Application.Oportunidades.Dtos
         public int Number { get; set; }
     }
 
-    // 🚀 DTO que calza milimétricamente con las propiedades que escupe el API de Java
     public class PlazaJavaDto
     {
-        [JsonPropertyName("idConvocatoria")] // 🚀 Cambiado: Ahora captura el ID real de la convocatoria
+        [JsonPropertyName("idConvocatoria")] 
         public int IdConvocatoria { get; set; }
 
         [JsonPropertyName("codigoConvocatoria")]
@@ -38,20 +36,22 @@ namespace Application.Oportunidades.Dtos
         [JsonPropertyName("nombreOficina")]
         public string NombreOficina { get; set; } = string.Empty;
 
-        [JsonPropertyName("cargo")] // 🚀 NUEVO: Mapea el objeto anidado del puesto
+        [JsonPropertyName("cargo")] 
         public CargoJavaDto? Cargo { get; set; }
 
-        [JsonPropertyName("sede")] // 🚀 NUEVO: Mapea el objeto anidado de la infraestructura
+        [JsonPropertyName("sede")]
         public SedeJavaDto? Sede { get; set; }
 
         [JsonPropertyName("remuneracion")]
         public decimal? Remuneracion { get; set; }
 
-        [JsonPropertyName("fechaFin")] // 🚀 Cambiado: Sincronizado con "fechaFin"
+        [JsonPropertyName("fechaFin")] 
         public DateTime? FechaFin { get; set; }
+
+        [JsonPropertyName("fechaFinPostulacion")]
+        public DateTime? FechaFinPostulacion { get; set; }
     }
 
-    // 🚀 Clases espejo para capturar los nodos secundarios de Java
     public class CargoJavaDto
     {
         [JsonPropertyName("nombreCargo")]

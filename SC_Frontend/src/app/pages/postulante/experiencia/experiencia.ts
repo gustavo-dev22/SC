@@ -11,6 +11,8 @@ import { AlertService } from '../../../shared/services/alert.service';
 import { DocumentoSustentoService } from '../../../services/documento-sustento.service';
 import { PostulacionService } from '../../../services/postulacion.service';
 import { environment } from '../../../../environments/environment';
+import { ParametroService } from '../../../services/parametro.service';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-experiencia',
@@ -26,9 +28,11 @@ export class Experiencia implements OnInit {
   private viewContainerRef = inject(ViewContainerRef);
   private alertService = inject(AlertService);
   private documentService = inject(DocumentoSustentoService);
+  private SkinnerParamService = inject(ParametroService);
 
   public listaExperiencias = signal<any[]>([]);
   public cargando = signal<boolean>(false);
+  public limiteArchivoMb = signal<number>(5);
   private idPostulante!: number;
 
   private readonly CONTROLADOR = 'postulanteexperiencia';
@@ -49,7 +53,36 @@ export class Experiencia implements OnInit {
     const profile = JSON.parse(sessionStorage.getItem('user_profile') || '{}');
     const tokenParts = atob(profile.token).split('-');
     this.idPostulante = Number(tokenParts[1]);
-    this.cargarExperiencias();
+    this.inicializarModuloExperiencia();
+  }
+
+  private inicializarModuloExperiencia(): void {
+    this.cargando.set(true);
+
+    forkJoin({
+      experiencias: this.expService.getExperiencias(this.idPostulante),
+      parametroSize: this.SkinnerParamService.getParametros('MAX_FILE_SIZE_MB')
+    }).subscribe({
+      next: (resultado) => {
+        // 1. Poblamos la sábana de contratos
+        if (resultado.experiencias.success) {
+          this.listaExperiencias.set(resultado.experiencias.data);
+        }
+
+        // 2. Poblamos el límite dinámico de megabytes
+        if (resultado.parametroSize.success && resultado.parametroSize.data.length > 0) {
+          const valorDb = Number(resultado.parametroSize.data[0].valor);
+          if (!isNaN(valorDb) && valorDb > 0) {
+            this.limiteArchivoMb.set(valorDb);
+          }
+        }
+        this.cargando.set(false);
+      },
+      error: () => {
+        this.cargando.set(false);
+        // Fail-safe activo: conserva los 4MB iniciales si la red falla
+      }
+    });
   }
 
   cargarExperiencias(): void {
@@ -72,8 +105,12 @@ export class Experiencia implements OnInit {
         this.alertService.error('Error', 'Solo se admiten documentos en formato PDF.');
         return;
       }
-      if (file.size > 4 * 1024 * 1024) {
-        this.alertService.error('Error', 'El archivo excede el límite permitido de 4MB.');
+      const maxBytes = this.limiteArchivoMb() * 1024 * 1024;
+      if (file.size > maxBytes) {
+        this.alertService.error(
+          'Archivo Excede el Límite', 
+          `El archivo pesa más de lo permitido. El tamaño máximo configurado para cargar sus constancias es de ${this.limiteArchivoMb()}MB.`
+        );
         return;
       }
       this.subirArchivoSustentatorio(file, idExperiencia);
@@ -145,8 +182,12 @@ export class Experiencia implements OnInit {
   public convertirDiasALegible(totalDias: number): string {
     if (totalDias <= 0) return '0 días';
     
-    const anios = Math.floor(totalDias / 365);
-    const diasRestantesAnio = totalDias % 365;
+    // 🚀 CORREGIDO: En administración pública y RRHH se utiliza 
+    // el año comercial de 360 días para el cómputo de tiempos.
+    const anios = Math.floor(totalDias / 360);
+    const diasRestantesAnio = totalDias % 360;
+    
+    // El mes comercial es estrictamente de 30 días
     const meses = Math.floor(diasRestantesAnio / 30);
     const dias = diasRestantesAnio % 30;
 

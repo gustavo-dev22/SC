@@ -92,7 +92,8 @@
                   <mat-icon>visibility</mat-icon>
                 </button>
                 @if (!modoLectura) {
-                  <button mat-icon-button color="accent" (click)="reemplazarInput.click()" matTooltip="Reemplazar archivo">
+                  <!-- 🚀 MEJORA: Tooltip dinámico inyectado con el valor de la Signal -->
+                  <button mat-icon-button color="accent" (click)="reemplazarInput.click()" [matTooltip]="'Reemplazar archivo (Máx. ' + limiteArchivoMb() + 'MB)'">
                     <mat-icon>autorenew</mat-icon>
                   </button>
                   <input #reemplazarInput type="file" accept="application/pdf" style="display: none;" (change)="onFileSelected($event, item.idExperiencia)">
@@ -105,7 +106,8 @@
             } @else {
               <div class="status-pending">
                 <mat-icon class="icon-pending">error_outline</mat-icon>
-                <span class="text-doc text-warn">Falta cargar constancia de trabajo (.pdf)</span>
+                <!-- 🚀 MEJORA: Mensaje de advertencia parametrizado con la regla global del sistema -->
+                <span class="text-doc text-warn">Falta cargar constancia de trabajo (.pdf - Máx. {{ limiteArchivoMb() }}MB)</span>
               </div>
               @if (!modoLectura) {
                 <div class="upload-btn-wrapper">

@@ -10,5 +10,6 @@ namespace Application.Common.Interfaces
     public interface IParametroQueryService
     {
         Task<List<ParametroGlobalDto>> ObtenerParametrosAsync(string? codigo);
+        Task<bool> ObtenerEstadoMantenimientoAsync();
     }
 }

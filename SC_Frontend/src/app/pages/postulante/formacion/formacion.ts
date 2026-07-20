@@ -11,6 +11,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { DocumentoSustentoService } from '../../../services/documento-sustento.service';
+import { ParametroService } from '../../../services/parametro.service';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-formacion',
@@ -26,9 +28,11 @@ export class Formacion implements OnInit {
   private _postulacionService = inject(PostulacionService);
   private alertService = inject(AlertService);
   private documentoSustentoService = inject(DocumentoSustentoService);
+  private parametroService = inject(ParametroService);
 
   public cargando = signal(false);
   public listaFormacion = signal<any[]>([]);
+  public limiteArchivoMb = signal<number>(5);
   private idPostulante!: number;
 
   private readonly CONTROLADOR = 'postulanteformacion';
@@ -44,8 +48,38 @@ export class Formacion implements OnInit {
       const tokenParts = atob(profile.token).split('-');
       this.idPostulante = Number(tokenParts[1]);
       
-      this.cargarFormacion();
+      this.inicializarModuloFormacion();
     }
+  }
+
+  // 🚀 MEJORA: Cargamos la data académica y la política del tamaño del archivo en paralelo
+  private inicializarModuloFormacion(): void {
+    this.cargando.set(true);
+
+    forkJoin({
+      formacion: this.formacionService.getFormacion(this.idPostulante),
+      parametroSize: this.parametroService.getParametros('MAX_FILE_SIZE_MB')
+    }).subscribe({
+      next: (resultado) => {
+        // 1. Cargamos el historial académico
+        if (resultado.formacion.success) {
+          this.listaFormacion.set(resultado.formacion.data);
+        }
+
+        // 2. Cargamos el límite dinámico de la base de datos
+        if (resultado.parametroSize.success && resultado.parametroSize.data.length > 0) {
+          const valorDb = Number(resultado.parametroSize.data[0].valor);
+          if (!isNaN(valorDb) && valorDb > 0) {
+            this.limiteArchivoMb.set(valorDb);
+          }
+        }
+        this.cargando.set(false);
+      },
+      error: () => {
+        this.cargando.set(false);
+        // Si hay error de comunicación, el fail-safe mantiene los 4MB activos por seguridad
+      }
+    });
   }
 
   public onFileSelected(event: Event, idFormacion: number): void {
@@ -58,8 +92,12 @@ export class Formacion implements OnInit {
         return;
       }
 
-      if (file.size > 4 * 1024 * 1024) {
-        this.alertService.error('Error', 'El archivo excede el límite permitido de 4MB.');
+      const maxBytes = this.limiteArchivoMb() * 1024 * 1024;
+      if (file.size > maxBytes) {
+        this.alertService.error(
+          'Archivo Excede el Límite', 
+          `El archivo pesa más de lo permitido. El tamaño máximo configurado para su postulación es de ${this.limiteArchivoMb()}MB.`
+        );
         return;
       }
 

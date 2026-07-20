@@ -54,7 +54,9 @@ namespace Infrastructure.Services
                         ? (j.Sede?.NombreSede ?? "Oficina Institucional")
                         : j.NombreOficina,
                 Remuneracion = j.Remuneracion ?? 0.00m,
-                FechaFin = j.FechaFin ?? DateTime.Now.AddDays(5), 
+                //}
+                //FechaFin = j.FechaFin ?? DateTime.Now.AddDays(5),
+                FechaFin = j.FechaFinPostulacion ?? DateTime.Now.AddDays(2),
                 YaPostulo = misPostulacionesIds.Contains(j.IdConvocatoria)
             }).ToList();
 

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
@@ -13,6 +13,7 @@ import { PostulacionService } from '../../services/postulacion.service';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { filter } from 'rxjs';
+import { SessionTimeoutService } from '../../core/services/session-timeout.service';
 
 @Component({
   selector: 'app-layout',
@@ -31,10 +32,11 @@ import { filter } from 'rxjs';
   templateUrl: './layout.html',
   styleUrl: './layout.css',
 })
-export class Layout implements OnInit {
+export class Layout implements OnInit, OnDestroy {
   private router = inject(Router);
   private _postulacionService = inject(PostulacionService);
   private authService = inject(AuthService);
+  private sessionTimeoutService = inject(SessionTimeoutService);
 
   public nombreUsuario = signal<string>('Usuario');
   public rolUsuario = signal<string>('Postulante');
@@ -70,6 +72,7 @@ export class Layout implements OnInit {
   }
 
   ngOnInit(): void {
+    this.sessionTimeoutService.iniciarMonitoreo();
     this.cargarPerfilYMenus();
 
     const profileStr = sessionStorage.getItem('user_profile');
@@ -106,6 +109,11 @@ export class Layout implements OnInit {
         console.error('Error al parsear el "user_profile":', jsonError);
       }
     }
+  }
+
+  ngOnDestroy(): void {
+    // 🚀 Se destruyen los escuchadores si el usuario sale manualmente del Layout
+    this.sessionTimeoutService.detenerMonitoreo();
   }
 
   public onCambioGlobalPlaza(idPlaza: number): void {

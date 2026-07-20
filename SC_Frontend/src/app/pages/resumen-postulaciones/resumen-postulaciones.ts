@@ -7,6 +7,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AlertService } from '../../shared/services/alert.service';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-resumen-postulaciones',
@@ -18,6 +19,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 export class ResumenPostulaciones implements OnInit {
   private os = inject(OportunidadesService);
   private alertService = inject(AlertService);
+  private authService = inject(AuthService);
 
   public postulaciones = signal<any[]>([]);
   public cargando = signal<boolean>(false);
@@ -26,10 +28,13 @@ export class ResumenPostulaciones implements OnInit {
   private idPostulante!: number;
 
   ngOnInit(): void {
-    const profile = JSON.parse(sessionStorage.getItem('user_profile') || '{}');
-    const tokenParts = atob(profile.token).split('-');
-    this.idPostulante = Number(tokenParts[1]);
-    this.cargarHistorial();
+    this.idPostulante = this.authService.obtenerIdPostulanteDesdeJwt();
+    
+    if (this.idPostulante > 0) {
+      this.cargarHistorial();
+    } else {
+      this.alertService.error('Error de Sesión', 'No se pudo identificar al postulante. Por favor reinicie sesión.');
+    }
   }
 
   cargarHistorial(): void {

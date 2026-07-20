@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -9,6 +9,7 @@ import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { LoginRequest } from '../../core/models/auth.model';
 import Swal from 'sweetalert2';
+import { ParametroService } from '../../services/parametro.service';
 
 @Component({
   selector: 'app-login',
@@ -16,16 +17,26 @@ import Swal from 'sweetalert2';
   templateUrl: './login.html',
   styleUrl: './login.css',
 })
-export class Login {
+export class Login implements OnInit{
 
   private fb = inject(FormBuilder);
   private router = inject(Router);
+  private parametroService = inject(ParametroService);
   private _authService = inject(AuthService);
 
   public ocultarContrasena = signal<boolean>(true);
   public cargando = signal<boolean>(false);
   public errorLogin = signal<string | null>(null);
   public esExterno = signal<boolean>(false);
+
+  public loginForm!: FormGroup;
+
+  ngOnInit(): void {
+    this.loginForm = this.fb.group({
+      usuario: ['', [Validators.required, Validators.minLength(4)]],
+      contrasena: ['', [Validators.required, Validators.minLength(6)]]
+    });
+  }
 
   setTipoUsuario(esCiudadano: boolean): void {
     this.esExterno.set(esCiudadano);
@@ -42,11 +53,6 @@ export class Login {
     usuarioControl?.updateValueAndValidity();
   }
 
-  public loginForm: FormGroup = this.fb.group({
-    usuario: ['', [Validators.required, Validators.minLength(4)]],
-    contrasena: ['', [Validators.required, Validators.minLength(6)]]
-  });
-
   togglePassword(): void {
     this.ocultarContrasena.update(prev => !prev);
   }
@@ -60,7 +66,43 @@ export class Login {
     this.cargando.set(true);
     this.errorLogin.set(null);
 
-        const { usuario, contrasena } = this.loginForm.value;
+    // 🚀 CONTROL DE ACCESO ORIENTADO A POLÍTICAS DE MANTENIMIENTO:
+    if (this.esExterno()) {
+      this.parametroService.verificarMantenimientoPortal().subscribe({
+        next: (res) => {
+          if (res.success && res.enMantenimiento) {
+            this.cargando.set(false);
+            
+            // Alerta informativa fluida usando SweetAlert
+            Swal.fire({
+              title: 'Plataforma en Mantenimiento',
+              text: 'Estimado ciudadano, el portal se encuentra temporalmente fuera de servicio por actualización técnica de bases de los concursos vigentes.',
+              icon: 'info',
+              confirmButtonText: 'Entendido',
+              confirmButtonColor: '#1e3c72',
+              heightAuto: false
+            }).then(() => {
+              // Redirección fulminante a la pantalla estática informativa
+              this.router.navigate(['/mantenimiento']);
+            });
+          } else {
+            // Si el flag es 0, ejecutamos la autenticación tradicional
+            this.procederAutenticacion();
+          }
+        },
+        error: () => {
+          // Fail-safe: si el API de parámetros falla por red, dejamos intentar el login por resguardo
+          this.procederAutenticacion();
+        }
+      });
+    } else {
+      // Si el usuario es de tipo INSTITUCIONAL, se salta la validación y entra directo
+      this.procederAutenticacion();
+    }
+  }
+
+  private procederAutenticacion(): void {
+    const { usuario, contrasena } = this.loginForm.value;
 
     const request: LoginRequest = {
       username:   usuario,
@@ -71,8 +113,6 @@ export class Login {
     this._authService.login(request).subscribe({
       next: (res) => {
         if (res.success) {
-          // ✅ El AuthService ya guardó el token y el perfil en guardarSesion()
-          // No se necesita sessionStorage aquí
           Swal.fire({
             title: '¡Acceso Concedido!',
             text: res.message,
@@ -93,7 +133,6 @@ export class Login {
       },
       error: (err) => {
         this.cargando.set(false);
-        
         const mensajeError = err.error?.message || 'Error de conexión con el servidor de seguridad.';
         this.errorLogin.set(mensajeError);
 

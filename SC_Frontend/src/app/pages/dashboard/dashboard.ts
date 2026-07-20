@@ -11,6 +11,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { TrazabilidadPostulaciones } from '../admin/trazabilidad-postulaciones/trazabilidad-postulaciones';
 import { PostulanteResumenService } from '../../services/postulante-resumen.service';
 import { ComiteEvaluacionService } from '../../services/comite-evaluacion.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -23,6 +24,7 @@ export class Dashboard implements OnInit {
   private postulanteService = inject(PostulanteDashboardService);
   private _postulacionService = inject(PostulanteResumenService);
   private comiteService = inject(ComiteEvaluacionService);
+  private authService = inject(AuthService);
   private router = inject(Router);
   private dialog = inject(MatDialog);
 
@@ -39,8 +41,6 @@ export class Dashboard implements OnInit {
     const profile = JSON.parse(sessionStorage.getItem('user_profile') || '{}');
     this.nombreUsuario.set(profile.nombreCompleto || 'Usuario');
     this.userRol.set(profile.rol || 'POSTULANTE');
-
-    console.log('Rol del usuario:', this.userRol());
     
     if (this.userRol() === 'Administrador') {
       this.cargarDatosDashboard();

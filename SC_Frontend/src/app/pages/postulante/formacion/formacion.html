@@ -68,7 +68,8 @@
                   <mat-icon>visibility</mat-icon>
                 </button>
                 @if (!modoLectura) {
-                  <button mat-icon-button color="accent" (click)="reemplazarInput.click()" matTooltip="Reemplazar archivo por uno nuevo">
+                  <button mat-icon-button color="accent" (click)="reemplazarInput.click()" 
+                          [matTooltip]="'Reemplazar archivo (Máx. ' + limiteArchivoMb() + 'MB)'">
                     <mat-icon>autorenew</mat-icon>
                   </button>
                   <input #reemplazarInput type="file" accept="application/pdf" style="display: none;" (change)="onFileSelected($event, item.idFormacion)">
@@ -79,19 +80,20 @@
                 }
               </div>
             } @else {
-                <div class="status-pending">
-                  <mat-icon class="icon-pending">error_outline</mat-icon>
-                  <span class="text-doc text-warn">Falta cargar archivo sustentatorio (.pdf)</span>
+              <div class="status-pending">
+                <mat-icon class="icon-pending">error_outline</mat-icon>
+                <!-- 🚀 MEJORA: Texto informativo enriquecido dinámicamente con la Signal -->
+                <span class="text-doc text-warn">Falta cargar archivo sustentatorio (.pdf - Máx. {{ limiteArchivoMb() }}MB)</span>
+              </div>
+              @if (!modoLectura) {
+                <div class="upload-btn-wrapper">
+                  <button mat-stroked-button color="accent" class="btn-upload" (click)="fileInput.click()">
+                    <mat-icon>cloud_upload</mat-icon> Subir Sustento
+                  </button>
+                  <input #fileInput type="file" accept="application/pdf" style="display: none;" (change)="onFileSelected($event, item.idFormacion)">
                 </div>
-                @if (!modoLectura) {
-                  <div class="upload-btn-wrapper">
-                    <button mat-stroked-button color="accent" class="btn-upload" (click)="fileInput.click()">
-                      <mat-icon>cloud_upload</mat-icon> Subir Sustento
-                    </button>
-                    <input #fileInput type="file" accept="application/pdf" style="display: none;" (change)="onFileSelected($event, item.idFormacion)">
-                  </div>
-                }
               }
+            }
           </div>
         </div>
       }

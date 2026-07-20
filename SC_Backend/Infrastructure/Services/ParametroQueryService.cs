@@ -24,5 +24,16 @@ namespace Infrastructure.Services
                 commandType: CommandType.StoredProcedure
             )).ToList();
         }
+
+        public async Task<bool> ObtenerEstadoMantenimientoAsync()
+        {
+            using IDbConnection connection = _dbConnectionFactory.CreateConnection();
+
+            const string sql = "SELECT valor FROM sc_parametro_global WHERE codigo = 'FLAG_MANTENIMIENTO_PORTAL' AND activo = 1";
+
+            var valorStr = await connection.QueryFirstOrDefaultAsync<string>(sql);
+
+            return valorStr == "1";
+        }
     }
 }

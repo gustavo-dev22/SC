@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
+import { mantenimientoGuard } from './core/guards/mantenimiento.guard';
 
 export const routes: Routes = [
     // 1. REDIRECCIÓN INICIAL
@@ -15,6 +16,11 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/login/login').then(m => m.Login)
     },
     {
+        // 🚀 NUEVA PÁGINA INFORMATIVA CORPORATIVA: Accesible libremente cuando está habilitado el flag
+        path: 'mantenimiento',
+        loadComponent: () => import('./pages/auth/mantenimiento/mantenimiento').then(m => m.Mantenimiento)
+    },
+    {
         path: 'auth/registro-postulante',
         loadComponent: () => import('./pages/auth/registro-postulante/registro-postulante').then(m => m.RegistroPostulante)
     },
@@ -27,11 +33,11 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/auth/recuperar-clave/recuperar-clave').then(m => m.RecuperarClave) 
     },
 
-    // 3. RUTAS PRIVADAS / INTRANET (Protegidas por Guard y envueltas en el Layout de navegación)
+    // 3. RUTAS PRIVADAS / INTRANET (Protección doble: Autenticación activa y Verificación de Mantenimiento)
     {
         path: '',
         loadComponent: () => import('./pages/layout/layout').then(m => m.Layout),
-        canActivate: [authGuard],
+        canActivate: [authGuard, mantenimientoGuard],
         children: [
             {
                 path: 'dashboard',

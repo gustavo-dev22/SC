@@ -25,4 +25,8 @@ export class ParametroService {
   }): Observable<any> {
     return this.crudHttp.post<any>('parametro/mantenimiento', payload);
   }
+
+  verificarMantenimientoPortal(): Observable<{ success: boolean, enMantenimiento: boolean }> {
+    return this.crudHttp.get<{ success: boolean, enMantenimiento: boolean }>(`parametro/publico/mantenimiento`);
+  }
 }

@@ -65,7 +65,8 @@
                   <mat-icon>visibility</mat-icon>
                 </button>
                 @if (!modoLectura) {
-                  <button mat-icon-button color="accent" (click)="reemplazarInput.click()" matTooltip="Reemplazar archivo por uno nuevo">
+                  <!-- 🚀 MEJORA: Tooltip dinámico inyectado con el valor de la Signal -->
+                  <button mat-icon-button color="accent" (click)="reemplazarInput.click()" [matTooltip]="'Reemplazar archivo (Máx. ' + limiteArchivoMb() + 'MB)'">
                     <mat-icon>autorenew</mat-icon>
                   </button>
                   <input #reemplazarInput type="file" accept="application/pdf" style="display: none;" (change)="onFileSelected($event, item.idCertificacion)">
@@ -78,7 +79,8 @@
             } @else {
               <div class="status-pending">
                 <mat-icon class="icon-pending">error_outline</mat-icon>
-                <span class="text-doc text-warn">Falta cargar archivo sustentatorio (.pdf)</span>
+                <!-- 🚀 MEJORA: Etiqueta descriptiva parametrizada con la regla global -->
+                <span class="text-doc text-warn">Falta cargar archivo sustentatorio (.pdf - Máx. {{ limiteArchivoMb() }}MB)</span>
               </div>
               @if (!modoLectura) {
                 <div class="upload-btn-wrapper">

@@ -1,9 +1,13 @@
-﻿using System.Net.Http.Json;
-using Application.Auth.Commands;
+﻿using Application.Auth.Commands;
 using Application.Auth.Dto;
 using Application.Common.Interfaces;
 using MediatR;
 using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Net.Http.Json;
+using System.Security.Claims;
+using System.Text;
 using static Application.Common.Models.Integration.Sasi.SasiIntegrationModels;
 
 namespace Application.Auth.Handlers
@@ -91,7 +95,9 @@ namespace Application.Auth.Handlers
             }
 
             // 3. Generación del Token local sin dependencias externas
-            string tokenReal = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes($"POSTULANTE-{postulante.IdPostulante}-{DateTime.UtcNow.Ticks}"));
+            //string tokenReal = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes($"POSTULANTE-{postulante.IdPostulante}-{DateTime.UtcNow.Ticks}"));
+
+            string tokenReal = GenerarJwtTokenPostulante(postulante);
 
             // Estructura Plana Oficial Optimizada y Expandida para el Postulante
             var menusOficialesPostulante = new List<MenuObjetoDto>
@@ -155,6 +161,40 @@ namespace Application.Auth.Handlers
                 Rol = "POSTULANTE",
                 Menus = menusOficialesPostulante
             };
+        }
+
+        // 🚀 MÉTODO PRIVADO AUXILIAR PARA LA CONSTRUCCIÓN DEL JWT
+        private string GenerarJwtTokenPostulante(dynamic postulante)
+        {
+            var secretKey = _configuration["JwtSettings:SecretKey"] ?? "Clave_Por_Defecto_Segura_1234567890_SASI";
+            var issuer = _configuration["JwtSettings:Issuer"];
+            var audience = _configuration["JwtSettings:Audience"];
+
+            var key = Encoding.UTF8.GetBytes(secretKey);
+
+            var claims = new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, postulante.IdPostulante.ToString()),
+                new Claim(ClaimTypes.Name, $"{postulante.Nombres} {postulante.ApellidoPaterno}"),
+                new Claim(ClaimTypes.Role, "POSTULANTE")
+            };
+
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(claims),
+
+                // 🚀 EXPIRACIÓN TRANSACCIONAL DE SERVIDORES: Exactamente 5 minutos
+                Expires = DateTime.UtcNow.AddMinutes(5),
+
+                Issuer = issuer,
+                Audience = audience,
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            };
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+
+            return tokenHandler.WriteToken(token);
         }
     }
 }

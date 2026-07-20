@@ -4,6 +4,7 @@ import { catchError, Observable, tap, throwError } from 'rxjs';
 import { Router } from '@angular/router';
 import { ApiResponse, AuthResponse, LoginRequest, RegistroPostulanteRequest } from '../core/models/auth.model';
 import { AUTH_ENDPOINTS } from '../core/constants/api-endpoints';
+import { SessionTimeoutService } from '../core/services/session-timeout.service';
 
 @Injectable({
   providedIn: 'root',
@@ -11,6 +12,7 @@ import { AUTH_ENDPOINTS } from '../core/constants/api-endpoints';
 export class AuthService {
   private crudHttp = inject(CrudHttpService);
   private router   = inject(Router);
+  private sessionTimeoutService = inject(SessionTimeoutService);
 
   private readonly _usuarioActual = signal<AuthResponse['data'] | null>(
     this.recuperarSesionGuardada()
@@ -30,6 +32,30 @@ export class AuthService {
         }),
         catchError(err => this.manejarError(err))
       );
+  }
+
+  // En tu AuthService o en un Helper utilitario
+  public obtenerIdPostulanteDesdeJwt(): number {
+    const profileStr = sessionStorage.getItem('user_profile') || '{}';
+    try {
+      const profile = JSON.parse(profileStr);
+      if (!profile.token) return 0;
+
+      // 1. Un JWT tiene 3 partes separadas por punto: Header.Payload.Signature
+      const payloadBase64 = profile.token.split('.')[1]; 
+      if (!payloadBase64) return 0;
+
+      // 2. Decodificamos el Payload Base64
+      const payloadJson = atob(payloadBase64.replace(/-/g, '+').replace(/_/g, '/'));
+      const claims = JSON.parse(payloadJson);
+
+      // 3. Obtenemos el claim 'nameid' o 'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'
+      const idStr = claims['nameid'] || claims['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
+      return Number(idStr) || 0;
+    } catch (error) {
+      console.error('Error al decodificar JWT:', error);
+      return 0;
+    }
   }
 
   registrarPostulante(
@@ -58,6 +84,7 @@ export class AuthService {
   }
 
   logout(): void {
+    this.sessionTimeoutService.detenerMonitoreo();
     sessionStorage.removeItem('token');
     sessionStorage.removeItem('user_profile');
     this._usuarioActual.set(null);

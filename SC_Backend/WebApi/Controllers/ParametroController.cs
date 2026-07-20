@@ -3,6 +3,7 @@ using Application.Parametros.Commands;
 using Application.Parametros.Dtos;
 using Application.Parametros.Queries;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 
@@ -34,6 +35,16 @@ namespace WebApi.Controllers
             {
                 return BadRequest(BaseResponse<bool>.Fail(ex.Message));
             }
+        }
+
+        [HttpGet("publico/mantenimiento")]
+        [AllowAnonymous]
+        public async Task<IActionResult> ValidarMantenimiento()
+        {
+            // Despachamos la Query directa a través del Mediator sin romper la arquitectura
+            var enMantenimiento = await _mediator.Send(new GetMantenimientoPortalQuery());
+
+            return Ok(new { success = true, enMantenimiento });
         }
     }
 }
