@@ -8,6 +8,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { PostulanteIdiomaService } from '../../../services/postulante-idioma.service';
 import { AlertService } from '../../../shared/services/alert.service';
 import { ModalIdiomaComponent } from './modal-idioma/modal-idioma';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-idiomas',
@@ -21,16 +22,20 @@ export class Idiomas implements OnInit {
   private dialog = inject(MatDialog);
   private idiomaService = inject(PostulanteIdiomaService);
   private alertService = inject(AlertService);
+  private authService = inject(AuthService);
 
   public listaIdiomas = signal<any[]>([]);
   public cargando = signal<boolean>(false);
   private idPostulante!: number;
 
   ngOnInit(): void {
-    const profile = JSON.parse(sessionStorage.getItem('user_profile') || '{}');
-    const tokenParts = atob(profile.token).split('-');
-    this.idPostulante = Number(tokenParts[1]);
-    this.cargarIdiomas();
+    this.idPostulante = this.authService.obtenerIdPostulanteDesdeJwt();
+    
+    if (this.idPostulante > 0) {
+      this.cargarIdiomas();
+    } else {
+      this.alertService.error('Error de Sesión', 'No se pudo identificar al postulante. Por favor reinicie sesión.');
+    }
   }
 
   cargarIdiomas(): void {

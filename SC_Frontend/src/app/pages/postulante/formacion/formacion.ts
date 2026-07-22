@@ -13,6 +13,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { DocumentoSustentoService } from '../../../services/documento-sustento.service';
 import { ParametroService } from '../../../services/parametro.service';
 import { forkJoin } from 'rxjs';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-formacion',
@@ -29,6 +30,7 @@ export class Formacion implements OnInit {
   private alertService = inject(AlertService);
   private documentoSustentoService = inject(DocumentoSustentoService);
   private parametroService = inject(ParametroService);
+  private authService = inject(AuthService);
 
   public cargando = signal(false);
   public listaFormacion = signal<any[]>([]);
@@ -42,13 +44,12 @@ export class Formacion implements OnInit {
   }
 
   ngOnInit(): void {
-    const profileStr = sessionStorage.getItem('user_profile');
-    if (profileStr) {
-      const profile = JSON.parse(profileStr);
-      const tokenParts = atob(profile.token).split('-');
-      this.idPostulante = Number(tokenParts[1]);
-      
+    this.idPostulante = this.authService.obtenerIdPostulanteDesdeJwt();
+    
+    if (this.idPostulante > 0) {
       this.inicializarModuloFormacion();
+    } else {
+      this.alertService.error('Error de Sesión', 'No se pudo identificar al postulante. Por favor reinicie sesión.');
     }
   }
 

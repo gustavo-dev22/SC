@@ -18,6 +18,7 @@ import { OtrosRequisitos } from '../otros-requisitos/otros-requisitos';
 import { InformacionAdicional } from '../info-adicional/info-adicional';
 import { FirmaDigitalizada } from '../firma-digitalizada/firma-digitalizada';
 import { PostulanteFichaService } from '../../../services/postulante-ficha.service';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-ficha-resumen',
@@ -30,6 +31,7 @@ export class FichaResumen implements OnInit {
   private resumenService = inject(PostulanteResumenService);
   private fichaService = inject(PostulanteFichaService);
   private alertService = inject(AlertService);
+  private authService = inject(AuthService);
 
   public cargando = signal<boolean>(false);
   public porcentaje = signal<number>(0);
@@ -114,10 +116,14 @@ export class FichaResumen implements OnInit {
   private idPostulante!: number;
 
   ngOnInit(): void {
-    const profile = JSON.parse(sessionStorage.getItem('user_profile') || '{}');
-    const tokenParts = atob(profile.token).split('-');
-    this.idPostulante = Number(tokenParts[1]);
-    this.obtenerDiagnostico();
+    this.idPostulante = this.authService.obtenerIdPostulanteDesdeJwt();
+    
+    if (this.idPostulante > 0) {
+      this.obtenerDiagnostico();
+    } else {
+      this.alertService.error('Error de Sesión', 'No se pudo identificar al postulante. Por favor reinicie sesión.');
+    }
+    
   }
 
   obtenerDiagnostico(): void {

@@ -12,6 +12,7 @@ import { PostulantePerfilService } from '../../../services/postulante-perfil.ser
 import { CatalogoService } from '../../../services/catalogo.service';
 import { AlertService } from '../../../shared/services/alert.service';
 import { UbigeoService } from '../../../services/ubigeo.service';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-datos-personales',
@@ -28,6 +29,7 @@ export class DatosPersonales implements OnInit {
   private catalogoService = inject(CatalogoService);
   private alertService = inject(AlertService);
   private ubigeoService = inject(UbigeoService);
+  private authService = inject(AuthService);
 
   public perfilForm!: FormGroup;
   public cargando = signal<boolean>(false);
@@ -77,22 +79,15 @@ export class DatosPersonales implements OnInit {
   }
 
   recuperarIdSesion(): void {
-    const rawProfile = sessionStorage.getItem('user_profile');
-    if (rawProfile) {
-      const profile = JSON.parse(rawProfile);
-      
-      if (profile.token) {
+    this.idPostulanteLogueado = this.authService.obtenerIdPostulanteDesdeJwt();
+    if (this.idPostulanteLogueado > 0) {
         try {
-          const decodedToken = atob(profile.token);
-          const tokenParts = decodedToken.split('-');
-          this.idPostulanteLogueado = Number(tokenParts[1]);
           this.cargarDatosPerfil();
         } catch (error) {
           console.error('Error al descifrar el token del postulante:', error);
           this.idPostulanteLogueado = 1;
           this.cargarDatosPerfil();
         }
-      }
     }
   }
 

@@ -14,6 +14,7 @@ import { CatalogoService } from '../../../services/catalogo.service';
 import { OportunidadesService } from '../../../services/oportunidades.service';
 import { MatDialog } from '@angular/material/dialog';
 import { HistorialTicketsModal } from './historial-tickets-modal/historial-tickets-modal';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-consultas-reclamos',
@@ -26,6 +27,7 @@ export class ConsultasReclamos implements OnInit {
   private alertService = inject(AlertService);
   private catalogoService = inject(CatalogoService);
   private os = inject(OportunidadesService);
+  private authService = inject(AuthService);
   private dialog = inject(MatDialog);
 
   public listaTickets = signal<any[]>([]);
@@ -44,13 +46,15 @@ export class ConsultasReclamos implements OnInit {
   public ultimosTresTickets = computed(() => this.listaTickets().slice(0, 3));
 
   ngOnInit(): void {
-    const profile = JSON.parse(sessionStorage.getItem('user_profile') || '{}');
-    const tokenParts = atob(profile.token).split('-');
-    this.idPostulante = Number(tokenParts[1]);
-
-    this.cargarCatalogos();
-    this.cargarHistorialTickets();
-    this.cargarMisPostulacionesConformes();
+    this.idPostulante = this.authService.obtenerIdPostulanteDesdeJwt();
+    
+    if (this.idPostulante > 0) {
+      this.cargarCatalogos();
+      this.cargarHistorialTickets();
+      this.cargarMisPostulacionesConformes();
+    } else {
+      this.alertService.error('Error de Sesión', 'No se pudo identificar al postulante. Por favor reinicie sesión.');
+    }
   }
 
   cargarCatalogos(): void {

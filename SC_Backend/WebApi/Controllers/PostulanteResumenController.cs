@@ -1,4 +1,6 @@
-﻿using Application.Common.Dtos;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using Application.Common.Dtos;
 using Application.Postulantes.Dtos;
 using Application.Postulantes.Queries;
 using MediatR;
@@ -30,60 +32,52 @@ namespace WebApi.Controllers
         }
 
         [HttpGet("estado-actual")]
-        // 🚀 NUEVO: Añadimos [FromQuery] int? idPlaza para capturar el parámetro opcional desde Angular
+        [Authorize]
         public async Task<IActionResult> ObtenerEstadoPostulacionActual([FromQuery] int? idPlaza)
         {
             string userIdClaim = string.Empty;
 
-            // 1. Extraemos manualmente el Header de Autorización de la petición HTTP
-            string authHeader = Request.Headers["Authorization"].ToString();
+            userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                       ?? User.FindFirst("nameid")?.Value
+                       ?? string.Empty;
 
-            if (!string.IsNullOrEmpty(authHeader) && authHeader.StartsWith("Bearer "))
+            if (string.IsNullOrEmpty(userIdClaim))
             {
-                // 2. Limpiamos el prefijo 'Bearer ' para quedarnos con el token puro ("POSTULANTE-1-...")
-                string tokenCrudo = authHeader.Substring("Bearer ".Length).Trim();
-
-                try
+                string authHeader = Request.Headers["Authorization"].ToString();
+                if (!string.IsNullOrEmpty(authHeader) && authHeader.StartsWith("Bearer "))
                 {
-                    // 3. 🎯 AQUÍ APLICAS TU LÓGICA DE NEGOCIO PARA EXTRAER EL ID:
-                    var partes = tokenCrudo.Split('-');
-                    if (partes.Length >= 2 && partes[0] == "POSTULANTE")
+                    string tokenJwt = authHeader.Substring("Bearer ".Length).Trim();
+                    try
                     {
-                        userIdClaim = partes[1]; // Captura el "1" de forma dinámica
-                    }
-                    else
-                    {
-                        // Si tu token está encriptado en Base64 plano en los headers, lo decodificamos primero:
-                        byte[] datosBytes = System.Convert.FromBase64String(tokenCrudo);
-                        string tokenDecodificado = System.Text.Encoding.UTF8.GetString(datosBytes);
-
-                        var partesDecodificadas = tokenDecodificado.Split('-');
-                        if (partesDecodificadas.Length >= 2)
+                        var handler = new JwtSecurityTokenHandler();
+                        if (handler.CanReadToken(tokenJwt))
                         {
-                            userIdClaim = partesDecodificadas[1];
+                            var jwtToken = handler.ReadJwtToken(tokenJwt);
+                            userIdClaim = jwtToken.Claims.FirstOrDefault(c =>
+                                c.Type == ClaimTypes.NameIdentifier ||
+                                c.Type == "nameid" ||
+                                c.Type == "sub")?.Value ?? string.Empty;
                         }
                     }
-                }
-                catch (System.Exception ex)
-                {
-                    System.Console.WriteLine($"🔴 Error al procesar el token manual: {ex.Message}");
+                    catch (System.Exception ex)
+                    {
+                        System.Console.WriteLine($"Error leyendo JWT: {ex.Message}");
+                    }
                 }
             }
 
-            // 4. Si tras revisar el header no pudimos rescatar el ID del usuario, abortamos
             if (string.IsNullOrEmpty(userIdClaim))
             {
                 return BadRequest(new { success = false, message = "No se pudo identificar una sesión de postulante válida." });
             }
 
-            // 5. Despachamos el Query a MediatR enviando TANTO el userId como el idPlaza 🎯
-            var idEstado = await _mediator.Send(new GetEstadoPostulacionActualQuery(int.Parse(userIdClaim), idPlaza));
+            int idPostulante = int.Parse(userIdClaim);
+            var idEstado = await _mediator.Send(new GetEstadoPostulacionActualQuery(idPostulante, idPlaza));
 
-            // 🚀 IMPRIMIR EN CONSOLA DEL BACKEND (Ahora con soporte de plazas)
             System.Console.WriteLine($"====================================================");
-            System.Console.WriteLine($"🔍 DEBUG MANUAL: El ID extraído del Token es: {userIdClaim}");
-            System.Console.WriteLine($"🏢 DEBUG MANUAL: El ID de Plaza evaluado es: {idPlaza?.ToString() ?? "NULL (Última)"}");
-            System.Console.WriteLine($"🎯 DEBUG MANUAL: El ID del Estado es: {idEstado ?? 0}");
+            System.Console.WriteLine($"🔍 DEBUG JWT: El ID del Postulante resuelto es: {idPostulante}");
+            System.Console.WriteLine($"🏢 DEBUG JWT: El ID de Plaza evaluado es: {idPlaza?.ToString() ?? "NULL (Última)"}");
+            System.Console.WriteLine($"🎯 DEBUG JWT: El ID del Estado es: {idEstado ?? 0}");
             System.Console.WriteLine($"====================================================");
 
             return Ok(new { success = true, data = idEstado ?? 0 });

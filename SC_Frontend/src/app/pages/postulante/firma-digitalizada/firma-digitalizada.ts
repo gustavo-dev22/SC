@@ -6,6 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { PostulanteFirmaService } from '../../../services/postulante-firma.service';
 import { AlertService } from '../../../shared/services/alert.service';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-firma-digitalizada',
@@ -18,16 +19,20 @@ export class FirmaDigitalizada implements OnInit {
   @Input() modoLectura: boolean = false;
   private postulanteFirmaService = inject(PostulanteFirmaService);
   private alertService = inject(AlertService);
+  private authService = inject(AuthService);
 
   public cargando = signal<boolean>(false);
   public urlFirmaPreview = signal<string | null>(null); 
   private idPostulante!: number;
 
   ngOnInit(): void {
-    const profile = JSON.parse(sessionStorage.getItem('user_profile') || '{}');
-    const tokenParts = atob(profile.token).split('-');
-    this.idPostulante = Number(tokenParts[1]);
-    this.cargarFirmaExistente();
+    this.idPostulante = this.authService.obtenerIdPostulanteDesdeJwt();
+    
+    if (this.idPostulante > 0) {
+      this.cargarFirmaExistente();
+    } else {
+      this.alertService.error('Error de Sesión', 'No se pudo identificar al postulante. Por favor reinicie sesión.');
+    }
   }
 
   cargarFirmaExistente(): void {

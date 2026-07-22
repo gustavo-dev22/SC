@@ -8,6 +8,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { PostulanteOtrosRequisitosService } from '../../../services/postulante-otros-requisitos.service';
 import { AlertService } from '../../../shared/services/alert.service';
 import { ModalOtrosRequisitos } from './modal-otros-requisitos/modal-otros-requisitos';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-otros-requisitos',
@@ -21,16 +22,20 @@ export class OtrosRequisitos implements OnInit {
   private dialog = inject(MatDialog);
   private reqService = inject(PostulanteOtrosRequisitosService);
   private alertService = inject(AlertService);
+  private authService = inject(AuthService);
 
   public listaRequisitos = signal<any[]>([]);
   public cargando = signal<boolean>(false);
   private idPostulante!: number;
 
   ngOnInit(): void {
-    const profile = JSON.parse(sessionStorage.getItem('user_profile') || '{}');
-    const tokenParts = atob(profile.token).split('-');
-    this.idPostulante = Number(tokenParts[1]);
-    this.cargarRequisitos();
+    this.idPostulante = this.authService.obtenerIdPostulanteDesdeJwt();
+    
+    if (this.idPostulante > 0) {
+      this.cargarRequisitos();
+    } else {
+      this.alertService.error('Error de Sesión', 'No se pudo identificar al postulante. Por favor reinicie sesión.');
+    }
   }
 
   cargarRequisitos(): void {

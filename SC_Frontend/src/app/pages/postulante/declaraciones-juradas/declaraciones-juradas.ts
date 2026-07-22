@@ -9,6 +9,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { CatalogoService } from '../../../services/catalogo.service';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-declaraciones-juradas',
@@ -20,6 +21,7 @@ export class DeclaracionesJuradas implements OnInit {
   private ds = inject(PostulanteDeclaracionService);
   private catalogoService = inject(CatalogoService);
   private alertService = inject(AlertService);
+  private authService = inject(AuthService);
   
   public listaDeclaraciones = signal<any[]>([]);
   public cargando = signal<boolean>(false);
@@ -35,10 +37,13 @@ export class DeclaracionesJuradas implements OnInit {
 
   ngOnInit(): void {
     this.cargando.set(true);
-    const profile = JSON.parse(sessionStorage.getItem('user_profile') || '{}');
-    const tokenParts = atob(profile.token).split('-');
-    this.idPostulante = Number(tokenParts[1]);
-    this.cargarDatosPorCatalogo();
+    this.idPostulante = this.authService.obtenerIdPostulanteDesdeJwt();
+    
+    if (this.idPostulante > 0) {
+      this.cargarDatosPorCatalogo();
+    } else {
+      this.alertService.error('Error de Sesión', 'No se pudo identificar al postulante. Por favor reinicie sesión.');
+    }
   }
 
   onCheckChange(idDeclaracionCat: number, nuevoValor: boolean): void {

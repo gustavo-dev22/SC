@@ -14,6 +14,7 @@ import { OportunidadesService } from '../../services/oportunidades.service';
 import { AlertService } from '../../shared/services/alert.service';
 import { DetallePlaza } from './detalle-plaza/detalle-plaza';
 import { PostulanteResumenService } from '../../services/postulante-resumen.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-buscar-plazas',
@@ -35,6 +36,7 @@ export class BuscarPlazas implements OnInit, OnDestroy {
   private os = inject(OportunidadesService);
   private alertService = inject(AlertService);
   private resumenService = inject(PostulanteResumenService);
+  private authService = inject(AuthService);
   public dialog = inject(MatDialog);
 
   public listaPlazas = signal<any[]>([]);
@@ -53,20 +55,22 @@ export class BuscarPlazas implements OnInit, OnDestroy {
   private searchSubscription!: Subscription;
 
   ngOnInit(): void {
-    const profile = JSON.parse(sessionStorage.getItem('user_profile') || '{}');
-    const tokenParts = atob(profile.token).split('-');
-    this.idPostulante = Number(tokenParts[1]);
+    this.idPostulante = this.authService.obtenerIdPostulanteDesdeJwt();
+    
+    if (this.idPostulante > 0) {
+      this.searchSubscription = this.searchSubject.pipe(
+        debounceTime(400),
+        distinctUntilChanged()
+      ).subscribe(textoBuscar => {
+        this.filtroBusqueda = textoBuscar;
+        this.paginaActual.set(1);
+        this.cargarPlazas();
+      });
 
-    this.searchSubscription = this.searchSubject.pipe(
-      debounceTime(400),
-      distinctUntilChanged()
-    ).subscribe(textoBuscar => {
-      this.filtroBusqueda = textoBuscar;
-      this.paginaActual.set(1);
-      this.cargarPlazas();
-    });
-
-    this.inicializarModuloPlazas();
+      this.inicializarModuloPlazas();
+    } else {
+      this.alertService.error('Error de Sesión', 'No se pudo identificar al postulante. Por favor reinicie sesión.');
+    }
   }
 
   inicializarModuloPlazas(): void {
@@ -82,8 +86,6 @@ export class BuscarPlazas implements OnInit, OnDestroy {
         if (resultado.avance.success) {
           this.porcentajeFicha.set(resultado.avance.data.porcentajeTotal);
         }
-
-        console.log(resultado);
         
         // 2. Procesamos el listado de plazas vacantes
         this.listaPlazas.set(resultado.plazas.content);

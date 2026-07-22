@@ -8,6 +8,7 @@ import { PostulanteColegiaturaService } from '../../../services/postulante-coleg
 import { AlertService } from '../../../shared/services/alert.service';
 import { ModalColegiatura } from './modal-colegiatura/modal-colegiatura';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-colegiatura',
@@ -21,16 +22,20 @@ export class Colegiatura implements OnInit {
   private dialog = inject(MatDialog);
   private colegiaturaService = inject(PostulanteColegiaturaService);
   private alertService = inject(AlertService);
+  private authService = inject(AuthService);
 
   public listaColegiaturas = signal<any[]>([]);
   public cargando = signal<boolean>(false);
   private idPostulante!: number;
 
-  ngOnInit(): void {
-    const profile = JSON.parse(sessionStorage.getItem('user_profile') || '{}');
-    const tokenParts = atob(profile.token).split('-');
-    this.idPostulante = Number(tokenParts[1]);
-    this.cargarColegiaturas();
+  ngOnInit(): void {   
+    this.idPostulante = this.authService.obtenerIdPostulanteDesdeJwt();
+    
+    if (this.idPostulante > 0) {
+      this.cargarColegiaturas();
+    } else {
+      this.alertService.error('Error de Sesión', 'No se pudo identificar al postulante. Por favor reinicie sesión.');
+    }
   }
 
   cargarColegiaturas(): void {

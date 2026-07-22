@@ -8,6 +8,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { PostulanteOfimaticaService } from '../../../services/postulante-ofimatica.service';
 import { AlertService } from '../../../shared/services/alert.service';
 import { ModalOfimatica } from './modal-ofimatica/modal-ofimatica';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-ofimatica',
@@ -21,16 +22,20 @@ export class Ofimatica implements OnInit {
   private dialog = inject(MatDialog);
   private ofimaticaService = inject(PostulanteOfimaticaService);
   private alertService = inject(AlertService);
+  private authService = inject(AuthService);
 
   public listaOfimatica = signal<any[]>([]);
   public cargando = signal<boolean>(false);
   private idPostulante!: number;
 
   ngOnInit(): void {
-    const profile = JSON.parse(sessionStorage.getItem('user_profile') || '{}');
-    const tokenParts = atob(profile.token).split('-');
-    this.idPostulante = Number(tokenParts[1]);
-    this.cargarOfimatica();
+    this.idPostulante = this.authService.obtenerIdPostulanteDesdeJwt();
+    
+    if (this.idPostulante > 0) {
+      this.cargarOfimatica();
+    } else {
+      this.alertService.error('Error de Sesión', 'No se pudo identificar al postulante. Por favor reinicie sesión.');
+    }
   }
 
   cargarOfimatica(): void {

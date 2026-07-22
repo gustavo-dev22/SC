@@ -13,6 +13,7 @@ import { environment } from '../../../../environments/environment';
 import { DocumentoSustentoService } from '../../../services/documento-sustento.service';
 import { ParametroService } from '../../../services/parametro.service';
 import { forkJoin } from 'rxjs';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-certificacion',
@@ -28,6 +29,7 @@ export class Certificacion implements OnInit {
   private documentoSustentoService = inject(DocumentoSustentoService);
   private alertService = inject(AlertService);
   private parametroService = inject(ParametroService);
+  private authService = inject(AuthService);
 
   public listaCertificaciones = signal<any[]>([]);
   private idPostulante!: number;
@@ -41,10 +43,13 @@ export class Certificacion implements OnInit {
   }
 
   ngOnInit(): void {
-    const profile = JSON.parse(sessionStorage.getItem('user_profile') || '{}');
-    const tokenParts = atob(profile.token).split('-');
-    this.idPostulante = Number(tokenParts[1]);
-    this.inicializarModuloCertificaciones();
+    this.idPostulante = this.authService.obtenerIdPostulanteDesdeJwt();
+    
+    if (this.idPostulante > 0) {
+      this.inicializarModuloCertificaciones();
+    } else {
+      this.alertService.error('Error de Sesión', 'No se pudo identificar al postulante. Por favor reinicie sesión.');
+    }
   }
 
   private inicializarModuloCertificaciones(): void {

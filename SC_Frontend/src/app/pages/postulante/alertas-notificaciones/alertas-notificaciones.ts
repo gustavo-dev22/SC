@@ -3,6 +3,8 @@ import { NotificacionesService } from '../../../services/notificaciones.service'
 import { CommonModule } from '@angular/common';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
+import { AuthService } from '../../../services/auth.service';
+import { AlertService } from '../../../shared/services/alert.service';
 
 @Component({
   selector: 'app-alertas-notificaciones',
@@ -12,17 +14,21 @@ import { MatIconModule } from '@angular/material/icon';
 })
 export class AlertasNotificaciones implements OnInit {
   private ns = inject(NotificacionesService);
+  private authService = inject(AuthService);
+  private alertService = inject(AlertService);
 
   public listaNotificaciones = signal<any[]>([]);
   public cargando = signal<boolean>(false);
   private idPostulante!: number;
 
   ngOnInit(): void {
-    const profile = JSON.parse(sessionStorage.getItem('user_profile') || '{}');
-    const tokenParts = atob(profile.token).split('-');
-    this.idPostulante = Number(tokenParts[1]);
-
-    this.cargarNotificaciones();
+    this.idPostulante = this.authService.obtenerIdPostulanteDesdeJwt();
+    
+    if (this.idPostulante > 0) {
+      this.cargarNotificaciones();
+    } else {
+      this.alertService.error('Error de Sesión', 'No se pudo identificar al postulante. Por favor reinicie sesión.');
+    }
   }
 
   cargarNotificaciones(): void {

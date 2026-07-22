@@ -36,9 +36,11 @@ export class Dashboard implements OnInit {
   public userRol = signal<string>(''); // 'ADMIN', 'POSTULANTE', 'COMITE'
   public nombreUsuario = signal<string>('');
   public cargando = signal<boolean>(false);
+  private idPostulante!: number;
 
   ngOnInit(): void {
     const profile = JSON.parse(sessionStorage.getItem('user_profile') || '{}');
+    console.log('Profile from sessionStorage:', profile);
     this.nombreUsuario.set(profile.nombreCompleto || 'Usuario');
     this.userRol.set(profile.rol || 'POSTULANTE');
     
@@ -48,9 +50,8 @@ export class Dashboard implements OnInit {
       this.cargarDashboardComite(this.nombreUsuario());
     }else if (this.userRol() === 'POSTULANTE') {
       this._postulacionService.consultarEstadoPostulacion().subscribe();
-      const tokenParts = atob(profile.token).split('-');
-      const idPostulante = Number(tokenParts[1]);
-      this.cargarDashboardPostulante(idPostulante);
+      this.idPostulante = this.authService.obtenerIdPostulanteDesdeJwt();
+      this.cargarDashboardPostulante(this.idPostulante);
     }
   }
 

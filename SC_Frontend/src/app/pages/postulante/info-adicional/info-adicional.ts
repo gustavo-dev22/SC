@@ -12,6 +12,7 @@ import { UbigeoService } from '../../../services/ubigeo.service';
 import { PostulanteInfoAdicionalService } from '../../../services/postulante-info-adicional.service';
 import { AlertService } from '../../../shared/services/alert.service';
 import { forkJoin } from 'rxjs';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-informacion-adicional',
@@ -36,6 +37,7 @@ export class InformacionAdicional implements OnInit {
   private ubigeoService = inject(UbigeoService);
   private postulanteInfoAdicionalService = inject(PostulanteInfoAdicionalService);
   private alertService = inject(AlertService);
+  private authService = inject(AuthService);
 
   public infoForm!: FormGroup;
   public cargando = signal<boolean>(false);
@@ -44,17 +46,15 @@ export class InformacionAdicional implements OnInit {
 
   ngOnInit(): void {
     this.cargando.set(true);
-
-    const profile = JSON.parse(sessionStorage.getItem('user_profile') || '{}');
-    if (profile.token) {
-      const tokenParts = atob(profile.token).split('-');
-      this.idPostulante = Number(tokenParts[1]);
+    this.idPostulante = this.authService.obtenerIdPostulanteDesdeJwt();
+    
+    if (this.idPostulante > 0) {
+      this.crearFormulario();
+      this.escucharCambiosDisponibilidad();
+      this.cargarDatosIniciales();
+    } else {
+      this.alertService.error('Error de Sesión', 'No se pudo identificar al postulante. Por favor reinicie sesión.');
     }
-
-    this.crearFormulario();
-    this.escucharCambiosDisponibilidad();
-
-    this.cargarDatosIniciales();
   }
 
   crearFormulario(): void {
