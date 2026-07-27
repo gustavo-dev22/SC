@@ -82,4 +82,12 @@ export class ComiteEvaluacionService {
   obtenerResumenDashboard(nombreUsuario: string): Observable<any> {
     return this.crudHttp.get<any>(`ComiteEvaluador/dashboard-resumen?nombreUsuario=${encodeURIComponent(nombreUsuario)}`);
   }
+
+  declararPlazaDesierta(payload: any): Observable<any> {
+    return this.crudHttp.post<any>('ComiteEvaluador/declarar-desierta', payload);
+  }
+
+  descargarActaDesiertaPdf(idPlaza: number): Observable<Blob> {
+    return this.crudHttp.get(`ComiteEvaluador/exportar-acta-desierta/${idPlaza}`, { responseType: 'blob' });
+  }
 }

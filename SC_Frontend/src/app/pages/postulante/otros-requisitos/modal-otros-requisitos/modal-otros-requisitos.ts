@@ -24,23 +24,26 @@ export class ModalOtrosRequisitos implements OnInit {
 
   public reqForm!: FormGroup;
   public isEdicion = false;
+
   public listaTiposRequisitos = signal<any[]>([]);
+  public listaNivelesDecan = signal<any[]>([]);
+  public esDeportistaCalificado = signal<boolean>(false);
+
+  private readonly CODIGO_DECAN = 'DECAN';
 
   ngOnInit(): void {
     this.isEdicion = !!this.data?.elemento;
-    this.cargarCatalogos();
     this.inicializarFormulario();
-  }
-
-  cargarCatalogos(): void {
-    this.catalogoService.getValoresByCodigo('OTROS').subscribe(res => {
-      if (res.success) this.listaTiposRequisitos.set(res.data);
-    });
+    this.cargarCatalogos();
   }
 
   inicializarFormulario(): void {
+    const idTipoInicial = this.data?.elemento?.idTipoRequisitoCat ? Number(this.data.elemento.idTipoRequisitoCat) : null;
+    const idNivelInicial = this.data?.elemento?.idCatalogoNivelDecanCat ? Number(this.data.elemento.idCatalogoNivelDecanCat) : null;
+
     this.reqForm = this.fb.group({
-      idTipoRequisitoCat: [this.data?.elemento?.idTipoRequisitoCat || '', [Validators.required]],
+      idTipoRequisitoCat: [idTipoInicial, [Validators.required]],
+      idCatalogoNivelDecanCat: [idNivelInicial],
       descripcionDocumento: [this.data?.elemento?.descripcionDocumento || '', [Validators.required, Validators.maxLength(150)]],
       numeroRegistro: [this.data?.elemento?.numeroRegistro || '', [Validators.required, Validators.maxLength(50)]],
       fechaEmision: [this.data?.elemento?.fechaEmision ? this.data.elemento.fechaEmision.split('T')[0] : ''],
@@ -48,17 +51,99 @@ export class ModalOtrosRequisitos implements OnInit {
     });
   }
 
+  cargarCatalogos(): void {
+    // 1. Cargamos catálogo general 'OTROS'
+    this.catalogoService.getValoresByCodigo('OTROS').subscribe(resOtros => {
+      if (resOtros.success) {
+        this.listaTiposRequisitos.set(resOtros.data);
+
+        const idTipoActual = Number(this.reqForm.get('idTipoRequisitoCat')?.value);
+        if (idTipoActual) {
+          this.evaluarYAplicarReglasDecan(idTipoActual);
+        }
+
+        // 2. Cargamos catálogo secundario 'NIVEL_DECAN'
+        this.catalogoService.getValoresByCodigo('NIVEL_DECAN').subscribe(resDecan => {
+          if (resDecan.success) {
+            this.listaNivelesDecan.set(resDecan.data);
+
+            const idNivelGuardado = this.data?.elemento?.idCatalogoNivelDecanCat ? Number(this.data.elemento.idCatalogoNivelDecanCat) : null;
+            if (idNivelGuardado) {
+              setTimeout(() => {
+                this.reqForm.patchValue({
+                  idCatalogoNivelDecanCat: idNivelGuardado
+                });
+                this.reqForm.get('idCatalogoNivelDecanCat')?.updateValueAndValidity();
+              }, 50);
+            }
+          }
+        });
+      }
+    });
+  }
+
+  compararIds(o1: any, o2: any): boolean {
+    if (o1 === null || o2 === null || o1 === undefined || o2 === undefined) return false;
+    return Number(o1) === Number(o2);
+  }
+
+  onTipoRequisitoChange(idSeleccionado: any): void {
+    if (!idSeleccionado) {
+      this.esDeportistaCalificado.set(false);
+      this.limpiarValidacionDecan();
+      return;
+    }
+
+    const idValor = Number(idSeleccionado);
+    this.evaluarYAplicarReglasDecan(idValor);
+  }
+
+  private evaluarYAplicarReglasDecan(idTipoRequisito: number): void {
+    const itemEncontrado = this.listaTiposRequisitos().find(x => Number(x.idValor) === idTipoRequisito);
+    
+    // Evaluamos contra tu código oficial 'DECAN' (o 'DC' como salvaguarda)
+    const esDecan = itemEncontrado ? (itemEncontrado.codigoValor === this.CODIGO_DECAN || itemEncontrado.codigoValor === 'DC') : false;
+    this.esDeportistaCalificado.set(esDecan);
+
+    const controlNivel = this.reqForm.get('idCatalogoNivelDecanCat');
+    if (esDecan) {
+      controlNivel?.setValidators([Validators.required]);
+    } else {
+      this.limpiarValidacionDecan();
+    }
+    controlNivel?.updateValueAndValidity();
+    this.reqForm.updateValueAndValidity();
+  }
+
+  private limpiarValidacionDecan(): void {
+    const controlNivel = this.reqForm.get('idCatalogoNivelDecanCat');
+    controlNivel?.clearValidators();
+    controlNivel?.setValue(null);
+    controlNivel?.updateValueAndValidity();
+  }
+
   guardar(): void {
     if (this.reqForm.invalid) return;
     
     const formValue = this.reqForm.value;
-    this.dialogRef.close({
+
+    // 🚀 LÓGICA DE LIMPIEZA DE DATOS: Garantizamos envío numérico o null puro
+    const idNivelParsed = (this.esDeportistaCalificado() && formValue.idCatalogoNivelDecanCat) 
+                          ? Number(formValue.idCatalogoNivelDecanCat) 
+                          : null;
+
+    const payload = {
       accion: this.isEdicion ? 'MODIFICAR' : 'REGISTRAR',
       idRequisitoEspecial: this.data?.elemento?.idRequisitoEspecial || 0,
-      ...formValue,
+      idTipoRequisitoCat: Number(formValue.idTipoRequisitoCat),
+      idCatalogoNivelDecanCat: idNivelParsed, 
+      descripcionDocumento: formValue.descripcionDocumento,
+      numeroRegistro: formValue.numeroRegistro,
       fechaEmision: formValue.fechaEmision || null,
       fechaVencimiento: formValue.fechaVencimiento || null
-    });
+    };
+
+    this.dialogRef.close(payload);
   }
 
   cancelar(): void { this.dialogRef.close(null); }

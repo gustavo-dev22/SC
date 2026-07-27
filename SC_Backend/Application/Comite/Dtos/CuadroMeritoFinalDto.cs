@@ -14,7 +14,6 @@ namespace Application.Comite.Dtos
         public int IdEstadoPostulacionCat { get; set; }
 
         public bool? FaseExpedientesAprobado { get; set; }
-
         public bool? FaseConocimientosAprobado { get; set; }
         public decimal? NotaConocimientos { get; set; }
         public decimal? PtjePonderadoConocimientos { get; set; }
@@ -29,6 +28,15 @@ namespace Application.Comite.Dtos
         public bool? FaseEntrevistaAprobado { get; set; }
         public decimal? NotaEntrevista { get; set; }
         public decimal? PtjePonderadoEntrevista { get; set; }
+
+        public decimal PtjeBaseAcumulado { get; set; }
+        public bool TieneConadis { get; set; }
+        public bool TieneFFAA { get; set; }
+        public int PorcentajeDecan { get; set; }
+
+        public decimal PtjeBonifFFAA { get; set; }
+        public decimal PtjeBonifConadis { get; set; }
+        public decimal PtjeBonifDecan { get; set; }
 
         public decimal? NotaFinalAcumulada { get; set; }
         public string SituacionFinalDesc { get; set; } = null!;

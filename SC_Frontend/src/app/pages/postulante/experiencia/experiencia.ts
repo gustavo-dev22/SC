@@ -94,7 +94,6 @@ export class Experiencia implements OnInit {
     this.cargando.set(true);
     this.expService.getExperiencias(this.idPostulante).subscribe({
       next: (res) => {
-        console.log(res);
         if (res.success) this.listaExperiencias.set(res.data);
         this.cargando.set(false); 
       },

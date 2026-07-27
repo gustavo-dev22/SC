@@ -1,14 +1,15 @@
-﻿using System;
+﻿using Application.Auth.Dtos;
+using Application.Common.Interfaces;
+using Application.Postulantes.Commands;
+using Application.Postulantes.Dtos;
+using Dapper;
+using MediatR;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Application.Auth.Dtos;
-using Application.Common.Interfaces;
-using Application.Postulantes.Commands;
-using Application.Postulantes.Dtos;
-using Dapper;
 
 namespace Infrastructure.Services
 {
@@ -176,6 +177,7 @@ namespace Infrastructure.Services
                 IdRequisitoEspecial = command.IdRequisitoEspecial,
                 IdPostulante = command.IdPostulante,
                 IdTipoRequisitoCat = command.IdTipoRequisitoCat,
+                IdCatalogoNivelDecanCat = command.IdCatalogoNivelDecanCat,
                 DescripcionDocumento = command.DescripcionDocumento,
                 NumeroRegistro = command.NumeroRegistro,
                 FechaEmision = command.FechaEmision,

@@ -11,6 +11,7 @@ namespace Application.Postulantes.Dtos
         public int IdRequisitoEspecial { get; set; }
         public int IdPostulante { get; set; }
         public int IdTipoRequisitoCat { get; set; }
+        public int? IdCatalogoNivelDecanCat { get; set; }
         public string TipoRequisitoClasificacion { get; set; } = string.Empty;
         public string DescripcionDocumento { get; set; } = string.Empty;
         public string NumeroRegistro { get; set; } = string.Empty;

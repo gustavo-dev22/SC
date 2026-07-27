@@ -1,10 +1,12 @@
 ﻿using Application.Admin.Commands;
 using Application.Admin.Dtos;
 using Application.Comite.Commands;
+using Application.Comite.Dtos;
 using Application.Comite.Queries;
 using Application.Common.Dtos;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace WebApi.Controllers
 {
@@ -141,6 +143,41 @@ namespace WebApi.Controllers
         {
             var data = await _mediator.Send(new GetDashboardComiteQuery(nombreUsuario));
             return Ok(new { success = true, data });
+        }
+
+        [HttpPost("declarar-desierta")]
+        public async Task<IActionResult> DeclararPlazaDesierta([FromBody] DeclararPlazaDesiertaDto request)
+        {
+            // 🚀 1. Extraemos el usuario autenticado desde los Claims del JWT
+            string usuarioActual = User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                                ?? User.FindFirst("nameid")?.Value
+                                ?? User.FindFirst(ClaimTypes.Name)?.Value
+                                ?? "COMITE_EVALUADOR";
+
+            // 🚀 2. Construimos el Command de MediatR con todos los campos requeridos
+            var command = new DeclararPlazaDesiertaCommand(
+                request.IdPlaza,
+                request.IdMotivoDesiertaCat,
+                request.SustentoDesierta,
+                usuarioActual
+            );
+
+            // 🚀 3. Enviamos el Command completo al Handler
+            var success = await _mediator.Send(command);
+
+            if (!success)
+            {
+                return BadRequest(new { success = false, message = "No se pudo declarar la plaza desierta." });
+            }
+
+            return Ok(new { success = true, message = "Plaza declarada desierta con éxito." });
+        }
+
+        [HttpGet("exportar-acta-desierta/{idPlaza}")]
+        public async Task<IActionResult> ExportarActaDesierta(int idPlaza)
+        {
+            var pdfBytes = await _mediator.Send(new GetActaDesiertaPdfQuery(idPlaza));
+            return File(pdfBytes, "application/pdf", $"Acta_Declaracion_Desierta_Plaza_{idPlaza}.pdf");
         }
     }
 }

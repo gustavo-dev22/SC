@@ -522,78 +522,105 @@ namespace Infrastructure.Services
                 container.Page(page =>
                 {
                     page.Size(PageSizes.A4.Landscape());
-                    page.Margin(1f, Unit.Centimetre);
+                    page.Margin(0.8f, Unit.Centimetre);
                     page.PageColor(Colors.White);
-                    page.DefaultTextStyle(x => x.FontSize(8.5f).FontFamily("Arial"));
+                    page.DefaultTextStyle(x => x.FontSize(7.5f).FontFamily("Arial"));
 
+                    // ENCABEZADO OFICIAL
                     page.Header().Column(column =>
                     {
-                        column.Item().Text("SISTEMA DE CONVOCATORIAS DE PERSONAL (SCP)").FontSize(12).Bold().FontColor(Colors.Blue.Darken3);
-                        column.Item().Text("CUADRO CONSOLIDADO DE MÉRITOS - RESULTADOS FINALES").FontSize(10).Bold().FontColor(Colors.Grey.Darken2);
-                        column.Item().PaddingTop(4).LineHorizontal(0.8f).LineColor(Colors.Grey.Lighten1);
-                        column.Item().PaddingTop(6).Table(table =>
+                        column.Item().Text("SISTEMA DE CONVOCATORIAS DE PERSONAL (SCP)").FontSize(11).Bold().FontColor(Colors.Blue.Darken3);
+                        column.Item().Text("CUADRO CONSOLIDADO DE MÉRITOS - RESULTADOS FINALES").FontSize(9.5f).Bold().FontColor(Colors.Grey.Darken2);
+                        column.Item().PaddingTop(3).LineHorizontal(0.8f).LineColor(Colors.Grey.Lighten1);
+                        column.Item().PaddingTop(4).Table(table =>
                         {
-                            table.ColumnsDefinition(cd => { cd.ConstantColumn(90); cd.RelativeColumn(); });
+                            table.ColumnsDefinition(cd => { cd.ConstantColumn(85); cd.RelativeColumn(); });
                             table.Cell().Text("Convocatoria:").Bold(); table.Cell().Text(codigoConvocatoria);
                             table.Cell().Text("Puesto CAS:").Bold(); table.Cell().Text(nombrePuesto);
                         });
-                        column.Item().PaddingTop(10);
+                        column.Item().PaddingTop(6);
                     });
 
+                    // TABLA MATRIZ CON BONIFICACIONES
                     page.Content().Table(table =>
                     {
                         table.ColumnsDefinition(cd =>
                         {
-                            cd.ConstantColumn(25);  // N°
-                            cd.ConstantColumn(80);  // Expediente
+                            cd.ConstantColumn(20);  // N°
+                            cd.ConstantColumn(75);  // Expediente
                             cd.RelativeColumn();    // Postulante
-                            cd.ConstantColumn(40);  // F1
-                            cd.ConstantColumn(40);  // F2 Nota
-                            cd.ConstantColumn(40);  // F2 Pond (40%)
-                            cd.ConstantColumn(40);  // F3 Total
-                            cd.ConstantColumn(40);  // F3 Pond (30%)
-                            cd.ConstantColumn(40);  // F4 Nota
-                            cd.ConstantColumn(40);  // F4 Pond (30%)
-                            cd.ConstantColumn(45);  // Final (100)
-                            cd.ConstantColumn(80);  // Situación
+                            cd.ConstantColumn(30);  // F1 (Exp)
+                            cd.ConstantColumn(32);  // EC (40%)
+                            cd.ConstantColumn(32);  // CV (30%)
+                            cd.ConstantColumn(32);  // ET (30%)
+                            cd.ConstantColumn(40);  // Ptje. Base
+                            cd.ConstantColumn(38);  // Bonif. CONADIS
+                            cd.ConstantColumn(38);  // Bonif. FFAA
+                            cd.ConstantColumn(38);  // Bonif. DECAN
+                            cd.ConstantColumn(42);  // Prom. Final
+                            cd.ConstantColumn(75);  // Situación
                         });
 
                         table.Header(h =>
                         {
-                            h.Cell().Background(Colors.Grey.Lighten3).Padding(4).Text("N°").Bold();
-                            h.Cell().Background(Colors.Grey.Lighten3).Padding(4).Text("Expediente").Bold();
-                            h.Cell().Background(Colors.Grey.Lighten3).Padding(4).Text("Apellidos y Nombres").Bold();
-                            h.Cell().Background(Colors.Grey.Lighten3).Padding(4).Text("F1").Bold().AlignCenter();
-                            h.Cell().Background(Colors.Grey.Lighten3).Padding(4).Text("EC").Bold().AlignCenter();
-                            h.Cell().Background(Colors.Grey.Lighten3).Padding(4).Text("EC (40%)").Bold().AlignCenter();
-                            h.Cell().Background(Colors.Grey.Lighten3).Padding(4).Text("CV").Bold().AlignCenter();
-                            h.Cell().Background(Colors.Grey.Lighten3).Padding(4).Text("CV (30%)").Bold().AlignCenter();
-                            h.Cell().Background(Colors.Grey.Lighten3).Padding(4).Text("ET").Bold().AlignCenter();
-                            h.Cell().Background(Colors.Grey.Lighten3).Padding(4).Text("ET (30%)").Bold().AlignCenter();
-                            h.Cell().Background(Colors.Grey.Lighten3).Padding(4).Text("Total").Bold().AlignCenter();
-                            h.Cell().Background(Colors.Grey.Lighten3).Padding(4).Text("Situación").Bold();
+                            h.Cell().Background(Colors.Grey.Darken3).Padding(3).Text("N°").Bold().FontColor(Colors.White).AlignCenter();
+                            h.Cell().Background(Colors.Grey.Darken3).Padding(3).Text("Expediente").Bold().FontColor(Colors.White);
+                            h.Cell().Background(Colors.Grey.Darken3).Padding(3).Text("Apellidos y Nombres").Bold().FontColor(Colors.White);
+                            h.Cell().Background(Colors.Grey.Darken3).Padding(3).Text("EXP").Bold().FontColor(Colors.White).AlignCenter();
+                            h.Cell().Background(Colors.Grey.Darken3).Padding(3).Text("EC").Bold().FontColor(Colors.White).AlignCenter();
+                            h.Cell().Background(Colors.Grey.Darken3).Padding(3).Text("CV").Bold().FontColor(Colors.White).AlignCenter();
+                            h.Cell().Background(Colors.Grey.Darken3).Padding(3).Text("ET").Bold().FontColor(Colors.White).AlignCenter();
+                            h.Cell().Background(Colors.Grey.Darken2).Padding(3).Text("P. Base").Bold().FontColor(Colors.White).AlignCenter();
+
+                            // Columnas de Bonificación
+                            h.Cell().Background(Colors.Amber.Darken3).Padding(3).Text("CONADIS").Bold().FontColor(Colors.White).AlignCenter();
+                            h.Cell().Background(Colors.Amber.Darken3).Padding(3).Text("FF.AA.").Bold().FontColor(Colors.White).AlignCenter();
+                            h.Cell().Background(Colors.Amber.Darken3).Padding(3).Text("DECAN").Bold().FontColor(Colors.White).AlignCenter();
+
+                            h.Cell().Background(Colors.Blue.Darken4).Padding(3).Text("Final").Bold().FontColor(Colors.White).AlignCenter();
+                            h.Cell().Background(Colors.Grey.Darken3).Padding(3).Text("Situación").Bold().FontColor(Colors.White);
                         });
 
                         int contador = 1;
                         foreach (var p in candidatos)
                         {
-                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).Text(contador.ToString());
-                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).Text(p.CodigoPostulacionUnid);
-                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).Text(p.PostulanteNombre).Bold();
+                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).AlignCenter().Text(contador.ToString());
+                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text(p.CodigoPostulacionUnid);
+                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text(p.PostulanteNombre).Bold();
 
-                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).AlignCenter().Text(p.FaseExpedientesAprobado == true ? "APTO" : "NO APTO");
-                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).AlignCenter().Text(p.NotaConocimientos?.ToString("F2") ?? "---");
-                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).AlignCenter().Text(p.PtjePonderadoConocimientos?.ToString("F2") ?? "---");
-                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).AlignCenter().Text(p.NotaCurricularFinal?.ToString("F2") ?? "---");
-                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).AlignCenter().Text(p.PtjePonderadoCurricular?.ToString("F2") ?? "---");
-                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).AlignCenter().Text(p.NotaEntrevista?.ToString("F2") ?? "---");
-                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).AlignCenter().Text(p.PtjePonderadoEntrevista?.ToString("F2") ?? "---");
+                            // Fases eliminatorias
+                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).AlignCenter().Text(p.FaseExpedientesAprobado == true ? "APTO" : "NO APTO");
+                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).AlignCenter().Text(p.PtjePonderadoConocimientos?.ToString("F2") ?? "---");
+                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).AlignCenter().Text(p.PtjePonderadoCurricular?.ToString("F2") ?? "---");
+                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).AlignCenter().Text(p.PtjePonderadoEntrevista?.ToString("F2") ?? "---");
 
-                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).AlignCenter().Text(p.NotaFinalAcumulada?.ToString("F2") ?? "---").Bold();
-                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(4).Text(p.SituacionFinalDesc).Bold();
+                            // Puntaje Base acumulado
+                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).AlignCenter().Text(p.PtjeBaseAcumulado.ToString("F2")).Bold();
+
+                            // Bonificaciones
+                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).AlignCenter().Text(p.PtjeBonifConadis > 0 ? $"+{p.PtjeBonifConadis:F2}" : "---");
+                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).AlignCenter().Text(p.PtjeBonifFFAA > 0 ? $"+{p.PtjeBonifFFAA:F2}" : "---");
+                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).AlignCenter().Text(p.PtjeBonifDecan > 0 ? $"+{p.PtjeBonifDecan:F2}" : "---");
+
+                            // Nota Final y Estado
+                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).AlignCenter().Text(p.NotaFinalAcumulada?.ToString("F2") ?? "---").Bold();
+                            table.Cell().BorderBottom(0.5f).BorderColor(Colors.Grey.Lighten2).Padding(3).Text(p.SituacionFinalDesc).Bold();
 
                             contador++;
                         }
+                    });
+
+                    // PIE DE PÁGINA CON FECHA Y PAGINACIÓN
+                    page.Footer().Row(row =>
+                    {
+                        row.RelativeItem().Text($"Fecha de emisión: {DateTime.Now:dd/MM/yyyy HH:mm}").FontSize(7).FontColor(Colors.Grey.Darken1);
+                        row.RelativeItem().AlignRight().Text(x =>
+                        {
+                            x.Span("Página ").FontSize(7);
+                            x.CurrentPageNumber().FontSize(7);
+                            x.Span(" de ").FontSize(7);
+                            x.TotalPages().FontSize(7);
+                        });
                     });
                 });
             }).GeneratePdf();
@@ -626,6 +653,125 @@ namespace Infrastructure.Services
             dto.DistribucionEstados = (await multi.ReadAsync<DistribucionEstadosDto>()).ToList();
 
             return dto;
+        }
+
+        public async Task<bool> DeclararPlazaDesiertaAsync(int idPlaza, int idMotivoDesiertaCat, string sustentoDesierta, string usuarioDeclara)
+        {
+            using IDbConnection connection = _dbConnectionFactory.CreateConnection();
+
+            var parametros = new
+            {
+                IdPlaza = idPlaza,
+                IdMotivoDesiertaCat = idMotivoDesiertaCat,
+                SustentoDesierta = sustentoDesierta,
+                UsuarioDeclara = usuarioDeclara
+            };
+
+            // Leemos el resultado (1 = Exito, 0 = Fallo)
+            var resultado = await connection.QueryFirstOrDefaultAsync<int>(
+                "sp_Comite_DeclararPlazaDesierta",
+                parametros,
+                commandType: CommandType.StoredProcedure
+            );
+
+            return resultado == 1;
+        }
+
+        public async Task<byte[]> ObtenerActaDesiertaPdfAsync(int idPlaza)
+        {
+            using IDbConnection connection = _dbConnectionFactory.CreateConnection();
+
+            // 🚀 1. Leemos los datos de la plaza y la observación registrada al declarar desierta
+            var infoPlaza = await connection.QueryFirstOrDefaultAsync<dynamic>(
+                @"SELECT TOP 1 
+            p.codigo_postulacion_unid AS CodigoConvocatoria,
+            p.observaciones_comite AS Observaciones,
+            pos.nombres AS NombrePuesto -- O el campo de puesto correspondiente
+          FROM sc_postulacion p
+          INNER JOIN sc_postulante pos ON p.id_postulante = pos.id_postulante
+          WHERE p.id_plaza = @IdPlaza AND p.activo = 1",
+                new { IdPlaza = idPlaza }
+            );
+
+            string codigoConvocatoria = infoPlaza?.CodigoConvocatoria ?? $"PLAZA-{idPlaza}";
+            string nombrePuesto = infoPlaza?.NombrePuesto ?? "PUESTO CAS";
+            string observacionesText = infoPlaza?.Observaciones ?? "DECLARADO DESIERTO POR EL COMITÉ EVALUADOR";
+
+            // 🚀 2. Construimos el documento PDF con QuestPDF
+            var pdfBytes = Document.Create(container =>
+            {
+                container.Page(page =>
+                {
+                    page.Size(PageSizes.A4);
+                    page.Margin(1.8f, Unit.Centimetre);
+                    page.PageColor(Colors.White);
+                    page.DefaultTextStyle(x => x.FontSize(9.5f).FontFamily("Arial"));
+
+                    page.Header().Column(column =>
+                    {
+                        column.Item().Text("SISTEMA DE CONVOCATORIAS DE PERSONAL (SCP)").FontSize(11).Bold().FontColor(Colors.Blue.Darken3).AlignCenter();
+                        column.Item().Text("COMITÉ EVALUADOR DE SELECCIÓN DE PERSONAL").FontSize(9.5f).Bold().FontColor(Colors.Grey.Darken2).AlignCenter();
+                        column.Item().PaddingTop(6).LineHorizontal(0.8f).LineColor(Colors.Grey.Darken1);
+                    });
+
+                    page.Content().PaddingTop(12).Column(col =>
+                    {
+                        col.Item().Text("ACTA DE DECLARACIÓN DE PLAZA DESIERTA").FontSize(13).Bold().FontColor(Colors.Red.Darken3).AlignCenter();
+
+                        col.Item().PaddingTop(12).Text($"En la ciudad de Lima, a los {DateTime.Now:dd} días del mes de {DateTime.Now:MMMM} del año {DateTime.Now:yyyy}, el Comité Evaluador asignado a la conducción del proceso de selección de personal, da fe de lo siguiente:").Justify();
+
+                        col.Item().PaddingTop(12).Background(Colors.Grey.Lighten4).Padding(8).Column(info =>
+                        {
+                            info.Item().Text($"• Convocatoria / Código: {codigoConvocatoria}").Bold();
+                            info.Item().Text($"• ID de Plaza Evaluada: {idPlaza}").Bold();
+                            info.Item().Text($"• Fecha de Cierre Oficial: {DateTime.Now:dd/MM/yyyy HH:mm} horas").Bold();
+                        });
+
+                        col.Item().PaddingTop(12).Text("I. ANTECEDENTES Y CONSIDERANDOS").Bold().FontSize(10.5f);
+                        col.Item().PaddingTop(4).Text("Habiéndose culminado las etapas evaluativas correspondientes al cronograma oficial establecido en las bases del proceso, y tras la revisión del cuadro consolidado de méritos, se verificó que no se cuenta con postulantes aptos en condición de ganador para la cobertura de la vacante.").Justify();
+
+                        col.Item().PaddingTop(12).Text("II. DETERMINACIÓN DEL COMITÉ").Bold().FontSize(10.5f);
+                        col.Item().PaddingTop(4).Text("Por intermedio del presente acto, el Comité Evaluador acuerda declarar la plaza en condición de DESIERTA en atención al siguiente registro oficial:").Justify();
+
+                        col.Item().PaddingTop(8).Border(1).BorderColor(Colors.Grey.Darken1).Padding(8).Column(motivoBox =>
+                        {
+                            motivoBox.Item().Text("ACUERDO DEL COMITÉ EVALUADOR:").Bold().FontColor(Colors.Red.Darken2);
+                            motivoBox.Item().PaddingTop(4).Text(observacionesText).Italic();
+                        });
+
+                        col.Item().PaddingTop(12).Text("En fe de lo cual, los miembros del Comité Evaluador firman el presente documento para su incorporación al expediente administrativo y posterior publicación.").Justify();
+
+                        // SECCIÓN DE FIRMAS
+                        col.Item().PaddingTop(50).Row(row =>
+                        {
+                            row.RelativeItem().Column(f1 =>
+                            {
+                                f1.Item().LineHorizontal(0.8f).LineColor(Colors.Grey.Darken2);
+                                f1.Item().PaddingTop(3).Text("PRESIDENTE DEL COMITÉ").Bold().AlignCenter();
+                                f1.Item().Text("Comité Evaluador").FontSize(8).AlignCenter();
+                            });
+                            row.ConstantItem(25);
+                            row.RelativeItem().Column(f2 =>
+                            {
+                                f2.Item().LineHorizontal(0.8f).LineColor(Colors.Grey.Darken2);
+                                f2.Item().PaddingTop(3).Text("SECRETARIO TÉCNICO").Bold().AlignCenter();
+                                f2.Item().Text("Comité Evaluador").FontSize(8).AlignCenter();
+                            });
+                            row.ConstantItem(25);
+                            row.RelativeItem().Column(f3 =>
+                            {
+                                f3.Item().LineHorizontal(0.8f).LineColor(Colors.Grey.Darken2);
+                                f3.Item().PaddingTop(3).Text("INTEGRANTE ÁREA USUARIA").Bold().AlignCenter();
+                                f3.Item().Text("Comité Evaluador").FontSize(8).AlignCenter();
+                            });
+                        });
+                    });
+
+                    page.Footer().AlignRight().Text($"Página 1 de 1 - Generado el {DateTime.Now:dd/MM/yyyy HH:mm}").FontSize(7.5f).FontColor(Colors.Grey.Darken1);
+                });
+            }).GeneratePdf();
+
+            return pdfBytes;
         }
     }
 }

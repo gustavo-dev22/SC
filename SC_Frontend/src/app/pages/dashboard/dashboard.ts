@@ -40,7 +40,6 @@ export class Dashboard implements OnInit {
 
   ngOnInit(): void {
     const profile = JSON.parse(sessionStorage.getItem('user_profile') || '{}');
-    console.log('Profile from sessionStorage:', profile);
     this.nombreUsuario.set(profile.nombreCompleto || 'Usuario');
     this.userRol.set(profile.rol || 'POSTULANTE');
     

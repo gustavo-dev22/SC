@@ -8,7 +8,7 @@ using MediatR;
 namespace Application.Postulantes.Commands
 {
     public record MantenimientoRequisitoEspecialCommand(
-        string Accion, int IdRequisitoEspecial, int IdPostulante, int IdTipoRequisitoCat,
+        string Accion, int IdRequisitoEspecial, int IdPostulante, int IdTipoRequisitoCat, int? IdCatalogoNivelDecanCat,
         string DescripcionDocumento, string NumeroRegistro, DateTime? FechaEmision, DateTime? FechaVencimiento
     ) : IRequest<bool>;
 }

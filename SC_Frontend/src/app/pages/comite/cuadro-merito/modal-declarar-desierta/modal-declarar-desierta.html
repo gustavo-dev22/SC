@@ -1,0 +1,32 @@
+<h2 mat-dialog-title style="color: #b91c1c; display: flex; align-items: center; gap: 8px;">
+      <mat-icon color="warn">warning</mat-icon>
+      <span>Declarar Plaza / Convocatoria Desierta</span>
+    </h2>
+
+    <mat-dialog-content [formGroup]="desiertaForm" style="padding-top: 8px;">
+      <p style="font-size: 13px; color: #64748b; margin-bottom: 16px;">
+        Esta acción marcará el concurso de la plaza <strong>#{{ data.codigoConvocatoria }}</strong> como desierto.
+      </p>
+
+      <mat-form-field appearance="outline" style="width: 100%;">
+        <mat-label>Motivo Oficial de Deserción</mat-label>
+        <mat-select formControlName="idMotivoDesiertaCat">
+          <mat-option [value]="null">-- Seleccione el Motivo --</mat-option>
+          @for (motivo of listaMotivos(); track motivo.idValor) {
+            <mat-option [value]="motivo.idValor">{{ motivo.descripcion }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" style="width: 100%; margin-top: 8px;">
+        <mat-label>Sustento Técnico u Observación del Comité</mat-label>
+        <textarea matInput formControlName="sustentoDesierta" rows="4" placeholder="Ingrese el sustento o número de acuerdo del comité..."></textarea>
+      </mat-form-field>
+    </mat-dialog-content>
+
+    <mat-dialog-actions align="end">
+      <button mat-button (click)="cancelar()">Cancelar</button>
+      <button mat-flat-button color="warn" [disabled]="desiertaForm.invalid" (click)="guardar()">
+        <mat-icon>gavel</mat-icon> Confirmar Deserción
+      </button>
+    </mat-dialog-actions>
